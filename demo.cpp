@@ -20,8 +20,8 @@ int main() {
 	_poly_0.add(CvPoint(395, 14));
 	_poly_0.add(CvPoint(58, 37));
 
-	_poly_1.add(CvPoint(14, 357));
-	_poly_1.add(CvPoint(234, 136));
+	_poly_1.add(CvPoint(17, 173));
+	_poly_1.add(CvPoint(293, 136));
 	_poly_1.add(CvPoint(198, 35));
 	_poly_1.add(CvPoint(43, 25));
 
@@ -29,6 +29,7 @@ int main() {
 	clock_t tic_2 = clock();
 	float iou_output = FastIOU(_poly_0, _poly_1, _inter);
 	clock_t toc_2 = clock();
-	std::cout << "total consuming: " << toc_2 - tic_2 << "ms IOU: " << iou_output
-						<< std::endl;
+	std::cout << "total consuming: "
+						<< (double)(toc_2 - tic_2) * 1000.0 / CLOCKS_PER_SEC
+						<< "ms IOU: " << iou_output << std::endl;
 }

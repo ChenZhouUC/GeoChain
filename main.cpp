@@ -81,8 +81,8 @@ int main() {
 
 	Quadrangle alpha = Quadrangle(CoordPair(13, 245), CoordPair(216, 409),
 																CoordPair(395, 14), CoordPair(58, 37), "alpha");
-	Quadrangle beta = Quadrangle(CoordPair(14, 357), CoordPair(234, 136),
-															 CoordPair(198, 35), CoordPair(43, 25), "beta");
+	Quadrangle beta = Quadrangle(CoordPair(16, 248), CoordPair(219, 412),
+															 CoordPair(398, 16), CoordPair(60, 39), "beta");
 	segments.insert(segments.end(), alpha.edge_clkws_.begin(),
 									alpha.edge_clkws_.end());
 	segments.insert(segments.end(), beta.edge_clkws_.begin(),
@@ -93,7 +93,9 @@ int main() {
 	clock_t toc_1 = clock();
 	std::cout << "============== SweepLine Intersection =============="
 						<< std::endl;
-	std::cout << "total consuming: " << toc_1 - tic_1 << std::endl;
+	std::cout << "total consuming: "
+						<< (double)(toc_1 - tic_1) * 1000.0 / CLOCKS_PER_SEC << "ms"
+						<< std::endl;
 	std::cout << "Intersection points[" << intersections.size()
 						<< "]: " << std::endl;
 	for (std::vector<Point>::iterator it = intersections.begin();
@@ -128,7 +130,8 @@ int main() {
 	clock_t tic_2 = clock();
 	std::vector<float> iou_output = FastIOU(_poly_0, _poly_1, _inter);
 	clock_t toc_2 = clock();
-	std::cout << "total consuming: " << toc_2 - tic_2
+	std::cout << "total consuming: "
+						<< (double)(toc_2 - tic_2) * 1000.0 / CLOCKS_PER_SEC
 						<< "ms IOU: " << iou_output[0] << std::endl;
 	// for (int i = 0; i < _inter.size(); i++) {
 	// 	std::cout << _inter[i].x << " , " << _inter[i].y << std::endl;
@@ -139,7 +142,8 @@ int main() {
 	std::vector<float> iou_traverse_output =
 			PixelTraverseIOU(_poly_0.pt, _poly_0.n, _poly_1.pt, _poly_1.n);
 	clock_t toc_3 = clock();
-	std::cout << "total consuming: " << toc_3 - tic_3
+	std::cout << "total consuming: "
+						<< (double)(toc_3 - tic_3) * 1000.0 / CLOCKS_PER_SEC
 						<< "ms IOU: " << iou_traverse_output[0] << std::endl;
 
 #define SHOW_RESULT
@@ -152,12 +156,13 @@ int main() {
 		p1.x = int(alpha.point_clkws_[(i + 1) % alpha.point_clkws_.size()].x);
 		p1.y = int(alpha.point_clkws_[(i + 1) % alpha.point_clkws_.size()].y);
 		cv::line(background, p0, p1, cv::Scalar(0, 255, 0), 2);
-		char c[20];
-		sprintf(c, "%.0f", iou_output[1]);
-		std::string s(c);
-		cv::putText(background, s, cv::Point(0, 450), cv::FONT_HERSHEY_COMPLEX, 1,
-								cv::Scalar(0, 255, 0), 2);
 	}
+	char c1[20];
+	sprintf(c1, "%.0f", iou_output[1]);
+	std::string s1(c1);
+	cv::putText(background, "G_Area:" + s1, cv::Point(10, 445),
+							cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(0, 255, 0), 2);
+
 	for (int i = 0; i < beta.point_clkws_.size(); i++) {
 		cv::Point p0, p1;
 		p0.x = int(beta.point_clkws_[i].x);
@@ -165,20 +170,28 @@ int main() {
 		p1.x = int(beta.point_clkws_[(i + 1) % beta.point_clkws_.size()].x);
 		p1.y = int(beta.point_clkws_[(i + 1) % beta.point_clkws_.size()].y);
 		cv::line(background, p0, p1, cv::Scalar(0, 0, 255), 2);
-		char c[20];
-		sprintf(c, "%.0f", iou_output[2]);
-		std::string s(c);
-		cv::putText(background, s, cv::Point(0, 475), cv::FONT_HERSHEY_COMPLEX, 1,
-								cv::Scalar(0, 0, 255), 2);
 	}
+	char c2[20];
+	sprintf(c2, "%.0f", iou_output[2]);
+	std::string s2(c2);
+	cv::putText(background, "R_Area:" + s2, cv::Point(10, 470),
+							cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(0, 0, 255), 2);
+
 	for (int i = 0; i < _inter.n; i++) {
 		cv::circle(background, _inter[i], 3, cv::Scalar(0, 255, 255), 3);
-		char c[20];
-		sprintf(c, "%.0f", iou_output[3]);
-		std::string s(c);
-		cv::putText(background, s, cv::Point(0, 500), cv::FONT_HERSHEY_COMPLEX, 1,
-								cv::Scalar(0, 255, 255), 2);
 	}
+	char c3[20];
+	sprintf(c3, "%.0f", iou_output[3]);
+	std::string s3(c3);
+	cv::putText(background, "Y_Area:" + s3, cv::Point(10, 495),
+							cv::FONT_HERSHEY_PLAIN, 1.5, cv::Scalar(0, 255, 255), 2);
+
+	char c4[20];
+	sprintf(c4, "%.2f", iou_output[0]);
+	std::string s4(c4);
+	cv::putText(background, "IOU:" + s4, cv::Point(350, 490),
+							cv::FONT_HERSHEY_COMPLEX, 1, cv::Scalar(255, 255, 255), 2);
+
 	cv::imwrite("PolygonShow.png", background);
 	cv::waitKey(0);
 #endif
