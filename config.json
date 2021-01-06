@@ -1,0 +1,52 @@
+{
+    "DEVICE": {
+        "SN_FILE": "sn",
+        "CAMERA_SN_FILE": "camera_sn"
+    },
+    "CALIB": {
+        "STD_FILE": "config/position_STD.json",
+        "STD_IMG": "config/raw_STD.png",
+        "CALIB_FILE": "config/position_CALIB.json",
+        "CALIB_IMG": "config/raw_CALIB.png",
+        "SIZE_KEY": "size",
+        "POS_KEY": "positions",
+        "PERIODIC": 100,
+        "PERIODIC_MAX": 30000,
+        "KPT_NUM": 8
+    },
+    "ALGO": {
+        "VIDEO_INPUT": "/home/chenzhou/Pictures/Webcam/2020-09-01-115149.webm",
+        "SIZE_W": 320,
+        "SIZE_H": 240,
+        "SIFT_KP_NUM": 300,
+        "MATCH_DIST_GAP": 0.25,
+        "BGHIST": 200,
+        "BGTHRESH2": 3600.0,
+        "BGSHADOW": true,
+        "MEDIAN_BLUR": 5,
+        "MORPH_SIZE": 3,
+        "DILATE_SIZE": 7,
+        "MVMNT_THRESH": 0.0000001,
+        "VIEW_ROTATION": 1,
+        "MOTION_THRESH": 0.005,
+        "HIP_ORIENTATION_TOP": false,
+        "HIP_SCORE_MAX": 4,
+        "HIP_ACTIVATE_SCORE": 2,
+        "HIP_TOL_RATIO": 1,
+        "VIBE_NSAMPLE": 20,
+        "VIBE_MINMATCH": 2,
+        "VIBE_RADIUS": 50,
+        "VIBE_UPDATE_BG": 4,
+        "VIBE_UPDATE_FG": 4,
+        "VIBE_GHOST_MAX": 100,
+        "VIBE_GHOST_ACTIVE": 50,
+        "VIBE_GRAY": false,
+        "AMPLIFIED_MVMNT": 10.0
+    },
+    "DEMO": {
+        "SHOW": true,
+        "DISPLAY": true,
+        "DISPLAY_SIZE_W": 1000,
+        "DISPLAY_SIZE_H": 800
+    }
+}
