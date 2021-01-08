@@ -74,13 +74,13 @@ LINK_DIRECTORIES(
 # SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib)
 
 # define executable file
-ADD_EXECUTABLE(demo main.cpp ${SOURCE_FILES})
+ADD_EXECUTABLE(geochain main.cpp ${SOURCE_FILES})
 
 # link libs required
-TARGET_LINK_LIBRARIES(demo ${OpenCV_LIBS} ${CURL_LIBRARY} jsoncpp_lib glog)
+TARGET_LINK_LIBRARIES(geochain ${OpenCV_LIBS} ${CURL_LIBRARY} jsoncpp_lib glog)
 
 SET_TARGET_PROPERTIES(
-    demo
+    geochain
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/lib

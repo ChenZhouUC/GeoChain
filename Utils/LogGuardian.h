@@ -29,7 +29,7 @@ class LogGuardian {
 		FLAGS_max_log_size = 100;	// MB
 		FLAGS_stop_logging_if_full_disk = true;
 
-		FLAGS_log_dir = "./Log/";
+		FLAGS_log_dir = "./logs/";
 		std::string mkdir_command = "mkdir -p " + FLAGS_log_dir;
 		system(mkdir_command.c_str());
 
