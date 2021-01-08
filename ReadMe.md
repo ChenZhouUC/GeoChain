@@ -11,7 +11,7 @@
 <div align=center>
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/Elements.png" alt="elements" width="600" height="190" align="center"/>
 </div>
-In the scope of GeoChain, the degree of freedom (DOF) of each geometric element stands for the **minimum meaningful dimension** which is necessary for description and parameterization in the designated Euclidean Space. In order to distinguish DOF from parameter DOF (ParDOF), please pay strong attention to the below inequality,
+In the scope of GeoChain, the degree of freedom (DOF) of each geometric element stands for the minimum meaningful dimension which is necessary for description and parameterization in the designated Euclidean Space. In order to distinguish DOF from parameter DOF (ParDOF), please pay strong attention to the below inequality,
 <div align=center>
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/DOF.gif" alt="DOF" align="center"/>
 </div>
