@@ -8,8 +8,7 @@
 namespace GeoChain {
 namespace Utils {
 
-bool ReadJsonFile(std::string &jsonFileName, Json::Value &root_group,
-									bool collCommOpt = false) {
+bool ReadJsonFile(const std::string &jsonFileName, Json::Value &root_group, bool collCommOpt = false) {
 	Json::CharReaderBuilder rbuilder;
 	rbuilder["collectComments"] = collCommOpt;
 	JSONCPP_STRING errs;
@@ -42,7 +41,7 @@ bool ReadJsonFile(std::string &jsonFileName, Json::Value &root_group,
 	return true;
 }
 
-bool WriteJsonFile(std::string &jsonFileName, Json::Value &root_group) {
+bool WriteJsonFile(const std::string &jsonFileName, Json::Value &root_group) {
 	std::fstream f;
 	f.open(jsonFileName, std::ios::out);
 	if (!f.is_open()) {
@@ -55,28 +54,30 @@ bool WriteJsonFile(std::string &jsonFileName, Json::Value &root_group) {
 	return true;
 }
 
-void LoadStringLikeKV(Json::Value &root_group, std::string &level_1,
-											std::string &level_2, std::string &returnData,
-											DataType returnType = STR) {
+void LoadStringLikeKV(const Json::Value &root_group, std::string &level_1, std::string &level_2,
+											std::string &returnData, kDataType returnType = STR) {
 	returnData = root_group[level_1][level_2].asString();
 }
 
-void LoadStringLikeKV(Json::Value &root_group, std::string &level_1,
-											std::string &level_2, float &returnData,
-											DataType returnType = FLT) {
+void LoadStringLikeKV(const Json::Value &root_group, std::string &level_1, std::string &level_2, float &returnData,
+											kDataType returnType = FLT) {
 	returnData = root_group[level_1][level_2].asFloat();
 }
 
-void LoadStringLikeKV(Json::Value &root_group, std::string &level_1,
-											std::string &level_2, int &returnData,
-											DataType returnType = INT) {
+void LoadStringLikeKV(const Json::Value &root_group, std::string &level_1, std::string &level_2, int &returnData,
+											kDataType returnType = INT) {
 	returnData = root_group[level_1][level_2].asInt();
 }
 
-void LoadStringLikeKV(Json::Value &root_group, std::string &level_1,
-											std::string &level_2, bool &returnData,
-											DataType returnType = BOL) {
+void LoadStringLikeKV(const Json::Value &root_group, std::string &level_1, std::string &level_2, bool &returnData,
+											kDataType returnType = BOL) {
 	returnData = root_group[level_1][level_2].asBool();
+}
+
+void LoadingConfig(const Json::Value &root_config) {
+	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_name, g_GlobalVars.project_name);
+	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_desc, g_GlobalVars.project_desc);
+	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_patent, g_GlobalVars.project_patent);
 }
 
 bool IsNum(std::string s) {
@@ -91,19 +92,10 @@ bool IsNum(std::string s) {
 }
 
 void DefineGlobalKeys() {
-	globalKeys.project_key = "PROJECT";
-	globalKeys.key_name = "NAME";
-	globalKeys.key_desc = "DESC";
-	globalKeys.key_patent = "PATENT";
-}
-
-void LoadingConfig(Json::Value &root_config) {
-	LoadStringLikeKV(root_config, globalKeys.project_key, globalKeys.key_name,
-									 globalVars.project_name);
-	LoadStringLikeKV(root_config, globalKeys.project_key, globalKeys.key_desc,
-									 globalVars.project_desc);
-	LoadStringLikeKV(root_config, globalKeys.project_key, globalKeys.key_patent,
-									 globalVars.project_patent);
+	g_GlobalKeys.project_key = "PROJECT";
+	g_GlobalKeys.key_name = "NAME";
+	g_GlobalKeys.key_desc = "DESC";
+	g_GlobalKeys.key_patent = "PATENT";
 }
 
 }	// namespace Utils

@@ -30,8 +30,7 @@ class Point {
 	Point(Dimension dim) : dim(dim){};
 	Point(Dimension dim, float x) : dim(dim), x(x){};
 	Point(Dimension dim, float x, float y) : dim(dim), x(x), y(y){};
-	Point(Dimension dim, float x, float y, float z)
-			: dim(dim), x(x), y(y), z(z){};
+	Point(Dimension dim, float x, float y, float z) : dim(dim), x(x), y(y), z(z){};
 	~Point(void){};
 };
 

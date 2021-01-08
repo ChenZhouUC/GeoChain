@@ -22,12 +22,12 @@ struct GlobalKey {
 	std::string key_patent;
 };
 
-enum DataType { STR, FLT, INT, BOL };
+enum kDataType { STR, FLT, INT, BOL };
 
 }	// namespace Utils
 }	// namespace GeoChain
 
-extern GeoChain::Utils::GlobalVar globalVars;
-extern GeoChain::Utils::GlobalKey globalKeys;
+extern GeoChain::Utils::GlobalVar g_GlobalVars;
+extern GeoChain::Utils::GlobalKey g_GlobalKeys;
 
 #endif
