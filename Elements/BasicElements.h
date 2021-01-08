@@ -88,9 +88,9 @@ class Line {
 	float a, b, c, d, e, f, g, h;
 
 	// descriptive coordinates
-	// radian system: [0, 2·PI)
-	//              theta: X-Y
-	//              phi: [X-Y]-Z
+	// radian system: [-PI, PI)
+	//              theta: X-Y ——> [-PI, PI)
+	//              phi: [X-Y]-Z ——> [-PI/2, PI/2]
 	Point center;
 	float theta, phi;
 
@@ -149,8 +149,8 @@ class Line {
 			status = INIT;
 		} else {
 			if (point.status != MATR || point.dim != dim ||
-					(dim == 2 && (theta < 0 || theta >= M_PI) ||
-					 (dim == 3 && (theta < 0 || theta >= 2 * M_PI) && (phi < 0 || phi > M_PI_2)))) {
+					(dim == 2 && (theta < -M_PI || theta >= M_PI) ||
+					 (dim == 3 && (theta < -M_PI || theta >= M_PI) && (phi < -M_PI_2 || phi > M_PI_2)))) {
 				LOG(ERROR) << "please make sure the defined descriptives | generatives effective with dim = " << dim;
 				status = INIT;
 			} else {
@@ -174,7 +174,7 @@ class Line {
 	// Describe: output all the effective member parameters
 	bool Describe() {
 		if (status == INIT) {
-			LOG(WARNING) << "this LIne instance is under initiation status!";
+			LOG(WARNING) << "this Line instance is under initiation status!";
 			return false;
 		} else {
 			LOG(INFO) << "Dim = " << dim << "\n" + g_GlobalVars.visualize_indent_content << "(a,b,c,d,e,f,g,h) = " << a << ","
@@ -221,9 +221,6 @@ class Line {
 							theta = M_PI_2;
 						} else {
 							theta = atanf32(-a / b);
-							if (theta < 0) {
-								theta += M_PI;
-							}
 						}
 					}
 					status = MATR;
@@ -232,11 +229,11 @@ class Line {
 					b = -cosf32(theta);
 					c = -(a * center.x + b * center.y);
 
-					if (theta == 0.0) {
+					if (theta == 0.0 || theta == -M_PI) {
 						intercept.x = 0.0;
 						intercept.y = center.y;
 						intercept.status = MATR;
-					} else if (theta == M_PI_2) {
+					} else if (theta == M_PI_2 || theta == -M_PI_2) {
 						intercept.x = center.x;
 						intercept.y = 0.0;
 						intercept.status = MATR;

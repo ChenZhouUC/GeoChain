@@ -1,5 +1,5 @@
 #include "Utils/ConfigLoader.h"
-#include "Elements/BasicElements.h"
+#include "Elements/ElementaryElements.h"
 
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
@@ -23,14 +23,20 @@ int main(int argc, char **argv) {
 
 	GeoChain::Euclidean::Point center(GeoChain::Euclidean::EUC2D, 0, 1);
 	float theta = M_PI_4;
-	GeoChain::Euclidean::Line line(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center, theta);
+	GeoChain::Euclidean::HalfLine line(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center, theta);
 
 	line.Describe();
-	LOG(INFO) << line.Maturate();
+	line.Maturate();
 	line.Describe();
+
+	GeoChain::Euclidean::HalfLine line1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center, -theta);
+
+	line1.Describe();
+	line1.Maturate();
+	line1.Describe();
 
 	GeoChain::Euclidean::Line line2(GeoChain::Euclidean::EUC2D, 1, 2, 3);
 	line2.Describe();
-	LOG(INFO) << line2.Maturate();
+	line2.Maturate();
 	line2.Describe();
 }
