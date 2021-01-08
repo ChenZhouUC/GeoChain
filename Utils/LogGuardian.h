@@ -2,7 +2,6 @@
 #define _LOGGUARDIAN_
 
 #include <glog/logging.h>
-#include <iostream>
 
 #define GOOGLE_GLOG_DLL_DECL
 #define GLOG_NO_ABBREVIATED_SEVERITIES
@@ -30,7 +29,7 @@ class LogGuardian {
 		FLAGS_max_log_size = 100;	// MB
 		FLAGS_stop_logging_if_full_disk = true;
 
-		FLAGS_log_dir = "./log/";
+		FLAGS_log_dir = "./Log/";
 		std::string mkdir_command = "mkdir -p " + FLAGS_log_dir;
 		system(mkdir_command.c_str());
 
