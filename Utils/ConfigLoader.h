@@ -8,6 +8,25 @@
 namespace GeoChain {
 namespace Utils {
 
+bool IsNum(std::string s) {
+	std::stringstream sin(s);
+	double t;
+	char p;
+	if (!(sin >> t)) return false;
+	if (sin >> p)
+		return false;
+	else
+		return true;
+}
+
+std::string GenDuplStr(const std::string unit_str, int num) {
+	std::string rst = "";
+	for (int i_ = 0; i_ < num; i_++) {
+		rst += unit_str;
+	}
+	return rst;
+}
+
 bool ReadJsonFile(const std::string &jsonFileName, Json::Value &root_group, bool collCommOpt = false) {
 	Json::CharReaderBuilder rbuilder;
 	rbuilder["collectComments"] = collCommOpt;
@@ -78,17 +97,9 @@ void LoadingConfig(const Json::Value &root_config) {
 	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_name, g_GlobalVars.project_name);
 	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_desc, g_GlobalVars.project_desc);
 	LoadStringLikeKV(root_config, g_GlobalKeys.project_key, g_GlobalKeys.key_patent, g_GlobalVars.project_patent);
-}
 
-bool IsNum(std::string s) {
-	std::stringstream sin(s);
-	double t;
-	char p;
-	if (!(sin >> t)) return false;
-	if (sin >> p)
-		return false;
-	else
-		return true;
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_indent, g_GlobalVars.visualize_indent);
+	g_GlobalVars.visualize_indent_content = GenDuplStr(" ", g_GlobalVars.visualize_indent);
 }
 
 void DefineGlobalKeys() {
@@ -96,6 +107,9 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.key_name = "NAME";
 	g_GlobalKeys.key_desc = "DESC";
 	g_GlobalKeys.key_patent = "PATENT";
+
+	g_GlobalKeys.visualize_key = "VISUALIZE";
+	g_GlobalKeys.key_indent = "INDENT";
 }
 
 }	// namespace Utils

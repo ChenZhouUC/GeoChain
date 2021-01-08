@@ -25,10 +25,12 @@ int main(int argc, char **argv) {
 	float theta = M_PI_4;
 	GeoChain::Euclidean::Line line(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center, theta);
 
-	LOG(INFO) << line.dim << " a=" << line.a << " b=" << line.b << " c=" << line.c << " theta=" << line.theta << line.c
-						<< " center=" << line.intercept.x << "," << line.intercept.y;
+	line.Describe();
+	LOG(INFO) << line.Maturate();
+	line.Describe();
 
-	line.Maturate();
-	LOG(INFO) << line.dim << " a=" << line.a << " b=" << line.b << " c=" << line.c << " theta=" << line.theta << line.c
-						<< " center=" << line.intercept.x << "," << line.intercept.y;
+	GeoChain::Euclidean::Line line2(GeoChain::Euclidean::EUC2D, 1, 2, 3);
+	line2.Describe();
+	LOG(INFO) << line2.Maturate();
+	line2.Describe();
 }

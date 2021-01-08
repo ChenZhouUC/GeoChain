@@ -3,5 +3,8 @@
         "NAME": "GeoChain",
         "DESC": "A Delicate CPP Package for Computational Geometry",
         "PATENT": "Chen Zhou: chenzhou@uchicago.edu"
+    },
+    "VISUALIZE": {
+        "INDENT": 50
     }
 }

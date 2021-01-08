@@ -1,7 +1,7 @@
 #include <limits>
 #include <math.h>
-#include <cmath>
 #include "LogGuardian.h"
+#include "Global.h"
 
 namespace GeoChain {
 namespace Euclidean {
@@ -104,6 +104,7 @@ class Line {
 	Line(kDimension dim) : dim(dim), center(Point(dim)), intercept(Point(dim)) {
 		if (dim < 1) {
 			LOG(ERROR) << "please make sure the dimension of class Line > 0. getting dim = " << dim;
+			status = INIT;
 		} else if (dim == 1) {
 			status = MATR;
 		} else {
@@ -113,13 +114,26 @@ class Line {
 	// parametric
 	Line(kDimension dim, float a, float b, float c, float d = 0, float e = 0, float f = 0, float g = 0, float h = 0,
 			 kMaturityStatus status = PARM)
-			: dim(dim), center(Point(dim)), intercept(Point(dim)), a(a), b(b), c(c), d(d), e(e), f(f), g(g), h(h) {
+			: dim(dim),
+				center(Point(dim)),
+				intercept(Point(dim)),
+				a(a),
+				b(b),
+				c(c),
+				d(d),
+				e(e),
+				f(f),
+				g(g),
+				h(h),
+				status(status) {
 		if (dim < 2) {
 			LOG(ERROR) << "please make sure the dimension matches the parameters. defined parametrics but dim = " << dim;
+			status = INIT;
 		} else {
 			if ((dim == 2 && a == 0 && b == 0) ||
 					(dim == 3 && ((a == 0 && b == 0 && c == 0) || (e == 0 && f == 0 && g == 0)))) {
 				LOG(ERROR) << "please make sure the defined parametrics effective with dim = " << dim;
+				status = INIT;
 			} else {
 				status = PARM;
 			}
@@ -132,11 +146,13 @@ class Line {
 			LOG(ERROR)
 					<< "please make sure the dimension matches the parameters. defined descriptives | generatives but dim = "
 					<< dim;
+			status = INIT;
 		} else {
 			if (point.status != MATR || point.dim != dim ||
 					(dim == 2 && (theta < 0 || theta >= M_PI) ||
 					 (dim == 3 && (theta < 0 || theta >= 2 * M_PI) && (phi < 0 || phi > M_PI_2)))) {
 				LOG(ERROR) << "please make sure the defined descriptives | generatives effective with dim = " << dim;
+				status = INIT;
 			} else {
 				if (status == DESC) {
 					// descriptive
@@ -155,6 +171,22 @@ class Line {
 
 	~Line(void){};
 
+	// Describe: output all the effective member parameters
+	bool Describe() {
+		if (status == INIT) {
+			LOG(WARNING) << "this LIne instance is under initiation status!";
+			return false;
+		} else {
+			LOG(INFO) << "Dim = " << dim << "\n" + g_GlobalVars.visualize_indent_content << "(a,b,c,d,e,f,g,h) = " << a << ","
+								<< b << "," << c << "," << d << "," << e << "," << f << "," << g << "," << h
+								<< "\n" + g_GlobalVars.visualize_indent_content << "(theta, phi) = " << theta << "," << phi
+								<< "\n" + g_GlobalVars.visualize_indent_content << "center = (" << center.x << "," << center.y << ")"
+								<< "\n" + g_GlobalVars.visualize_indent_content << "intercept = (" << intercept.x << "," << intercept.y
+								<< ")";
+			return true;
+		}
+	}
+	// Maturate: fulfill all the effective member parameters
 	bool Maturate() {
 		if (status == INIT) {
 			return false;
