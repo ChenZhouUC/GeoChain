@@ -59,6 +59,7 @@ INCLUDE_DIRECTORIES(
     /usr/local/include
     /usr/include
     ${OpenCV_INCLUDE_DIRS}
+    ${SOURCE_ROOT}/Arithmetics
     ${SOURCE_ROOT}/Elements
     ${SOURCE_ROOT}/Utils
 )

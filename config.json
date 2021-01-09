@@ -5,6 +5,7 @@
         "PATENT": "Chen Zhou: chenzhou@uchicago.edu"
     },
     "VISUALIZE": {
-        "INDENT": 50
+        "INDENT": 50,
+        "PRECISION": 3
     }
 }

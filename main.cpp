@@ -1,5 +1,6 @@
 #include "Utils/ConfigLoader.h"
 #include "Elements/ElementaryElements.h"
+#include "Arithmetics/BasicArithmetics.h"
 
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
@@ -39,4 +40,10 @@ int main(int argc, char **argv) {
 	line2.Describe();
 	line2.Maturate();
 	line2.Describe();
+
+	GeoChain::Euclidean::Point term1(GeoChain::Euclidean::EUC2D, 0, 1);
+	GeoChain::Euclidean::Point term2(GeoChain::Euclidean::EUC2D, 0, -1);
+	GeoChain::Euclidean::Segment line3(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term1, term2,
+																		 GeoChain::Euclidean::EuclideanDistance);
+	line3.Describe();
 }
