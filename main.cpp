@@ -41,9 +41,8 @@ int main(int argc, char **argv) {
 	line2.Maturate();
 	line2.Describe();
 
-	GeoChain::Euclidean::Point term1(GeoChain::Euclidean::EUC2D, 0, 1);
-	GeoChain::Euclidean::Point term2(GeoChain::Euclidean::EUC2D, 0, -1);
-	GeoChain::Euclidean::Segment line3(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term1, term2,
-																		 GeoChain::Euclidean::EuclideanDistance);
+	GeoChain::Euclidean::Point term1(GeoChain::Euclidean::EUC2D, 2, 6);
+	GeoChain::Euclidean::Point term2(GeoChain::Euclidean::EUC2D, -1, 10);
+	GeoChain::Euclidean::Segment line3(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term1, term2);
 	line3.Describe();
 }

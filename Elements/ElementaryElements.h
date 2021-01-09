@@ -86,7 +86,7 @@ class Segment : public HalfLine {
 
 	// descriptive
 	Segment(kDimension dim, kMaturityStatus status, Point terminal_vertex_1, Point terminal_vertex_2,
-					ptrDistanceFunc distance_func)
+					ptrDistanceFunc distance_func = EuclideanDistance)
 			: HalfLine(dim),
 				terminal_vertex_1_(terminal_vertex_1),
 				terminal_vertex_2_(terminal_vertex_2),

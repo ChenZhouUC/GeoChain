@@ -37,7 +37,10 @@ float pNormDistance(Point pt_1, Point pt_2, int p) {
 	}
 }
 
+float MinkowskiDistance(Point pt_1, Point pt_2, int p) { return pNormDistance(pt_1, pt_2, p); }
+// float ChebyshevDistance: MAX NORM
 float EuclideanDistance(Point pt_1, Point pt_2) { return pNormDistance(pt_1, pt_2, 2); }
+float ManhattanDistance(Point pt_1, Point pt_2) { return pNormDistance(pt_1, pt_2, 1); }
 
 }	// namespace Euclidean
 }	// namespace GeoChain
