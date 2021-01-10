@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
 	LOG(INFO) << "Segment - DESC";
 	GeoChain::Euclidean::Point term4(GeoChain::Euclidean::EUC2D, 2, 10);
 	GeoChain::Euclidean::Point term5(GeoChain::Euclidean::EUC2D, -3, -6);
-	GeoChain::Euclidean::Segment segment2(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term4, term5);
+	GeoChain::Euclidean::Segment segment2(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term4, term5,
+																				GeoChain::Euclidean::EuclideanDistance);
 	segment2.Describe();
 }
