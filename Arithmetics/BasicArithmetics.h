@@ -32,7 +32,7 @@ float pNormDistance(Point pt_1, Point pt_2, int p) {
 			float vec_z = std::abs(pt_1.z_ - pt_2.z_);
 			return powf32(powf32(vec_x, p) + powf32(vec_y, p) + powf32(vec_z, p), 1.0 / float(p));
 		} else {
-			// impossible
+			// IMPOSSIBLE
 		}
 	}
 }

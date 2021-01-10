@@ -14,23 +14,45 @@ namespace Euclidean {
 class HalfLine : public Line {
  public:
 	// intercept or not
-	bool intercept_state_;
+	bool intercept_state_ = false;
 
 	// init
-	HalfLine(kDimension dim, kMaturityStatus status = INIT) : Line(dim, status){};
+	HalfLine(kDimension dim, kMaturityStatus status = INIT) : Line(dim, status) {
+		if (dim == 1) {
+			this->status_ = INIT;
+		}
+	};
 
 	// descriptive
 	HalfLine(kDimension dim, kMaturityStatus status, Point point, float theta, float phi = 0)
 			: Line(dim, status, point, theta, phi) {
-		if (this->status_ != DESC) {
+		if (this->dim_ != 1 && this->status_ != DESC) {
 			LOG(ERROR) << "HalfLine shoudl be initiated using descriptives!";
 			this->status_ = INIT;
+		} else if (this->dim_ == 1 && point.dim_ == this->dim_ && point.status_ == MATR &&
+							 (this->theta_ == 0 || this->theta_ == -M_PIf32)) {
+			// DIM=1
+			this->center_.x_ = point.x_;
+			this->center_.status_ = MATR;
+			if (this->theta_ == 0 && this->center_.x_ <= 0) {
+				this->intercept_state_ = true;
+				this->intercept_.x_ = 0.0;
+				this->intercept_.status_ = MATR;
+			} else if (this->theta_ == -M_PIf32 && this->center_.x_ >= 0) {
+				this->intercept_state_ = true;
+				this->intercept_.x_ = 0.0;
+				this->intercept_.status_ = MATR;
+			} else {
+				this->intercept_state_ = false;
+			}
+
+			this->status_ = MATR;
 		} else {
 			if (this->dim_ == 2) {
 				float dir_x = cosf32(this->theta_);
 				float dir_y = sinf32(this->theta_);
 
-				if (this->theta_ == 0 || this->theta_ == -M_PI) {
+				if (this->theta_ == 0 || this->theta_ == -M_PIf32) {
 					this->intercept_state_ = (this->center_.x_ * dir_x <= 0);
 				} else {
 					this->intercept_state_ = (this->center_.y_ * dir_y <= 0);
@@ -40,7 +62,7 @@ class HalfLine : public Line {
 				LOG(WARNING) << "DIM == 3 not implemented yet!";
 				this->status_ = INIT;
 			} else {
-				LOG(WARNING) << "class HalfLine property error! Dim = " << this->dim_;
+				LOG(ERROR) << "class HalfLine initiative property error! Dim = " << this->dim_;
 				this->status_ = INIT;
 			}
 		}
@@ -58,9 +80,10 @@ class HalfLine : public Line {
 								<< "," << this->c_ << "," << this->d_ << "," << this->e_ << "," << this->f_ << "," << this->g_ << ","
 								<< this->h_ << "\n" + g_GlobalVars.visualize_indent_content << "(theta, phi) = " << this->theta_ << ","
 								<< this->phi_ << "\n" + g_GlobalVars.visualize_indent_content << "center = (" << this->center_.x_ << ","
-								<< this->center_.y_ << ")"
+								<< this->center_.y_ << "," << this->center_.z_ << ") status: " << this->center_.status_
 								<< "\n" + g_GlobalVars.visualize_indent_content << "intercept = (" << this->intercept_.x_ << ","
-								<< this->intercept_.y_ << ") state: " << this->intercept_state_;
+								<< this->intercept_.y_ << "," << this->intercept_.z_ << ") status: " << this->intercept_.status_
+								<< " state: " << this->intercept_state_;
 			return true;
 		}
 	}
@@ -75,7 +98,7 @@ class Segment : public HalfLine {
 	// terminal vertices
 	Point terminal_vertex_1_, terminal_vertex_2_;
 	// segment length
-	float length_;
+	float length_ = -float(g_GlobalVars.convention_error_code);
 
 	typedef float (*ptrDistanceFunc)(Point, Point);
 	ptrDistanceFunc distance_func_;
@@ -87,7 +110,7 @@ class Segment : public HalfLine {
 	// descriptive
 	Segment(kDimension dim, kMaturityStatus status, Point terminal_vertex_1, Point terminal_vertex_2,
 					ptrDistanceFunc distance_func = EuclideanDistance)
-			: HalfLine(dim),
+			: HalfLine(dim, status),
 				terminal_vertex_1_(terminal_vertex_1),
 				terminal_vertex_2_(terminal_vertex_2),
 				distance_func_(distance_func) {
@@ -112,8 +135,17 @@ class Segment : public HalfLine {
 
 				this->status_ = DESC;
 			} else {
-				// length > 0 line exists
-				if (this->dim_ == 2) {
+				// length > 0 Line exists
+				if (this->dim_ == 1) {
+					if (this->terminal_vertex_1_.x_ * this->terminal_vertex_2_.x_ <= 0) {
+						this->intercept_state_ = true;
+						this->intercept_.x_ = 0.0;
+						this->intercept_.status_ = MATR;
+					} else {
+						this->intercept_state_ = false;
+					}
+					this->status_ = MATR;
+				} else if (this->dim_ == 2) {
 					if (this->terminal_vertex_1_.y_ == this->terminal_vertex_2_.y_) {
 						this->theta_ = 0.0;
 						if (this->terminal_vertex_1_.x_ * this->terminal_vertex_2_.x_ <= 0) {
@@ -133,7 +165,7 @@ class Segment : public HalfLine {
 						this->center_.y_ = this->terminal_vertex_1_.y_;
 
 						if (this->terminal_vertex_1_.x_ == this->terminal_vertex_2_.x_) {
-							this->theta_ = M_PI_2;
+							this->theta_ = M_PI_2f32;
 						} else {
 							this->theta_ = atanf32((this->terminal_vertex_2_.y_ - this->terminal_vertex_1_.y_) /
 																		 (this->terminal_vertex_2_.x_ - this->terminal_vertex_1_.x_));
@@ -151,7 +183,7 @@ class Segment : public HalfLine {
 					LOG(WARNING) << "DIM == 3 not implemented yet!";
 					this->status_ = INIT;
 				} else {
-					LOG(WARNING) << "class Line property error! Dim = " << this->dim_;
+					LOG(WARNING) << "class Line initiative property error! Dim = " << this->dim_;
 					this->status_ = INIT;
 				}
 			}
@@ -172,12 +204,15 @@ class Segment : public HalfLine {
 								<< "," << this->c_ << "," << this->d_ << "," << this->e_ << "," << this->f_ << "," << this->g_ << ","
 								<< this->h_ << "\n" + g_GlobalVars.visualize_indent_content << "(theta, phi) = " << this->theta_ << ","
 								<< this->phi_ << "\n" + g_GlobalVars.visualize_indent_content << "center = (" << this->center_.x_ << ","
-								<< this->center_.y_ << ")"
+								<< this->center_.y_ << "," << this->center_.z_ << ") status: " << this->center_.status_
 								<< "\n" + g_GlobalVars.visualize_indent_content << "intercept = (" << this->intercept_.x_ << ","
-								<< this->intercept_.y_ << ") state: " << this->intercept_state_
-								<< "\n" + g_GlobalVars.visualize_indent_content << "terminal vertices: (" << this->terminal_vertex_1_.x_
-								<< "," << this->terminal_vertex_1_.y_ << "), (" << this->terminal_vertex_2_.x_ << ","
-								<< this->terminal_vertex_2_.y_ << ") length: " << this->length_;
+								<< this->intercept_.y_ << "," << this->intercept_.z_ << ") status: " << this->intercept_.status_
+								<< " state: " << this->intercept_state_ << "\n" + g_GlobalVars.visualize_indent_content
+								<< "terminal vertices: (" << this->terminal_vertex_1_.x_ << "," << this->terminal_vertex_1_.y_ << ","
+								<< this->terminal_vertex_1_.z_ << ")[" << this->terminal_vertex_1_.status_ << "], ("
+								<< this->terminal_vertex_2_.x_ << "," << this->terminal_vertex_2_.y_ << ","
+								<< this->terminal_vertex_2_.z_ << ")[" << this->terminal_vertex_2_.status_
+								<< "] length: " << this->length_;
 			return true;
 		}
 	}

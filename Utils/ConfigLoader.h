@@ -102,6 +102,11 @@ void LoadingConfig(const Json::Value &root_config) {
 	g_GlobalVars.visualize_indent_content = GenDuplStr(" ", g_GlobalVars.visualize_indent);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_precision,
 									 g_GlobalVars.visualize_precision);
+
+	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_infinity,
+									 g_GlobalVars.convention_infinity);
+	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_error_code,
+									 g_GlobalVars.convention_error_code);
 }
 
 void DefineGlobalKeys() {
@@ -113,6 +118,10 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.visualize_key = "VISUALIZE";
 	g_GlobalKeys.key_indent = "INDENT";
 	g_GlobalKeys.key_precision = "PRECISION";
+
+	g_GlobalKeys.convention_key = "CONVENTION";
+	g_GlobalKeys.key_infinity = "INFINITY";
+	g_GlobalKeys.key_error_code = "ERRORCODE";
 }
 
 }	// namespace Utils

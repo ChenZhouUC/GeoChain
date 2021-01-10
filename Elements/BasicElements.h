@@ -26,16 +26,16 @@ enum kMaturityStatus { MATR = -1, INIT = 0, PARM = 1, DESC = 2, GENR = 3 };
 class Point {
  public:
 	// problem dimension
-	const kDimension dim_;
+	const kDimension dim_ = EUC0D;
 
 	// definition status
-	kMaturityStatus status_;
+	kMaturityStatus status_ = INIT;
 
 	// Euclidean coordinates
 	// Here may consider using DOUBLE for coordinates. However, issue in
 	// computational geometry may not using such a large scale. Any probelm
 	// can be rescaled into a proper range that could fit FLOAT precision.
-	float x_, y_, z_;
+	float x_ = 0.0, y_ = 0.0, z_ = 0.0;
 
 	// init
 	Point(kDimension dim) : dim_(dim) {
@@ -84,21 +84,21 @@ class Point {
 class Line {
  public:
 	// problem dimension
-	const kDimension dim_;
+	const kDimension dim_ = EUC0D;
 
 	// definition status
-	kMaturityStatus status_;
+	kMaturityStatus status_ = INIT;
 
 	// parametric equation
 	// (a,b,c) is for 2D line while (d,e,f,g,h) is prepared for 3D
-	float a_, b_, c_, d_, e_, f_, g_, h_;
+	float a_ = 0.0, b_ = 0.0, c_ = 0.0, d_ = 0.0, e_ = 0.0, f_ = 0.0, g_ = 0.0, h_ = 0.0;
 
 	// descriptive coordinates
 	// radian system: [-PI, PI)
 	//              theta: X-Y ——> [-PI, PI)
 	//              phi: [X-Y]-Z ——> [-PI/2, PI/2]
 	Point center_;
-	float theta_, phi_;
+	float theta_ = 0.0, phi_ = 0.0;
 
 	// generative coordinates
 	// intercept:
@@ -152,15 +152,15 @@ class Line {
 	Line(kDimension dim, kMaturityStatus status, Point point, float theta, float phi = 0)
 			: dim_(dim), center_(dim), intercept_(dim), theta_(theta), phi_(phi), status_(status) {
 		if (this->dim_ < 2 || (this->status_ != DESC && this->status_ != GENR)) {
-			LOG(ERROR)
+			LOG(WARNING)
 					<< "please make sure the dimension matches the parameters. defined descriptives | generatives but dim = "
 					<< this->dim_;
 			this->status_ = INIT;
 		} else {
-			if (point.status_ != MATR || point.dim_ != dim ||
-					(this->dim_ == 2 && (this->theta_ < -M_PI || this->theta_ >= M_PI) ||
-					 (this->dim_ == 3 && (this->theta_ < -M_PI || this->theta_ >= M_PI) &&
-						(this->phi_ < -M_PI_2 || this->phi_ > M_PI_2)))) {
+			if (point.status_ != MATR || point.dim_ != this->dim_ ||
+					(this->dim_ == 2 && (this->theta_ < -M_PIf32 || this->theta_ >= M_PIf32) ||
+					 (this->dim_ == 3 && (this->theta_ < -M_PIf32 || this->theta_ >= M_PIf32) &&
+						(this->phi_ < -M_PI_2f32 || this->phi_ > M_PI_2f32)))) {
 				LOG(ERROR) << "please make sure the defined descriptives | generatives effective with dim = " << this->dim_;
 				this->status_ = INIT;
 			} else {
@@ -192,9 +192,9 @@ class Line {
 								<< "," << this->c_ << "," << this->d_ << "," << this->e_ << "," << this->f_ << "," << this->g_ << ","
 								<< this->h_ << "\n" + g_GlobalVars.visualize_indent_content << "(theta, phi) = " << this->theta_ << ","
 								<< this->phi_ << "\n" + g_GlobalVars.visualize_indent_content << "center = (" << this->center_.x_ << ","
-								<< this->center_.y_ << ")"
+								<< this->center_.y_ << "," << this->center_.z_ << ") status: " << this->center_.status_
 								<< "\n" + g_GlobalVars.visualize_indent_content << "intercept = (" << this->intercept_.x_ << ","
-								<< this->intercept_.y_ << ")";
+								<< this->intercept_.y_ << "," << this->intercept_.z_ << ") status: " << this->intercept_.status_;
 			return true;
 		}
 	}
@@ -230,7 +230,7 @@ class Line {
 						this->center_.status_ = MATR;
 
 						if (this->b_ == 0.0) {
-							this->theta_ = M_PI_2;
+							this->theta_ = M_PI_2f32;
 						} else {
 							this->theta_ = atanf32(-this->a_ / this->b_);
 						}
@@ -241,11 +241,11 @@ class Line {
 					this->b_ = -cosf32(this->theta_);
 					this->c_ = -(this->a_ * this->center_.x_ + this->b_ * this->center_.y_);
 
-					if (this->theta_ == 0.0 || this->theta_ == -M_PI) {
+					if (this->theta_ == 0.0 || this->theta_ == -M_PIf32) {
 						this->intercept_.x_ = 0.0;
 						this->intercept_.y_ = this->center_.y_;
 						this->intercept_.status_ = MATR;
-					} else if (this->theta_ == M_PI_2 || this->theta_ == -M_PI_2) {
+					} else if (this->theta_ == M_PI_2f32 || this->theta_ == -M_PI_2f32) {
 						this->intercept_.x_ = this->center_.x_;
 						this->intercept_.y_ = 0.0;
 						this->intercept_.status_ = MATR;
@@ -265,7 +265,8 @@ class Line {
 					this->center_.status_ = MATR;
 					this->status_ = MATR;
 				} else {
-					LOG(WARNING) << "class Line status error! " << this->status_;
+					// IMPOSSIBLE
+					LOG(ERROR) << "class Line status error! " << this->status_;
 					this->status_ = INIT;
 					return false;
 				}
@@ -275,7 +276,7 @@ class Line {
 				this->status_ = INIT;
 				return false;
 			} else {
-				LOG(WARNING) << "class Line property error! Dim = " << this->dim_;
+				LOG(ERROR) << "class Line property error! Dim = " << this->dim_;
 				this->status_ = INIT;
 				return false;
 			}

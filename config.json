@@ -7,5 +7,9 @@
     "VISUALIZE": {
         "INDENT": 50,
         "PRECISION": 3
+    },
+    "CONVENTION": {
+        "INFINITY": 10000,
+        "ERRORCODE": 1111
     }
 }

@@ -16,6 +16,9 @@ struct GlobalVar {
 	int visualize_indent;
 	std::string visualize_indent_content;
 	int visualize_precision;
+
+	float convention_infinity;
+	int convention_error_code;
 };
 
 struct GlobalKey {
@@ -29,6 +32,11 @@ struct GlobalKey {
 
 	std::string key_indent;
 	std::string key_precision;
+
+	std::string convention_key;
+
+	std::string key_infinity;
+	std::string key_error_code;
 };
 
 enum kDataType { STR, FLT, INT, BOL };
