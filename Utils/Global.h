@@ -16,6 +16,8 @@ struct GlobalVar {
 	int visualize_indent;
 	std::string visualize_indent_content;
 	int visualize_precision;
+	float visualize_standardize;
+	int visualize_spacer;
 
 	float convention_infinity;
 	int convention_error_code;
@@ -32,6 +34,8 @@ struct GlobalKey {
 
 	std::string key_indent;
 	std::string key_precision;
+	std::string key_standardize;
+	std::string key_spacer;
 
 	std::string convention_key;
 
