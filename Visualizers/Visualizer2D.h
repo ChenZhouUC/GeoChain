@@ -14,7 +14,7 @@ namespace Euclidean {
 #define COLOR_SPACE cv::Scalar(200, 200, 200)
 #define COLOR_NOTATION cv::Scalar(50, 50, 50)
 
-void MouseLocator(int event, int x, int y, int flag, void *param) {
+static void MouseLocator(int event, int x, int y, int flag, void *param) {
 	// readin the IMAGE ptr and form an IMAGE
 	// cv::Mat img_ = *(cv::Mat *)(param);
 	cv::Point *pt_ = (cv::Point *)(param);
@@ -26,14 +26,25 @@ void MouseLocator(int event, int x, int y, int flag, void *param) {
 		pt_->x = x;
 		pt_->y = y;
 	} else if (event == CV_EVENT_LBUTTONUP) {
-		pt_->x = -1;
-		pt_->y = -1;
+		pt_->x = -g_GlobalVars.convention_error_code;
+		pt_->y = -g_GlobalVars.convention_error_code;
 	} else if (flag & CV_EVENT_FLAG_LBUTTON) {
 		pt_->x = x;
 		pt_->y = y;
+	} else if (event == CV_EVENT_MOUSEMOVE) {
+		pt_->x = -x;
+		pt_->y = -y;
 	}
+}
 
-}	// namespace Euclidean
+static std::string StringFloatPrecision(std::string value, int p) {
+	std::string::size_type position;
+	position = value.find(".");
+	if (position == value.npos)
+		return value;
+	else
+		return value.substr(0, position + p + 1);
+}
 
 class Visualizer2D {
  public:
@@ -107,7 +118,7 @@ class Visualizer2D {
 
 	void Visualize(std::string window_name) {
 		cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
-		cv::Point mouse_location_(-1, -1);
+		cv::Point mouse_location_(-g_GlobalVars.convention_error_code, -g_GlobalVars.convention_error_code);
 		cv::setMouseCallback(window_name, MouseLocator, &mouse_location_);
 		cv::Point show_location_(5, 15);
 		std::string s_;
@@ -126,12 +137,19 @@ class Visualizer2D {
 				r_ = int(bgr_[2]);
 				s_ = "x:" + std::to_string(mouse_location_.x) + " y:" + std::to_string(mouse_location_.y) + " RGB:(" +
 						 std::to_string(r_) + "," + std::to_string(g_) + "," + std::to_string(b_) + ")";
+			} else if (mouse_location_.x < 0 && mouse_location_.y < 0 && mouse_location_.x > -visual_.cols + 1 &&
+								 mouse_location_.y > -visual_.rows + 1) {
+				cv::Point2f geo_coord_;
+				geo_coord_.x = (float(-mouse_location_.x) - this->shift_x_) / this->scaling_;
+				geo_coord_.y = (float(visual_.rows - 1 + mouse_location_.y) - this->shift_y_) / this->scaling_;
+				s_ = "(" + StringFloatPrecision(std::to_string(geo_coord_.x), g_GlobalVars.visualize_precision) + "," +
+						 StringFloatPrecision(std::to_string(geo_coord_.y), g_GlobalVars.visualize_precision) + ")";
 			} else {
 				s_ = "";
 				b_ = g_ = r_ = 0;
 			}
 			cv::putText(visual_, s_, show_location_, CV_FONT_HERSHEY_TRIPLEX, g_GlobalVars.visualize_font_scale,
-									COLOR_NOTATION);
+									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imshow(window_name, visual_);
 		}
 	}
@@ -140,9 +158,9 @@ class Visualizer2D {
 	float scale_x_ = 0.0, scale_y_ = 0.0;
 	float max_x_ = -g_GlobalVars.convention_infinity, min_x_ = g_GlobalVars.convention_infinity,
 				max_y_ = -g_GlobalVars.convention_infinity, min_y_ = g_GlobalVars.convention_infinity;
-	float scaling_ = 1.0;
 
-	// Euclidean coord + shift = pixel_coord
+	// Euclidean coord * scaling + shift = pixel_coord
+	float scaling_ = 1.0;
 	float shift_x_ = 0.0, shift_y_ = 0.0;
 	int pixel_width = 0, pixel_height = 0;
 };

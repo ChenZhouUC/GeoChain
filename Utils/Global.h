@@ -21,6 +21,7 @@ struct GlobalVar {
 	int visualize_line_width;
 	int visualize_point_size;
 	float visualize_font_scale;
+	int visualize_font_thickness;
 
 	float convention_infinity;
 	int convention_error_code;
@@ -42,6 +43,7 @@ struct GlobalKey {
 	std::string key_line_width;
 	std::string key_point_size;
 	std::string key_font_scale;
+	std::string key_font_thickness;
 
 	std::string convention_key;
 
