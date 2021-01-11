@@ -100,6 +100,8 @@ class Visualizer2D {
 			this->pixel_width = std::ceil(this->max_x_ * this->scaling_ + this->shift_x_) + this->spacer_ + 1;
 			this->pixel_height = std::ceil(this->max_y_ * this->scaling_ + this->shift_y_) + this->spacer_ + 1;
 		}
+		this->shift_.x = this->shift_x_;
+		this->shift_.y = this->shift_y_;
 	};
 	~Visualizer2D(void){};
 
@@ -113,7 +115,47 @@ class Visualizer2D {
 		cv::Point2f y_axis_pos_infty(this->shift_x_, this->shift_y_ + g_GlobalVars.convention_infinity * this->scaling_);
 		cv::line(this->canvas_, x_axis_neg_infty, x_axis_pos_infty, COLOR_NOTATION, g_GlobalVars.visualize_line_width);
 		cv::line(this->canvas_, y_axis_neg_infty, y_axis_pos_infty, COLOR_NOTATION, g_GlobalVars.visualize_line_width);
-		cv::circle(this->canvas_, origin_, 1, COLOR_BLACK, g_GlobalVars.visualize_point_size);
+		cv::circle(this->canvas_, origin_, g_GlobalVars.visualize_point_size, COLOR_BLACK, -1);
+	};
+
+	void Draw(Point pt) {
+		cv::Point2f this_point_ = {pt.x_, pt.y_};
+		cv::Point2f pt_pixel_ = this_point_ * this->scaling_ + this->shift_;
+		cv::circle(this->canvas_, pt_pixel_, g_GlobalVars.visualize_point_size, COLOR_RED, -1);
+	};
+
+	void Draw(Line line) {
+		cv::Point2f term_point_1_;
+		cv::Point2f term_point_2_;
+		term_point_1_.x = line.center_.x_ + g_GlobalVars.convention_infinity * cosf32(line.theta_);
+		term_point_1_.y = line.center_.y_ + g_GlobalVars.convention_infinity * sinf32(line.theta_);
+		term_point_2_.x = line.center_.x_ - g_GlobalVars.convention_infinity * cosf32(line.theta_);
+		term_point_2_.y = line.center_.y_ - g_GlobalVars.convention_infinity * sinf32(line.theta_);
+		LOG(INFO) << term_point_1_.x << " " << term_point_1_.y << " " << term_point_2_.x << " " << term_point_2_.y;
+		term_point_1_ = term_point_1_ * this->scaling_ + this->shift_;
+		term_point_2_ = term_point_2_ * this->scaling_ + this->shift_;
+		LinePositivate(term_point_1_, term_point_2_);
+		cv::line(this->canvas_, term_point_1_, term_point_2_, COLOR_GREEN, g_GlobalVars.visualize_line_width);
+	};
+
+	void Draw(HalfLine half_line) {
+		cv::Point2f term_point_1_ = {half_line.center_.x_, half_line.center_.y_};
+		cv::Point2f term_point_2_;
+		term_point_2_.x = half_line.center_.x_ + g_GlobalVars.convention_infinity * cosf32(half_line.theta_);
+		term_point_2_.y = half_line.center_.y_ + g_GlobalVars.convention_infinity * sinf32(half_line.theta_);
+		term_point_1_ = term_point_1_ * this->scaling_ + this->shift_;
+		term_point_2_ = term_point_2_ * this->scaling_ + this->shift_;
+		LinePositivate(term_point_1_, term_point_2_);
+		cv::line(this->canvas_, term_point_1_, term_point_2_, COLOR_YELLOW, g_GlobalVars.visualize_line_width);
+	};
+
+	void Draw(Segment segment) {
+		cv::Point2f term_point_1_ = {segment.terminal_vertex_1_.x_, segment.terminal_vertex_1_.y_};
+		cv::Point2f term_point_2_ = {segment.terminal_vertex_2_.x_, segment.terminal_vertex_2_.y_};
+		term_point_1_ = term_point_1_ * this->scaling_ + this->shift_;
+		term_point_2_ = term_point_2_ * this->scaling_ + this->shift_;
+		LinePositivate(term_point_1_, term_point_2_);
+		cv::line(this->canvas_, term_point_1_, term_point_2_, COLOR_BLUE, g_GlobalVars.visualize_line_width);
 	};
 
 	void Visualize(std::string window_name) {
@@ -162,7 +204,43 @@ class Visualizer2D {
 	// Euclidean coord * scaling + shift = pixel_coord
 	float scaling_ = 1.0;
 	float shift_x_ = 0.0, shift_y_ = 0.0;
+	cv::Point2f shift_ = {shift_x_, shift_y_};
 	int pixel_width = 0, pixel_height = 0;
+
+	static void LinePositivate(cv::Point2f &pt_1, cv::Point2f &pt_2) {
+		if (pt_1.x < 0.) {
+			if (pt_2.x == pt_1.x) {
+				LOG(ERROR) << "elements not in canvas!";
+			} else {
+				pt_1.y += (pt_2.y - pt_1.y) / (pt_2.x - pt_1.x) * (-pt_1.x);
+				pt_1.x = 0.0;
+			}
+		}
+		if (pt_1.y < 0.0) {
+			if (pt_2.y == pt_1.y) {
+				LOG(ERROR) << "elements not in canvas!";
+			} else {
+				pt_1.x += (pt_2.x - pt_1.x) / (pt_2.y - pt_1.y) * (-pt_1.y);
+				pt_1.y = 0.0;
+			}
+		}
+		if (pt_2.x < 0.0) {
+			if (pt_2.x == pt_1.x) {
+				LOG(ERROR) << "elements not in canvas!";
+			} else {
+				pt_2.y += (pt_1.y - pt_2.y) / (pt_1.x - pt_2.x) * (-pt_2.x);
+				pt_2.x = 0.0;
+			}
+		}
+		if (pt_2.y < 0.0) {
+			if (pt_2.y == pt_1.y) {
+				LOG(ERROR) << "elements not in canvas!";
+			} else {
+				pt_2.x += (pt_1.x - pt_2.x) / (pt_1.y - pt_2.y) * (-pt_2.y);
+				pt_2.y = 0.0;
+			}
+		}
+	};
 };
 
 }	// namespace Euclidean
