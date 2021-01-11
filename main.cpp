@@ -1,6 +1,7 @@
 #include "Utils/ConfigLoader.h"
 #include "Elements/ElementaryElements.h"
 #include "Arithmetics/BasicArithmetics.h"
+#include "Visualizers/Visualizer2D.h"
 
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
 	halfline1.Describe();
 
 	LOG(INFO) << "Line - DESC";
-	GeoChain::Euclidean::HalfLine line1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center1, -theta1);
+	GeoChain::Euclidean::Line line1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center1, -theta1);
 	line1.Describe();
 	line1.Maturate();
 	line1.Describe();
@@ -59,4 +60,11 @@ int main(int argc, char **argv) {
 	GeoChain::Euclidean::Segment segment2(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term4, term5,
 																				GeoChain::Euclidean::EuclideanDistance);
 	segment2.Describe();
+
+	std::vector<GeoChain::Euclidean::Point> attendents = {line1.intercept_, line2.intercept_, halfline1.center_,
+																												segment1.terminal_vertex_1_, segment1.terminal_vertex_2_};
+	GeoChain::Euclidean::Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize,
+																					 g_GlobalVars.visualize_spacer);
+	visual.Init();
+	visual.Visualize("GEOCHAIN");
 }

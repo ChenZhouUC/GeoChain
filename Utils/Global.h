@@ -18,6 +18,9 @@ struct GlobalVar {
 	int visualize_precision;
 	float visualize_standardize;
 	int visualize_spacer;
+	int visualize_line_width;
+	int visualize_point_size;
+	float visualize_font_scale;
 
 	float convention_infinity;
 	int convention_error_code;
@@ -36,6 +39,9 @@ struct GlobalKey {
 	std::string key_precision;
 	std::string key_standardize;
 	std::string key_spacer;
+	std::string key_line_width;
+	std::string key_point_size;
+	std::string key_font_scale;
 
 	std::string convention_key;
 

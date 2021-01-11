@@ -105,6 +105,12 @@ void LoadingConfig(const Json::Value &root_config) {
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_standardize,
 									 g_GlobalVars.visualize_standardize);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_spacer, g_GlobalVars.visualize_spacer);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_line_width,
+									 g_GlobalVars.visualize_line_width);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_point_size,
+									 g_GlobalVars.visualize_point_size);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_font_scale,
+									 g_GlobalVars.visualize_font_scale);
 
 	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_infinity,
 									 g_GlobalVars.convention_infinity);
@@ -123,6 +129,9 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.key_precision = "PRECISION";
 	g_GlobalKeys.key_standardize = "STANDARDIZE";
 	g_GlobalKeys.key_spacer = "SPACER";
+	g_GlobalKeys.key_line_width = "LINEWIDTH";
+	g_GlobalKeys.key_point_size = "POINTSIZE";
+	g_GlobalKeys.key_font_scale = "FONTSCALE";
 
 	g_GlobalKeys.convention_key = "CONVENTION";
 	g_GlobalKeys.key_infinity = "INFINITY";
