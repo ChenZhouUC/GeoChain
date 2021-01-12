@@ -86,7 +86,7 @@ class Visualizer2D {
 		}
 		this->scale_x_ = this->max_x_ - this->min_x_;
 		this->scale_y_ = this->max_y_ - this->min_y_;
-		LOG(INFO) << this->min_x_ << " " << this->max_x_ << " " << this->max_y_ << " " << this->min_y_;
+		// LOG(INFO) << this->min_x_ << " " << this->max_x_ << " " << this->max_y_ << " " << this->min_y_;
 		if (std::min(this->scale_x_, this->scale_y_) < 0.0) {
 			LOG(WARNING) << "no attendant Point initiated with Visualizer!";
 			this->scaling_ = 1.0;
@@ -112,7 +112,7 @@ class Visualizer2D {
 	~Visualizer2D(void){};
 
 	void Init(bool grid_on = false) {
-		LOG(INFO) << this->pixel_height << " " << this->pixel_width;
+		// LOG(INFO) << this->pixel_height << " " << this->pixel_width;
 		this->canvas_ = cv::Mat(this->pixel_height, this->pixel_width, CV_8UC3, COLOR_SPACE);
 		cv::Point2f origin_(this->shift_x_, this->shift_y_);
 		cv::Point2f x_axis_neg_infty(this->shift_x_ - g_GlobalVars.convention_infinity * this->scaling_, this->shift_y_);
@@ -137,7 +137,7 @@ class Visualizer2D {
 		term_point_1_.y = line.center_.y_ + g_GlobalVars.convention_infinity * sinf32(line.theta_);
 		term_point_2_.x = line.center_.x_ - g_GlobalVars.convention_infinity * cosf32(line.theta_);
 		term_point_2_.y = line.center_.y_ - g_GlobalVars.convention_infinity * sinf32(line.theta_);
-		LOG(INFO) << term_point_1_.x << " " << term_point_1_.y << " " << term_point_2_.x << " " << term_point_2_.y;
+		// LOG(INFO) << term_point_1_.x << " " << term_point_1_.y << " " << term_point_2_.x << " " << term_point_2_.y;
 		term_point_1_ = term_point_1_ * this->scaling_ + this->shift_;
 		term_point_2_ = term_point_2_ * this->scaling_ + this->shift_;
 		LinePositivate(term_point_1_, term_point_2_);

@@ -2,12 +2,24 @@
 #include "Elements/ElementaryElements.h"
 #include "Arithmetics/BasicArithmetics.h"
 #include "Visualizers/Visualizer2D.h"
+#include "Vessels/BinaryTree.h"
 
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
 
 const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
+
+GeoChain::Vessels::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
+																				 GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
+	if (node_1->geometric_element_->x_ < node_2->geometric_element_->x_) {
+		return GeoChain::Vessels::ORD;
+	} else if (node_1->geometric_element_->x_ > node_2->geometric_element_->x_) {
+		return GeoChain::Vessels::INV;
+	} else {
+		return GeoChain::Vessels::EQN;
+	}
+};
 
 int main(int argc, char **argv) {
 	// initiate logger
@@ -104,4 +116,12 @@ int main(int argc, char **argv) {
 	visual.Draw(segment5.terminal_vertex_1_);
 	visual.Draw(segment5.terminal_vertex_2_);
 	visual.Visualize("GEOCHAIN");
+
+	// AVL Tree Test
+	GeoChain::Euclidean::Point ROOT_PT(GeoChain::Euclidean::EUC1D);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(0, "ROOT", &ROOT_PT);
+	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(0, "ROOT", &ROOT, comparer1D);
+	if (AVLTREE.Max(&ROOT) != nullptr) {
+		LOG(INFO) << AVLTREE.Max(&ROOT)->geometric_element_->x_;
+	}
 }

@@ -62,6 +62,7 @@ INCLUDE_DIRECTORIES(
     ${SOURCE_ROOT}/Arithmetics
     ${SOURCE_ROOT}/Elements
     ${SOURCE_ROOT}/Utils
+    ${SOURCE_ROOT}/Vessels
 )
 
 # assign shared lib path
