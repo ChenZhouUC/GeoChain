@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	GeoChain::Euclidean::Point term4(GeoChain::Euclidean::EUC2D, 2, 10);
 	GeoChain::Euclidean::Point term5(GeoChain::Euclidean::EUC2D, -3, -6);
 	GeoChain::Euclidean::Point term6(GeoChain::Euclidean::EUC2D, -4, 5);
-	GeoChain::Euclidean::Point term7(GeoChain::Euclidean::EUC2D, 1, -9);
+	GeoChain::Euclidean::Point term7(GeoChain::Euclidean::EUC2D, 9, -1);
 	GeoChain::Euclidean::Segment segment2(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term4, term5,
 																				GeoChain::Euclidean::EuclideanDistance);
 	segment2.Describe();

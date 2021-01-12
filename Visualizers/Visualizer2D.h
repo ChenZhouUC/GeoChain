@@ -25,13 +25,15 @@ static void MouseLocator(int event, int x, int y, int flag, void *param) {
 		// cv::putText(img_, s_, cv::Point(0, 0), CV_FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(0, 255, 0), 2, 8);
 		pt_->x = x;
 		pt_->y = y;
-	} else if (event == CV_EVENT_LBUTTONUP) {
-		pt_->x = -g_GlobalVars.convention_error_code;
-		pt_->y = -g_GlobalVars.convention_error_code;
-	} else if (flag & CV_EVENT_FLAG_LBUTTON) {
+	}
+	// else if (event == CV_EVENT_LBUTTONUP) {
+	// 	pt_->x = -g_GlobalVars.convention_error_code;
+	// 	pt_->y = -g_GlobalVars.convention_error_code;
+	// }
+	else if (flag & CV_EVENT_FLAG_LBUTTON) {
 		pt_->x = x;
 		pt_->y = y;
-	} else if (event == CV_EVENT_MOUSEMOVE) {
+	} else {	// if (event == CV_EVENT_MOUSEMOVE)
 		pt_->x = -x;
 		pt_->y = -y;
 	}
