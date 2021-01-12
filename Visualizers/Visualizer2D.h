@@ -41,6 +41,10 @@ static void MouseLocator(int event, int x, int y, int flag, void *param) {
 
 static std::string StringFloatPrecision(std::string value, int p) {
 	std::string::size_type position;
+	position = value.find("-");
+	if (position == value.npos) {
+		value = "+" + value;
+	}
 	position = value.find(".");
 	if (position == value.npos)
 		return value;
@@ -162,6 +166,7 @@ class Visualizer2D {
 
 	void Visualize(std::string window_name) {
 		cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
+		cv::resizeWindow(window_name, cv::Size(g_GlobalVars.visualize_window_width, g_GlobalVars.visualize_window_height));
 		cv::Point mouse_location_(-g_GlobalVars.convention_error_code, -g_GlobalVars.convention_error_code);
 		cv::setMouseCallback(window_name, MouseLocator, &mouse_location_);
 		cv::Point show_location_(5, 15);
@@ -179,7 +184,7 @@ class Visualizer2D {
 				b_ = int(bgr_[0]);
 				g_ = int(bgr_[1]);
 				r_ = int(bgr_[2]);
-				s_ = "x:" + std::to_string(mouse_location_.x) + " y:" + std::to_string(mouse_location_.y) + " RGB:(" +
+				s_ = "X:" + std::to_string(mouse_location_.x) + " Y:" + std::to_string(mouse_location_.y) + " RGB:(" +
 						 std::to_string(r_) + "," + std::to_string(g_) + "," + std::to_string(b_) + ")";
 			} else if (mouse_location_.x < 0 && mouse_location_.y < 0 && mouse_location_.x > -visual_.cols + 1 &&
 								 mouse_location_.y > -visual_.rows + 1) {
@@ -196,7 +201,7 @@ class Visualizer2D {
 									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imshow(window_name, visual_);
 		}
-	}
+	};
 
  private:
 	float scale_x_ = 0.0, scale_y_ = 0.0;

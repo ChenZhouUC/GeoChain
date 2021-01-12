@@ -12,7 +12,9 @@
         "LINEWIDTH": 2,
         "POINTSIZE": 3,
         "FONTSCALE": 0.5,
-        "FONTTHICKNESS": 1
+        "FONTTHICKNESS": 1,
+        "WINDOWWIDTH": 800,
+        "WINDOWHEIGHT": 1000
     },
     "CONVENTION": {
         "INFINITY": 10000.0,
