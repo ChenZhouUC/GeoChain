@@ -124,4 +124,5 @@ int main(int argc, char **argv) {
 	if (AVLTREE.Max(&ROOT) != nullptr) {
 		LOG(INFO) << AVLTREE.Max(&ROOT)->geometric_element_->x_;
 	}
+	AVLTREE.Inspect();
 }

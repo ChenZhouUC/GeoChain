@@ -36,6 +36,9 @@ class Node {
  */
 template <class Element>
 class BalancedBinarySearchTree {
+ private:
+	std::map<int, std::vector<std::string>> layers_;
+
  public:
 	int id_ = 0;
 	std::string key_ = "";
@@ -49,6 +52,46 @@ class BalancedBinarySearchTree {
 													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
 			: id_(id), key_(key), root_(root), comparer_(comparer){};
 	~BalancedBinarySearchTree(){};
+
+	// Inspect: visualize and inspect the tree structure
+	void Inspect() {
+		this->layers_.clear();
+		bool depth_rst = Inspect(this->root_, 0, this->deepness_);
+		if (!depth_rst) {
+			LOG(ERROR) << "tree deepness error!";
+		}
+	};
+
+	bool Inspect(Node<Element>* start_root, int layer, int depth) {
+		if (start_root->parent_ == nullptr) {
+			// ROOT Node
+			if (start_root->child_ == nullptr) {
+				LOG(ERROR) << "the Tree hasn't been initiated!";
+				this->layers_[0].push_back(start_root->key_);
+				return depth == 0;
+			} else {
+				this->layers_[0].push_back(start_root->key_);
+				return Inspect(start_root->child_, 1, depth);
+			}
+		} else {
+			// Element Node
+			this->layers_[layer].push_back(start_root->key_);
+			if (start_root->lchild_ == nullptr && start_root->rchild_ == nullptr) {
+				// Leaf node
+				return depth == 1;
+			} else {
+				// Branch node
+				bool l_rst = false, r_rst = false;
+				if (start_root->lchild_ != nullptr) {
+					l_rst = Inspect(start_root->lchild_, layer + 1, depth - 1);
+				}
+				if (start_root->rchild_ != nullptr) {
+					r_rst = Inspect(start_root->rchild_, layer + 1, depth - 1);
+				}
+				return l_rst || r_rst;
+			}
+		}
+	}
 
 	// searching methods
 	// Min: can return ONLY ONE Node with the min value in the searched subTree

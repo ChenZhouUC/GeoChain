@@ -100,6 +100,8 @@ void LoadingConfig(const Json::Value &root_config) {
 
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_indent, g_GlobalVars.visualize_indent);
 	g_GlobalVars.visualize_indent_content = GenDuplStr(" ", g_GlobalVars.visualize_indent);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_placeholder,
+									 g_GlobalVars.visualize_placeholder);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_precision,
 									 g_GlobalVars.visualize_precision);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_standardize,
@@ -132,6 +134,7 @@ void DefineGlobalKeys() {
 
 	g_GlobalKeys.visualize_key = "VISUALIZE";
 	g_GlobalKeys.key_indent = "INDENT";
+	g_GlobalKeys.key_placeholder = "PLACEHOLDER";
 	g_GlobalKeys.key_precision = "PRECISION";
 	g_GlobalKeys.key_standardize = "STANDARDIZE";
 	g_GlobalKeys.key_spacer = "SPACER";
