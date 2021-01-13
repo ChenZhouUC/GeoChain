@@ -14,8 +14,13 @@ enum kWellOrder { INV = -1, EQN = 0, ORD = 1 };
 template <class Element>
 class Node {
  public:
+	// identifiers
 	int id_ = -1;
 	std::string key_ = "";
+
+	// balance: score of balance = right_depth - left_depth
+	// depth: depth of the subtree rooted by this Node, empty tree using 0
+	// layer: layer number of this Node within the tree starting from 1 while only ROOT is 0
 	int balance_ = 0, depth_ = 0, layer_ = 0;
 
 	Element* geometric_element_;
@@ -38,14 +43,15 @@ class Node {
  */
 template <class Element>
 class BalancedBinarySearchTree {
- private:
-	std::map<int, std::vector<std::string>> layers_;
-
  public:
 	int id_ = 0;
 	std::string key_ = "";
 	Node<Element>* root_;
 
+	std::map<int, std::vector<std::string>> layers_;
+
+	// balancing: sum of balance scores for all the branches
+	// deepness: depth of the ROOT
 	int balancing_ = 0, deepness_ = 0;
 
 	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
@@ -74,12 +80,14 @@ class BalancedBinarySearchTree {
 				this->layers_[0].push_back(start_root->key_);
 				return depth == 0;
 			} else {
-				this->layers_[0].push_back(start_root->key_);
+				this->layers_[0].push_back(start_root->key_ + " L" + std::to_string(start_root->layer_) + " D" +
+																	 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_));
 				return Inspect(start_root->child_, 1, depth);
 			}
 		} else {
 			// Element Node
-			this->layers_[layer].push_back(start_root->key_);
+			this->layers_[layer].push_back(start_root->key_ + " L" + std::to_string(start_root->layer_) + " D" +
+																		 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_));
 			if (start_root->lchild_ == nullptr && start_root->rchild_ == nullptr) {
 				// Leaf node
 				return depth == 1;
@@ -235,9 +243,11 @@ class BalancedBinarySearchTree {
 			this->root_->child_ = insert_node;
 			insert_node->parent_ = this->root_;
 			insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
-			this->deepness_ = 1;
+			insert_node->balance_ = 0;
 			insert_node->layer_ = 1;
 			insert_node->depth_ = 1;
+			this->balancing_ = 0;
+			this->deepness_ = 1;
 			return ORD;
 		} else {
 			// locate the insertion
@@ -251,9 +261,10 @@ class BalancedBinarySearchTree {
 						starting_->lchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->balance_ = 0;
 						insert_node->layer_ = layer_counter_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						insert_node->depth_ = 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						break;
 					} else {
 						starting_ = starting_->lchild_;
@@ -265,9 +276,10 @@ class BalancedBinarySearchTree {
 						starting_->lchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->balance_ = 0;
 						insert_node->layer_ = layer_counter_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						insert_node->depth_ = 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						flag_ = EQN;
 						break;
 					} else {
@@ -281,9 +293,10 @@ class BalancedBinarySearchTree {
 						starting_->rchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->balance_ = 0;
 						insert_node->layer_ = layer_counter_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						insert_node->depth_ = 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
 						break;
 					} else {
 						starting_ = starting_->rchild_;
@@ -292,21 +305,34 @@ class BalancedBinarySearchTree {
 					}
 				}
 			}
-			// calculate the depth
+			// recalculate the depth and balance
 			starting_ = insert_node->parent_;
 			int update_depth_ = 1;
 			while (true) {
 				if (starting_->parent_ == nullptr) {
 					// ROOT
 					starting_->depth_ = update_depth_;
+					starting_->balance_ = 0;
 					break;
 				} else {
 					// Element
-					if (update_depth_ + 1 == starting_->depth_) {
+					if (update_depth_ + 1 <= starting_->depth_) {
+						this->balancing_ -= 1;
+						starting_->balance_ = std::copysign(std::abs(starting_->balance_) - 1, starting_->balance_);
 						break;
 					} else {
+						// update_depth_ + 1 > starting_->depth_
 						starting_->depth_ = update_depth_ + 1;
 						update_depth_ = starting_->depth_;
+						this->balancing_ += 1;
+						if (starting_->lchild_ != nullptr && starting_->rchild_ != nullptr) {
+							starting_->balance_ = starting_->rchild_->depth_ - starting_->lchild_->depth_;
+						} else if (starting_->lchild_ != nullptr) {
+							starting_->balance_ = -starting_->lchild_->depth_;
+						} else {
+							starting_->balance_ = starting_->rchild_->depth_;
+						}
+
 						starting_ = starting_->parent_;
 						continue;
 					}

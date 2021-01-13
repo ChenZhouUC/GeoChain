@@ -139,4 +139,5 @@ int main(int argc, char **argv) {
 		LOG(INFO) << AVLTREE.Max(&ROOT)->layer_ << " " << AVLTREE.Max(&ROOT)->depth_ << " " << ROOT.child_->depth_;
 	}
 	AVLTREE.Inspect();
+	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.balancing_;
 }
