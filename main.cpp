@@ -140,4 +140,7 @@ int main(int argc, char **argv) {
 	}
 	AVLTREE.Inspect();
 	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.balancing_;
+	AVLTREE.Delete(&n1);
+	AVLTREE.Inspect();
+	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.balancing_;
 }

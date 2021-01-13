@@ -6,7 +6,7 @@ PROJECT(GeoChain)
 
 # assign building flags
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # find required package jsoncpp
 FIND_PACKAGE(jsoncpp CONFIG REQUIRED)
@@ -63,6 +63,7 @@ INCLUDE_DIRECTORIES(
     ${SOURCE_ROOT}/Elements
     ${SOURCE_ROOT}/Utils
     ${SOURCE_ROOT}/Vessels
+    ${SOURCE_ROOT}/Visualizers
 )
 
 # assign shared lib path
