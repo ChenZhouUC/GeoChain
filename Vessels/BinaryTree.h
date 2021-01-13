@@ -1,3 +1,5 @@
+#include "Timer.h"
+
 namespace GeoChain {
 namespace Vessels {
 
@@ -14,7 +16,7 @@ class Node {
  public:
 	int id_ = -1;
 	std::string key_ = "";
-	int balance_ = 0, depth_ = 0;
+	int balance_ = 0, depth_ = 0, layer_ = 0;
 
 	Element* geometric_element_;
 
@@ -59,6 +61,8 @@ class BalancedBinarySearchTree {
 		bool depth_rst = Inspect(this->root_, 0, this->deepness_);
 		if (!depth_rst) {
 			LOG(ERROR) << "tree deepness error!";
+		} else {
+			LOG(INFO) << "total layers including ROOT: " << this->layers_.size();
 		}
 	};
 
@@ -226,17 +230,20 @@ class BalancedBinarySearchTree {
 	//          0 if succeed but violate strict order;
 	//          -1 if failed insertion;
 	kWellOrder Insert(Node<Element>* insert_node) {
+		Utils::Timer t_;
 		if (this->root_->child_ == nullptr) {
 			this->root_->child_ = insert_node;
 			insert_node->parent_ = this->root_;
 			insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
 			this->deepness_ = 1;
+			insert_node->layer_ = 1;
 			insert_node->depth_ = 1;
 			return ORD;
 		} else {
+			// locate the insertion
 			Node<Element>* starting_ = this->root_->child_;
 			kWellOrder flag_ = ORD;
-			int layer_ = 1;
+			int layer_counter_ = 1;
 			while (true) {
 				kWellOrder cmp_ = comparer_(insert_node, starting_);
 				if (cmp_ == ORD) {
@@ -244,12 +251,13 @@ class BalancedBinarySearchTree {
 						starting_->lchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
-						insert_node->depth_ = layer_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
-						return flag_;
+						insert_node->layer_ = layer_counter_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
+						insert_node->depth_ = 1;
+						break;
 					} else {
 						starting_ = starting_->lchild_;
-						layer_++;
+						layer_counter_++;
 						continue;
 					}
 				} else if (cmp_ == EQN) {
@@ -257,13 +265,15 @@ class BalancedBinarySearchTree {
 						starting_->lchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
-						insert_node->depth_ = layer_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
-						return EQN;
+						insert_node->layer_ = layer_counter_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
+						insert_node->depth_ = 1;
+						flag_ = EQN;
+						break;
 					} else {
 						starting_ = starting_->lchild_;
 						flag_ = EQN;
-						layer_++;
+						layer_counter_++;
 						continue;
 					}
 				} else {
@@ -271,17 +281,38 @@ class BalancedBinarySearchTree {
 						starting_->rchild_ = insert_node;
 						insert_node->parent_ = starting_;
 						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
-						insert_node->depth_ = layer_ + 1;
-						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
-						return flag_;
+						insert_node->layer_ = layer_counter_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->layer_);
+						insert_node->depth_ = 1;
+						break;
 					} else {
 						starting_ = starting_->rchild_;
-						layer_++;
+						layer_counter_++;
 						continue;
 					}
 				}
 			}
-			return INV;
+			// calculate the depth
+			starting_ = insert_node->parent_;
+			int update_depth_ = 1;
+			while (true) {
+				if (starting_->parent_ == nullptr) {
+					// ROOT
+					starting_->depth_ = update_depth_;
+					break;
+				} else {
+					// Element
+					if (update_depth_ + 1 == starting_->depth_) {
+						break;
+					} else {
+						starting_->depth_ = update_depth_ + 1;
+						update_depth_ = starting_->depth_;
+						starting_ = starting_->parent_;
+						continue;
+					}
+				}
+			}
+			return flag_;
 		}
 	}
 };

@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 	AVLTREE.Insert(&n4);
 
 	if (AVLTREE.Max(&ROOT) != nullptr) {
-		LOG(INFO) << AVLTREE.Min(&ROOT)->geometric_element_->x_;
+		LOG(INFO) << AVLTREE.Max(&ROOT)->layer_ << " " << AVLTREE.Max(&ROOT)->depth_ << " " << ROOT.child_->depth_;
 	}
 	AVLTREE.Inspect();
 }
