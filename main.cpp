@@ -120,9 +120,23 @@ int main(int argc, char **argv) {
 	// AVL Tree Test
 	GeoChain::Euclidean::Point ROOT_PT(GeoChain::Euclidean::EUC1D);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(0, "ROOT", &ROOT_PT);
+	GeoChain::Euclidean::Point pt_1(GeoChain::Euclidean::EUC1D, 0);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n1(1, "1", &pt_1);
+	GeoChain::Euclidean::Point pt_2(GeoChain::Euclidean::EUC1D, 1);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n2(2, "2", &pt_2);
+	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -2);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(3, "3", &pt_3);
+	GeoChain::Euclidean::Point pt_4(GeoChain::Euclidean::EUC1D, 5);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(4, "4", &pt_4);
+
 	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(0, "ROOT", &ROOT, comparer1D);
+	AVLTREE.Insert(&n1);
+	AVLTREE.Insert(&n2);
+	AVLTREE.Insert(&n3);
+	AVLTREE.Insert(&n4);
+
 	if (AVLTREE.Max(&ROOT) != nullptr) {
-		LOG(INFO) << AVLTREE.Max(&ROOT)->geometric_element_->x_;
+		LOG(INFO) << AVLTREE.Min(&ROOT)->geometric_element_->x_;
 	}
 	AVLTREE.Inspect();
 }

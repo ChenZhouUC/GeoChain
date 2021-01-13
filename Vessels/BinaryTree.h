@@ -180,7 +180,7 @@ class BalancedBinarySearchTree {
 				return start_root;
 			}
 		}
-	}
+	};
 
 	// Successor: find the successor node
 	Node<Element>* Successor(Node<Element>* start_root) {
@@ -217,6 +217,71 @@ class BalancedBinarySearchTree {
 				}
 				return start_root;
 			}
+		}
+	};
+
+	// tree node operation
+	// Insert: insert ONE node into Tree and maintain the search Tree property
+	// return:  1 if succeed and maitain strict order;
+	//          0 if succeed but violate strict order;
+	//          -1 if failed insertion;
+	kWellOrder Insert(Node<Element>* insert_node) {
+		if (this->root_->child_ == nullptr) {
+			this->root_->child_ = insert_node;
+			insert_node->parent_ = this->root_;
+			insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+			this->deepness_ = 1;
+			insert_node->depth_ = 1;
+			return ORD;
+		} else {
+			Node<Element>* starting_ = this->root_->child_;
+			kWellOrder flag_ = ORD;
+			int layer_ = 1;
+			while (true) {
+				kWellOrder cmp_ = comparer_(insert_node, starting_);
+				if (cmp_ == ORD) {
+					if (starting_->lchild_ == nullptr) {
+						starting_->lchild_ = insert_node;
+						insert_node->parent_ = starting_;
+						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->depth_ = layer_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
+						return flag_;
+					} else {
+						starting_ = starting_->lchild_;
+						layer_++;
+						continue;
+					}
+				} else if (cmp_ == EQN) {
+					if (starting_->lchild_ == nullptr) {
+						starting_->lchild_ = insert_node;
+						insert_node->parent_ = starting_;
+						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->depth_ = layer_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
+						return EQN;
+					} else {
+						starting_ = starting_->lchild_;
+						flag_ = EQN;
+						layer_++;
+						continue;
+					}
+				} else {
+					if (starting_->rchild_ == nullptr) {
+						starting_->rchild_ = insert_node;
+						insert_node->parent_ = starting_;
+						insert_node->lchild_ = insert_node->rchild_ = insert_node->child_ = nullptr;
+						insert_node->depth_ = layer_ + 1;
+						this->deepness_ = std::max(this->deepness_, insert_node->depth_);
+						return flag_;
+					} else {
+						starting_ = starting_->rchild_;
+						layer_++;
+						continue;
+					}
+				}
+			}
+			return INV;
 		}
 	}
 };
