@@ -1,4 +1,6 @@
+#include <math.h>
 #include "Timer.h"
+#include "ConfigLoader.h"
 
 namespace GeoChain {
 namespace Vessels {
@@ -50,55 +52,26 @@ class Node {
  */
 template <class Element>
 class BalancedBinarySearchTree {
- public:
-	int id_ = -1;
-	std::string key_ = "";
-	Node<Element>* root_;
-
-	std::map<int, std::vector<std::string>> layers_;
-
-	// balancing: sum of balance scores for all the branches
-	// deepness: depth of the ROOT
-	int balancing_ = 0, deepness_ = 0;
-
-	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
-
-	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
-													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
-			: id_(id), key_(key), root_(root), comparer_(comparer) {
-		this->root_->tree_id_ = this->id_;
-		this->root_->tree_key_ = this->key_;
-	};
-	~BalancedBinarySearchTree(){};
-
-	// Inspect: visualize and inspect the tree structure
-	void Inspect() {
-		this->layers_.clear();
-		bool depth_rst = Inspect(this->root_, 0, this->deepness_);
-		if (!depth_rst) {
-			LOG(ERROR) << "tree deepness error!";
-		} else {
-			LOG(INFO) << "total layers including ROOT: " << this->layers_.size();
-		}
-	};
+ private:
+	int placeholder_ = g_GlobalVars.visualize_placeholder;
+	std::map<int, std::map<int, std::string>> layers_;
 
 	// layer: exact layer number of the start_root
 	// depth: exact depth to check
-	bool Inspect(Node<Element>* start_root, int layer, int depth) {
+	bool Inspect(Node<Element>* start_root, int layer, int depth, int loc) {
 		if (start_root->parent_ == nullptr) {
 			// ROOT Node
 			if (start_root->child_ == nullptr) {
 				LOG(ERROR) << "the Tree hasn't been initiated!";
-				this->layers_[0].push_back(start_root->key_);
+				this->layers_[0][0] = start_root->key_;
 				if (start_root->depth_ != 0 || start_root->layer_ != 0 || layer != 0) {
 					LOG(WARNING) << "query ROOT property error: "
 											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
 				}
 				return depth == 0;
 			} else {
-				this->layers_[0].push_back("[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
-																	 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
-																	 ")");
+				this->layers_[0][0] = "[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
+															std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) + ")";
 				if (start_root->child_->parent_->id_ != start_root->id_) {
 					LOG(WARNING) << "Node[" << start_root->child_->key_ << "] parent is not: [" << start_root->key_ << "]";
 				}
@@ -106,13 +79,13 @@ class BalancedBinarySearchTree {
 					LOG(WARNING) << "query ROOT property error: "
 											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
 				}
-				return Inspect(start_root->child_, 1, depth);
+				return Inspect(start_root->child_, 1, depth, 0);
 			}
 		} else {
 			// Element Node
-			this->layers_[layer].push_back("[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
-																		 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
-																		 ")");
+			this->layers_[layer][loc] = "[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
+																	std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
+																	")";
 			if (start_root->lchild_ == nullptr && start_root->rchild_ == nullptr) {
 				// Leaf node
 				if (start_root->depth_ != 1 || start_root->layer_ != layer) {
@@ -131,20 +104,19 @@ class BalancedBinarySearchTree {
 					if (start_root->lchild_->parent_->id_ != start_root->id_) {
 						LOG(WARNING) << "Node[" << start_root->lchild_->key_ << "] parent is not: [" << start_root->key_ << "]";
 					}
-					l_rst = Inspect(start_root->lchild_, layer + 1, depth - 1);
+					l_rst = Inspect(start_root->lchild_, layer + 1, depth - 1, loc * 2);
 				}
 				if (start_root->rchild_ != nullptr) {
 					if (start_root->rchild_->parent_->id_ != start_root->id_) {
 						LOG(WARNING) << "Node[" << start_root->rchild_->key_ << "] parent is not: [" << start_root->key_ << "]";
 					}
-					r_rst = Inspect(start_root->rchild_, layer + 1, depth - 1);
+					r_rst = Inspect(start_root->rchild_, layer + 1, depth - 1, loc * 2 + 1);
 				}
 				return l_rst || r_rst;
 			}
 		}
 	}
 
-	// searching methods
 	// Relayer: renote the layers of a subtree
 	bool Relayer(Node<Element>* start_root, int diff) {
 		if (start_root->parent_ == nullptr) {
@@ -172,135 +144,6 @@ class BalancedBinarySearchTree {
 			return l_opr || r_opr;
 		}
 	};
-
-	// Min: can return ONLY ONE Node with the min value in the searched subTree
-	Node<Element>* Min(Node<Element>* start_root) {
-		if (start_root->parent_ == nullptr) {
-			// ROOT Node
-			if (start_root->child_ == nullptr) {
-				LOG(ERROR) << "the Tree hasn't been initiated!";
-				return nullptr;
-			} else {
-				Node<Element>* min_ = Min(start_root->child_);
-				return min_;
-			}
-		} else {
-			// Element Node
-			if (start_root->lchild_ != nullptr) {
-				// not the min node
-				Node<Element>* l_min_ = Min(start_root->lchild_);
-				return l_min_;
-			} else {
-				// the min node
-				return start_root;
-			}
-		}
-	};
-
-	// Max: can return ONLY ONE Node with the max value in the searched subTree
-	Node<Element>* Max(Node<Element>* start_root) {
-		if (start_root->parent_ == nullptr) {
-			// ROOT Node
-			if (start_root->child_ == nullptr) {
-				LOG(ERROR) << "the Tree hasn't been initiated!";
-				return nullptr;
-			} else {
-				Node<Element>* max_ = Max(start_root->child_);
-				return max_;
-			}
-		} else {
-			// Element Node
-			if (start_root->rchild_ != nullptr) {
-				// not the max node
-				Node<Element>* r_max_ = Max(start_root->rchild_);
-				return r_max_;
-			} else {
-				// the max node
-				return start_root;
-			}
-		}
-	};
-
-	// searching exact: TODO
-
-	// Predecessor: find the predecessor node
-	Node<Element>* Predecessor(Node<Element>* start_root) {
-		if (start_root->parent_ == nullptr) {
-			// ROOT Node
-			if (start_root->child_ == nullptr) {
-				LOG(ERROR) << "the Tree hasn't been initiated!";
-			}
-			return nullptr;
-		} else {
-			// Element Node
-			if (start_root->lchild_ != nullptr) {
-				// subtree not empty <= start_root
-				Node<Element>* l_max_ = Max(start_root->lchild_);
-				return l_max_;
-			} else {
-				// should find the first rchild-like parent
-				while (true) {
-					Node<Element>* this_parent_ = start_root->parent_;
-					if (this_parent_->parent_ == nullptr) {
-						// this_parent_ == ROOT
-						break;
-					} else {
-						// this_parent_ is Element Node
-						if (this_parent_->rchild_->id_ == start_root->id_) {
-							// rchild-like parent
-							start_root = this_parent_;
-							break;
-						} else {
-							// lchild-like parent
-							start_root = this_parent_;
-						}
-					}
-				}
-				return start_root;
-			}
-		}
-	};
-
-	// Successor: find the successor node
-	Node<Element>* Successor(Node<Element>* start_root) {
-		if (start_root->parent_ == nullptr) {
-			// ROOT Node
-			if (start_root->child_ == nullptr) {
-				LOG(ERROR) << "the Tree hasn't been initiated!";
-			}
-			return nullptr;
-		} else {
-			// Element Node
-			if (start_root->rchild_ != nullptr) {
-				// subtree not empty >= start_root
-				Node<Element>* r_min_ = Min(start_root->rchild_);
-				return r_min_;
-			} else {
-				// should find the first lchild-like parent
-				while (true) {
-					Node<Element>* this_parent_ = start_root->parent_;
-					if (this_parent_->parent_ == nullptr) {
-						// this_parent_ == ROOT
-						break;
-					} else {
-						// this_parent_ is Element Node
-						if (this_parent_->lchild_->id_ == start_root->id_) {
-							// lchild-like parent
-							start_root = this_parent_;
-							break;
-						} else {
-							// rchild-like parent
-							start_root = this_parent_;
-						}
-					}
-				}
-				return start_root;
-			}
-		}
-	};
-
-	// tree node operation
-	// here we assume the operated node belongs to the tree instance
 
 	// Swap: swap two nodes
 	bool Swap(Node<Element>* node_1, Node<Element>* node_2) {
@@ -470,6 +313,282 @@ class BalancedBinarySearchTree {
 		}
 	};
 
+	// BacktraceDepthBalance: recalculate depth and balance
+	int BacktraceDepthBalance(Node<Element>* starting, int update_depth, int balancing = 0) {
+		while (true) {
+			if (starting->parent_ == nullptr) {
+				// ROOT
+				starting->depth_ = update_depth;
+				starting->balance_ = 0;
+				this->deepness_ = update_depth;
+				break;
+			} else {
+				// Element
+				int new_balance_, new_depth_;
+				if (starting->lchild_ != nullptr and starting->rchild_ != nullptr) {
+					new_balance_ = starting->rchild_->depth_ - starting->lchild_->depth_;
+					new_depth_ = std::max(starting->rchild_->depth_, starting->lchild_->depth_) + 1;
+				} else if (starting->lchild_ != nullptr) {
+					// only has lchild
+					new_balance_ = -starting->lchild_->depth_;
+					new_depth_ = update_depth + 1;
+				} else {
+					// only has rchild
+					new_balance_ = starting->rchild_->depth_;
+					new_depth_ = update_depth + 1;
+				}
+
+				if (new_balance_ == starting->balance_) {
+					// both not changed
+					break;
+				} else if (new_depth_ == starting->depth_) {
+					// this depth not changed but balance changed
+					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
+					this->balancing_ -= std::abs(starting->balance_);
+					starting->balance_ = new_balance_;
+					this->balancing_ += std::abs(starting->balance_);
+					break;
+				} else {
+					// depth and balace both changed
+					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
+					this->balancing_ -= std::abs(starting->balance_);
+					starting->balance_ = new_balance_;
+					this->balancing_ += std::abs(starting->balance_);
+					starting->depth_ = new_depth_;
+					update_depth = starting->depth_;
+					starting = starting->parent_;
+					continue;
+				}
+			}
+		}
+		return balancing;
+	};
+
+ public:
+	int id_ = -1;
+	std::string key_ = "";
+	Node<Element>* root_;
+
+	// balancing: sum of balance scores for all the branches
+	// deepness: depth of the ROOT
+	int balancing_ = 0, deepness_ = 0;
+
+	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
+
+	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
+													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
+			: id_(id), key_(key), root_(root), comparer_(comparer) {
+		this->root_->tree_id_ = this->id_;
+		this->root_->tree_key_ = this->key_;
+	};
+	~BalancedBinarySearchTree(){};
+
+	// CenterizePlaceHolder
+	std::string CenterizePlaceHolder(std::string& str, int placeholder) {
+		std::string c_str = "";
+		int begin_ = (placeholder - str.size()) / 2;
+		c_str += Utils::GenDuplStr(" ", begin_);
+		c_str += str;
+		c_str += Utils::GenDuplStr(" ", placeholder - c_str.size());
+		return c_str;
+	};
+
+	// Inspect: visualize and inspect the tree structure
+	void Inspect() {
+		this->layers_.clear();
+		bool depth_rst = Inspect(this->root_, 0, this->deepness_, 0);
+		if (!depth_rst) {
+			LOG(ERROR) << "tree deepness error!";
+		} else {
+			LOG(INFO) << "total layers including ROOT: " << this->layers_.size();
+		}
+		for (auto&& l_ : this->layers_) {
+			for (auto&& n_ : l_.second) {
+				this->placeholder_ = std::max(int(n_.second.size()) + 2, this->placeholder_);
+			}
+		}
+		if (this->placeholder_ % 2 != 0) {
+			// make sure it's even to ensure center calculation
+			this->placeholder_ += 1;
+		}
+		// LOG(INFO) << "placeholder: " << this->placeholder_;
+		std::string output_tree_structure_ = "Tree:[" + this->key_ + "] Structure\n";
+		int total_placeholder_ = std::max(1, int(std::pow(2, int(this->layers_.size()) - 2)));
+		std::string root_str_ = CenterizePlaceHolder(this->layers_[0][0], total_placeholder_ * this->placeholder_);
+		output_tree_structure_ += root_str_;
+		for (int l_ = 1; l_ < layers_.size(); l_++) {
+			output_tree_structure_ += "\n";
+			std::string this_layer_structure_t = "";
+			for (int n_ = 0; n_ < std::pow(2, l_ - 1); n_++) {
+				if (this->layers_[l_].count(n_) == 0) {
+					this_layer_structure_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_);
+				} else {
+					this_layer_structure_t +=
+							CenterizePlaceHolder(this->layers_[l_][n_], this->placeholder_ * total_placeholder_);
+				}
+			}
+			if (l_ > 1) {
+				int this_layer_thickness_ = this->placeholder_ * total_placeholder_ / 2;
+				for (int t_ = 0; t_ < this_layer_thickness_; t_++) {
+					std::string this_thick_t = "";
+					for (int n_ = 0; n_ < std::pow(2, l_ - 1); n_++) {
+						if (this->layers_[l_].count(n_) == 0) {
+							this_thick_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_);
+						} else {
+							if (n_ % 2 == 0) {
+								this_thick_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_ - 1 - t_);
+								this_thick_t += "/";
+								this_thick_t += Utils::GenDuplStr(" ", t_);
+							} else {
+								this_thick_t += Utils::GenDuplStr(" ", t_);
+								this_thick_t += "\\";
+								this_thick_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_ - 1 - t_);
+							}
+						}
+					}
+					output_tree_structure_ += (this_thick_t + "\n");
+				}
+			} else {
+				std::string this_thick_t = "|";
+				output_tree_structure_ += (CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n");
+			}
+			total_placeholder_ /= 2;
+			output_tree_structure_ += this_layer_structure_t;
+		}
+		LOG(INFO) << output_tree_structure_;
+	}
+
+	// searching methods
+
+	// Min: can return ONLY ONE Node with the min value in the searched subTree
+	Node<Element>* Min(Node<Element>* start_root) {
+		if (start_root->parent_ == nullptr) {
+			// ROOT Node
+			if (start_root->child_ == nullptr) {
+				LOG(ERROR) << "the Tree hasn't been initiated!";
+				return nullptr;
+			} else {
+				Node<Element>* min_ = Min(start_root->child_);
+				return min_;
+			}
+		} else {
+			// Element Node
+			if (start_root->lchild_ != nullptr) {
+				// not the min node
+				Node<Element>* l_min_ = Min(start_root->lchild_);
+				return l_min_;
+			} else {
+				// the min node
+				return start_root;
+			}
+		}
+	};
+
+	// Max: can return ONLY ONE Node with the max value in the searched subTree
+	Node<Element>* Max(Node<Element>* start_root) {
+		if (start_root->parent_ == nullptr) {
+			// ROOT Node
+			if (start_root->child_ == nullptr) {
+				LOG(ERROR) << "the Tree hasn't been initiated!";
+				return nullptr;
+			} else {
+				Node<Element>* max_ = Max(start_root->child_);
+				return max_;
+			}
+		} else {
+			// Element Node
+			if (start_root->rchild_ != nullptr) {
+				// not the max node
+				Node<Element>* r_max_ = Max(start_root->rchild_);
+				return r_max_;
+			} else {
+				// the max node
+				return start_root;
+			}
+		}
+	};
+
+	// searching exact: TODO
+
+	// Predecessor: find the predecessor node
+	Node<Element>* Predecessor(Node<Element>* start_root) {
+		if (start_root->parent_ == nullptr) {
+			// ROOT Node
+			if (start_root->child_ == nullptr) {
+				LOG(ERROR) << "the Tree hasn't been initiated!";
+			}
+			return nullptr;
+		} else {
+			// Element Node
+			if (start_root->lchild_ != nullptr) {
+				// subtree not empty <= start_root
+				Node<Element>* l_max_ = Max(start_root->lchild_);
+				return l_max_;
+			} else {
+				// should find the first rchild-like parent
+				while (true) {
+					Node<Element>* this_parent_ = start_root->parent_;
+					if (this_parent_->parent_ == nullptr) {
+						// this_parent_ == ROOT
+						break;
+					} else {
+						// this_parent_ is Element Node
+						if (this_parent_->rchild_->id_ == start_root->id_) {
+							// rchild-like parent
+							start_root = this_parent_;
+							break;
+						} else {
+							// lchild-like parent
+							start_root = this_parent_;
+						}
+					}
+				}
+				return start_root;
+			}
+		}
+	};
+
+	// Successor: find the successor node
+	Node<Element>* Successor(Node<Element>* start_root) {
+		if (start_root->parent_ == nullptr) {
+			// ROOT Node
+			if (start_root->child_ == nullptr) {
+				LOG(ERROR) << "the Tree hasn't been initiated!";
+			}
+			return nullptr;
+		} else {
+			// Element Node
+			if (start_root->rchild_ != nullptr) {
+				// subtree not empty >= start_root
+				Node<Element>* r_min_ = Min(start_root->rchild_);
+				return r_min_;
+			} else {
+				// should find the first lchild-like parent
+				while (true) {
+					Node<Element>* this_parent_ = start_root->parent_;
+					if (this_parent_->parent_ == nullptr) {
+						// this_parent_ == ROOT
+						break;
+					} else {
+						// this_parent_ is Element Node
+						if (this_parent_->lchild_->id_ == start_root->id_) {
+							// lchild-like parent
+							start_root = this_parent_;
+							break;
+						} else {
+							// rchild-like parent
+							start_root = this_parent_;
+						}
+					}
+				}
+				return start_root;
+			}
+		}
+	};
+
+	// tree node operation
+	// here we assume the operated node belongs to the tree instance
+
 	// Insert: insert ONE node into Tree and maintain the search Tree property
 	// return:  1 if succeed and maitain strict order;
 	//          0 if succeed but violate strict order;
@@ -578,57 +697,6 @@ class BalancedBinarySearchTree {
 		}
 	};
 
-	// BacktraceDepthBalance: recalculate depth and balance
-	int BacktraceDepthBalance(Node<Element>* starting, int update_depth, int balancing = 0) {
-		while (true) {
-			if (starting->parent_ == nullptr) {
-				// ROOT
-				starting->depth_ = update_depth;
-				starting->balance_ = 0;
-				this->deepness_ = update_depth;
-				break;
-			} else {
-				// Element
-				int new_balance_, new_depth_;
-				if (starting->lchild_ != nullptr and starting->rchild_ != nullptr) {
-					new_balance_ = starting->rchild_->depth_ - starting->lchild_->depth_;
-					new_depth_ = std::max(starting->rchild_->depth_, starting->lchild_->depth_) + 1;
-				} else if (starting->lchild_ != nullptr) {
-					// only has lchild
-					new_balance_ = -starting->lchild_->depth_;
-					new_depth_ = update_depth + 1;
-				} else {
-					// only has rchild
-					new_balance_ = starting->rchild_->depth_;
-					new_depth_ = update_depth + 1;
-				}
-
-				if (new_balance_ == starting->balance_) {
-					// both not changed
-					break;
-				} else if (new_depth_ == starting->depth_) {
-					// this depth not changed but balance changed
-					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
-					this->balancing_ -= std::abs(starting->balance_);
-					starting->balance_ = new_balance_;
-					this->balancing_ += std::abs(starting->balance_);
-					break;
-				} else {
-					// depth and balace both changed
-					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
-					this->balancing_ -= std::abs(starting->balance_);
-					starting->balance_ = new_balance_;
-					this->balancing_ += std::abs(starting->balance_);
-					starting->depth_ = new_depth_;
-					update_depth = starting->depth_;
-					starting = starting->parent_;
-					continue;
-				}
-			}
-		}
-		return balancing;
-	};
-
 	// Delete: delete ONE node from Tree and maintain the search Tree property
 	// return:  1 if succeed and maintain balace;
 	//          0 if succeed but weaken balace;
@@ -653,7 +721,6 @@ class BalancedBinarySearchTree {
 			delete_node->tree_id_ = -1;
 
 			Node<Element>* p_ = delete_node->parent_;
-			LOG(INFO) << 1;
 			if (p_->parent_ == nullptr) {
 				// ROOT
 				p_->child_ = p_->lchild_ = p_->rchild_ = nullptr;
@@ -664,7 +731,6 @@ class BalancedBinarySearchTree {
 				return ORD;
 			} else {
 				// Element
-				LOG(INFO) << 2;
 				int flag_ = 0;
 				if (p_->lchild_ != nullptr && p_->lchild_->id_ == delete_node->id_) {
 					// lchild
@@ -695,7 +761,6 @@ class BalancedBinarySearchTree {
 						flag_ -= 1;
 					}
 				}
-				LOG(INFO) << flag_;
 				// recalculate the depth and balance
 				Node<Element>* starting_ = p_->parent_;
 				int update_depth_ = p_->depth_;

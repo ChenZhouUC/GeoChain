@@ -6,7 +6,7 @@
     },
     "VISUALIZE": {
         "INDENT": 50,
-        "PLACEHOLDER": 10,
+        "PLACEHOLDER": 15,
         "PRECISION": 3,
         "STANDARDIZE": 1000.0,
         "SPACER": 20,
