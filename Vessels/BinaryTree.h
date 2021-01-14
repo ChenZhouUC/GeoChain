@@ -90,14 +90,16 @@ class BalancedBinarySearchTree {
 				this->layers_[0].push_back(start_root->key_);
 				return depth == 0;
 			} else {
-				this->layers_[0].push_back(start_root->key_ + " L" + std::to_string(start_root->layer_) + " D" +
-																	 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_));
+				this->layers_[0].push_back(start_root->key_ + ":(L" + std::to_string(start_root->layer_) + " D" +
+																	 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
+																	 ")");
 				return Inspect(start_root->child_, 1, depth);
 			}
 		} else {
 			// Element Node
-			this->layers_[layer].push_back(start_root->key_ + " L" + std::to_string(start_root->layer_) + " D" +
-																		 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_));
+			this->layers_[layer].push_back(start_root->key_ + ":(L" + std::to_string(start_root->layer_) + " D" +
+																		 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
+																		 ")");
 			if (start_root->lchild_ == nullptr && start_root->rchild_ == nullptr) {
 				// Leaf node
 				return depth == 1;
@@ -291,57 +293,154 @@ class BalancedBinarySearchTree {
 		node_1->balance_ = node_2->balance_;
 		node_1->layer_ = node_2->layer_;
 		node_1->depth_ = node_2->depth_;
-		node_1->parent_ = node_2->parent_;
-		node_1->child_ = node_2->child_;
-		node_1->lchild_ = node_2->lchild_;
-		node_1->rchild_ = node_2->rchild_;
-		if (node_2->parent_->parent_ == nullptr) {
-			// ROOT
-			node_2->parent_->child_ = node_1;
-		} else {
-			// Element
-			if (node_2->parent_->lchild_ != nullptr && node_2->parent_->lchild_->id_ == node_2->id_) {
-				// lchild
-				node_2->parent_->lchild_ = node_1;
-			} else {
-				// rchild
-				node_2->parent_->rchild_ = node_1;
-			}
-		}
-		if (node_2->lchild_ != nullptr) {
-			node_2->lchild_->parent_ = node_1;
-		}
-		if (node_2->rchild_ != nullptr) {
-			node_2->rchild_->parent_ = node_1;
-		}
 
 		node_2->balance_ = node_1_t->balance_;
 		node_2->layer_ = node_1_t->layer_;
 		node_2->depth_ = node_1_t->depth_;
-		node_2->parent_ = node_1_t->parent_;
-		node_2->child_ = node_1_t->child_;
-		node_2->lchild_ = node_1_t->lchild_;
-		node_2->rchild_ = node_1_t->rchild_;
-		if (node_1_t->parent_->parent_ == nullptr) {
-			// ROOT
-			node_1_t->parent_->child_ = node_2;
-		} else {
-			// Element
-			if (node_1_t->parent_->lchild_ != nullptr && node_1_t->parent_->lchild_->id_ == node_1_t->id_) {
-				// lchild
-				node_1_t->parent_->lchild_ = node_2;
+
+		if (node_1->parent_->id_ != node_2->id_ && node_2->parent_->id_ != node_1->id_) {
+			// not two parent-child-like neighbors
+			node_1->parent_ = node_2->parent_;
+			node_1->child_ = node_2->child_;
+			node_1->lchild_ = node_2->lchild_;
+			node_1->rchild_ = node_2->rchild_;
+			if (node_2->parent_->parent_ == nullptr) {
+				// ROOT
+				node_2->parent_->child_ = node_1;
 			} else {
-				// rchild
-				node_1_t->parent_->rchild_ = node_2;
+				// Element
+				if (node_2->parent_->lchild_ != nullptr && node_2->parent_->lchild_->id_ == node_2->id_) {
+					// lchild
+					node_2->parent_->lchild_ = node_1;
+				} else {
+					// rchild
+					node_2->parent_->rchild_ = node_1;
+				}
 			}
+			if (node_2->lchild_ != nullptr) {
+				node_2->lchild_->parent_ = node_1;
+			}
+			if (node_2->rchild_ != nullptr) {
+				node_2->rchild_->parent_ = node_1;
+			}
+
+			node_2->parent_ = node_1_t->parent_;
+			node_2->child_ = node_1_t->child_;
+			node_2->lchild_ = node_1_t->lchild_;
+			node_2->rchild_ = node_1_t->rchild_;
+			if (node_1_t->parent_->parent_ == nullptr) {
+				// ROOT
+				node_1_t->parent_->child_ = node_2;
+			} else {
+				// Element
+				if (node_1_t->parent_->lchild_ != nullptr && node_1_t->parent_->lchild_->id_ == node_1_t->id_) {
+					// lchild
+					node_1_t->parent_->lchild_ = node_2;
+				} else {
+					// rchild
+					node_1_t->parent_->rchild_ = node_2;
+				}
+			}
+			if (node_1_t->lchild_ != nullptr) {
+				node_1_t->lchild_->parent_ = node_2;
+			}
+			if (node_1_t->rchild_ != nullptr) {
+				node_1_t->rchild_->parent_ = node_2;
+			}
+			return true;
+		} else {
+			if (node_1->parent_->id_ == node_2->id_) {
+				// node_2 is parent of node_1
+				node_1->parent_ = node_2->parent_;
+				node_2->parent_ = node_1;
+
+				if (node_1->parent_->parent_ == nullptr) {
+					// ROOT
+					node_1->parent_->child_ = node_1;
+				} else {
+					// Element
+					if (node_1->parent_->lchild_ != nullptr && node_1->parent_->lchild_->id_ == node_2->id_) {
+						// lchild
+						node_1->parent_->lchild_ = node_1;
+					} else {
+						// rchild
+						node_1->parent_->rchild_ = node_1;
+					}
+				}
+
+				if (node_2->lchild_ != nullptr && node_2->lchild_->id_ == node_1->id_) {
+					// node_1 is lchild of node_2
+					node_1->lchild_ = node_2;
+					node_1->rchild_ = node_2->rchild_;
+					node_2->lchild_ = node_1_t->lchild_;
+					node_2->rchild_ = node_1_t->rchild_;
+					if (node_1->rchild_ != nullptr) {
+						node_1->rchild_->parent_ = node_1;
+					}
+				} else {
+					// node_1 is rchild of node_2
+					node_1->rchild_ = node_2;
+					node_1->lchild_ = node_2->lchild_;
+					node_2->lchild_ = node_1_t->lchild_;
+					node_2->rchild_ = node_1_t->rchild_;
+					if (node_1->lchild_ != nullptr) {
+						node_1->lchild_->parent_ = node_1;
+					}
+				}
+
+				if (node_2->lchild_ != nullptr) {
+					node_2->lchild_->parent_ = node_2;
+				}
+				if (node_2->rchild_ != nullptr) {
+					node_2->rchild_->parent_ = node_2;
+				}
+
+			} else {
+				// node_1 is parent of node_2
+				node_2->parent_ = node_1->parent_;
+				node_1->parent_ = node_2;
+				node_1->lchild_ = node_2->lchild_;
+				node_1->rchild_ = node_2->rchild_;
+
+				if (node_2->parent_->parent_ == nullptr) {
+					// ROOT
+					node_2->parent_->child_ = node_2;
+				} else {
+					// Element
+					if (node_2->parent_->lchild_ != nullptr && node_2->parent_->lchild_->id_ == node_1->id_) {
+						// lchild
+						node_2->parent_->lchild_ = node_2;
+					} else {
+						// rchild
+						node_2->parent_->rchild_ = node_2;
+					}
+				}
+
+				if (node_1_t->lchild_ != nullptr && node_1_t->lchild_->id_ == node_2->id_) {
+					// node_2 is lchild of node_1
+					node_2->lchild_ = node_1;
+					node_2->rchild_ = node_1_t->rchild_;
+					if (node_2->rchild_ != nullptr) {
+						node_2->rchild_->parent_ = node_2;
+					}
+				} else {
+					// node_1 is rchild of node_2
+					node_2->rchild_ = node_1;
+					node_2->lchild_ = node_1_t->lchild_;
+					if (node_2->lchild_ != nullptr) {
+						node_2->lchild_->parent_ = node_2;
+					}
+				}
+
+				if (node_1->lchild_ != nullptr) {
+					node_1->lchild_->parent_ = node_1;
+				}
+				if (node_1->rchild_ != nullptr) {
+					node_1->rchild_->parent_ = node_1;
+				}
+			}
+			return true;
 		}
-		if (node_1_t->lchild_ != nullptr) {
-			node_1_t->lchild_->parent_ = node_2;
-		}
-		if (node_1_t->rchild_ != nullptr) {
-			node_1_t->rchild_->parent_ = node_2;
-		}
-		return true;
 	};
 
 	// Insert: insert ONE node into Tree and maintain the search Tree property
@@ -671,9 +770,11 @@ class BalancedBinarySearchTree {
 		} else {
 			// a full branch Node
 			Node<Element>* pre_ = Predecessor(delete_node);
-			LOG(INFO) << pre_->layer_ << " " << pre_->depth_;
+			LOG(INFO) << delete_node->layer_ << " " << delete_node->depth_ << " " << delete_node->lchild_ << " "
+								<< delete_node->rchild_;
 			Swap(pre_, delete_node);
-			LOG(INFO) << pre_->layer_ << " " << pre_->depth_;
+			LOG(INFO) << delete_node->layer_ << " " << delete_node->depth_ << " " << delete_node->lchild_ << " "
+								<< delete_node->rchild_;
 			return Delete(delete_node);
 		}
 	};
