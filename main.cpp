@@ -119,46 +119,45 @@ int main(int argc, char **argv) {
 
 	// AVL Tree Test
 	GeoChain::Euclidean::Point ROOT_PT(GeoChain::Euclidean::EUC1D);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(0, "ROOT", &ROOT_PT);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(&ROOT_PT);
 	GeoChain::Euclidean::Point pt_1(GeoChain::Euclidean::EUC1D, 0);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n1(1, "1", &pt_1);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n1(&pt_1);
 	GeoChain::Euclidean::Point pt_2(GeoChain::Euclidean::EUC1D, 1);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n2(2, "2", &pt_2);
-	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -2);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(3, "3", &pt_3);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n2(&pt_2);
+	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -3);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(&pt_3);
 	GeoChain::Euclidean::Point pt_4(GeoChain::Euclidean::EUC1D, 5);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(4, "4", &pt_4);
-	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, 1);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n5(5, "5", &pt_5);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(&pt_4);
+	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, -2);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n5(&pt_5);
 	GeoChain::Euclidean::Point pt_6(GeoChain::Euclidean::EUC1D, -1);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n6(6, "6", &pt_6);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n6(&pt_6);
 
-	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(0, "AVL", &ROOT, comparer1D);
+	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(&ROOT, comparer1D);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n1);
 	AVLTREE.Inspect();
 	AVLTREE.Insert(&n2);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n3);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n4);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n5);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n6);
-
-	if (AVLTREE.Max(&ROOT) != nullptr) {
-		LOG(INFO) << AVLTREE.Max(&ROOT)->layer_ << " " << AVLTREE.Max(&ROOT)->depth_ << " " << ROOT.child_->depth_;
-	}
-	AVLTREE.Inspect();
-
-	AVLTREE.Delete(&n1);
-	AVLTREE.Inspect();
-
-	AVLTREE.Delete(&n1);
 	AVLTREE.Inspect();
 
 	AVLTREE.Delete(&n2);
 	AVLTREE.Inspect();
-
+	AVLTREE.Delete(&n4);
+	AVLTREE.Inspect();
+	AVLTREE.Delete(&n6);
+	AVLTREE.Inspect();
+	AVLTREE.Delete(&n1);
+	AVLTREE.Inspect();
 	AVLTREE.Delete(&n3);
 	AVLTREE.Inspect();
-
-	AVLTREE.Delete(&n4);
+	AVLTREE.Delete(&n5);
 	AVLTREE.Inspect();
 }

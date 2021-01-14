@@ -28,6 +28,7 @@ struct GlobalVar {
 
 	float convention_infinity;
 	int convention_error_code;
+	int convention_element_id;
 };
 
 struct GlobalKey {
@@ -55,6 +56,7 @@ struct GlobalKey {
 
 	std::string key_infinity;
 	std::string key_error_code;
+	std::string key_element_id;
 };
 
 enum kDataType { STR, FLT, INT, BOL };

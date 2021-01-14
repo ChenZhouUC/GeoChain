@@ -27,6 +27,19 @@ std::string GenDuplStr(const std::string unit_str, int num) {
 	return rst;
 }
 
+std::string ExtractClassName(const std::string str) {
+	std::string rst_ = "";
+	for (int i_ = 0; i_ < str.size() - 1; i_++) {
+		int tmp_ = (int)str[str.size() - 2 - i_];
+		if (tmp_ >= 48 && tmp_ <= 57) {
+			break;
+		} else {
+			rst_ = str[str.size() - 2 - i_] + rst_;
+		}
+	}
+	return rst_;
+}
+
 bool ReadJsonFile(const std::string &jsonFileName, Json::Value &root_group, bool collCommOpt = false) {
 	Json::CharReaderBuilder rbuilder;
 	rbuilder["collectComments"] = collCommOpt;
@@ -124,6 +137,8 @@ void LoadingConfig(const Json::Value &root_config) {
 									 g_GlobalVars.convention_infinity);
 	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_error_code,
 									 g_GlobalVars.convention_error_code);
+	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_element_id,
+									 g_GlobalVars.convention_element_id);
 }
 
 void DefineGlobalKeys() {
@@ -148,6 +163,7 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.convention_key = "CONVENTION";
 	g_GlobalKeys.key_infinity = "INFINITY";
 	g_GlobalKeys.key_error_code = "ERRORCODE";
+	g_GlobalKeys.key_element_id = "ELEMENTID";
 }
 
 }	// namespace Utils

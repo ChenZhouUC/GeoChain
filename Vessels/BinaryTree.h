@@ -40,7 +40,20 @@ class Node {
 	Node* child_ =
 			nullptr;	// if ROOT, then parent_ is Null but child_ is not Null; else, parent_ is not Null but child_ is Null
 
-	Node(int id, std::string key, Element* geo_ele) : id_(id), key_(key), geometric_element_(geo_ele){};
+	Node(int id, std::string key, Element* geo_ele) : id_(id), key_(key), geometric_element_(geo_ele) {
+		if (g_GlobalVars.convention_element_id >= this->id_) {
+			g_GlobalVars.convention_element_id++;
+			this->id_ = g_GlobalVars.convention_element_id;
+		} else {
+			g_GlobalVars.convention_element_id = this->id_;
+		}
+	};
+	Node(Element* geo_ele) : geometric_element_(geo_ele) {
+		g_GlobalVars.convention_element_id++;
+		this->id_ = g_GlobalVars.convention_element_id;
+		this->key_ = Utils::ExtractClassName(std::string(typeid(*(this->geometric_element_)).name())) +
+								 std::to_string(this->geometric_element_->dim_) + "d {" + std::to_string(this->id_) + "}";
+	};
 	~Node(){};
 };
 
@@ -63,7 +76,7 @@ class BalancedBinarySearchTree {
 			// ROOT Node
 			if (start_root->child_ == nullptr) {
 				LOG(ERROR) << "the Tree hasn't been initiated!";
-				this->layers_[0][0] = start_root->key_;
+				this->layers_[0][0] = "[" + start_root->key_ + "]";
 				if (start_root->depth_ != 0 || start_root->layer_ != 0 || layer != 0) {
 					LOG(WARNING) << "query ROOT property error: "
 											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
@@ -378,18 +391,34 @@ class BalancedBinarySearchTree {
 	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
 													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
 			: id_(id), key_(key), root_(root), comparer_(comparer) {
+		if (g_GlobalVars.convention_element_id >= this->id_) {
+			g_GlobalVars.convention_element_id++;
+			this->id_ = g_GlobalVars.convention_element_id;
+		} else {
+			g_GlobalVars.convention_element_id = this->id_;
+		}
 		this->root_->tree_id_ = this->id_;
 		this->root_->tree_key_ = this->key_;
 	};
+	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
+			: root_(root), comparer_(comparer) {
+		g_GlobalVars.convention_element_id++;
+		this->id_ = g_GlobalVars.convention_element_id;
+		this->key_ =
+				"AVLTree" + Utils::ExtractClassName(std::string(typeid(*this).name())) + " {" + std::to_string(this->id_) + "}";
+		this->root_->tree_id_ = this->id_;
+		this->root_->tree_key_ = this->key_;
+	}
 	~BalancedBinarySearchTree(){};
 
 	// CenterizePlaceHolder
 	std::string CenterizePlaceHolder(std::string& str, int placeholder) {
 		std::string c_str = "";
-		int begin_ = (placeholder - str.size()) / 2;
-		c_str += Utils::GenDuplStr(" ", begin_);
+		int len_ = (placeholder - str.size()) / 2;
+		c_str += Utils::GenDuplStr(" ", len_);
 		c_str += str;
-		c_str += Utils::GenDuplStr(" ", placeholder - c_str.size());
+		len_ = placeholder - c_str.size();
+		c_str += Utils::GenDuplStr(" ", len_);
 		return c_str;
 	};
 
@@ -414,7 +443,8 @@ class BalancedBinarySearchTree {
 		// LOG(INFO) << "placeholder: " << this->placeholder_;
 		std::string output_tree_structure_ = "Tree:[" + this->key_ + "] Structure\n";
 		int total_placeholder_ = std::max(1, int(std::pow(2, int(this->layers_.size()) - 2)));
-		std::string root_str_ = CenterizePlaceHolder(this->layers_[0][0], total_placeholder_ * this->placeholder_);
+		std::string root_str_ = "ROOT@" + this->layers_[0][0];
+		root_str_ = CenterizePlaceHolder(root_str_, total_placeholder_ * this->placeholder_);
 		output_tree_structure_ += root_str_;
 		for (int l_ = 1; l_ < layers_.size(); l_++) {
 			output_tree_structure_ += "\n";
@@ -429,7 +459,7 @@ class BalancedBinarySearchTree {
 			}
 			if (l_ > 1) {
 				int this_layer_thickness_ = this->placeholder_ * total_placeholder_ / 2;
-				for (int t_ = 0; t_ < this_layer_thickness_; t_++) {
+				for (int t_ = 0; t_ < this_layer_thickness_; t_ += 1) {
 					std::string this_thick_t = "";
 					for (int n_ = 0; n_ < std::pow(2, l_ - 1); n_++) {
 						if (this->layers_[l_].count(n_) == 0) {
@@ -437,11 +467,11 @@ class BalancedBinarySearchTree {
 						} else {
 							if (n_ % 2 == 0) {
 								this_thick_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_ - 1 - t_);
-								this_thick_t += "/";
+								this_thick_t += "╱";
 								this_thick_t += Utils::GenDuplStr(" ", t_);
 							} else {
 								this_thick_t += Utils::GenDuplStr(" ", t_);
-								this_thick_t += "\\";
+								this_thick_t += "╲";
 								this_thick_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_ - 1 - t_);
 							}
 						}
@@ -449,7 +479,7 @@ class BalancedBinarySearchTree {
 					output_tree_structure_ += (this_thick_t + "\n");
 				}
 			} else {
-				std::string this_thick_t = "|";
+				std::string this_thick_t = "||";
 				output_tree_structure_ += (CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n");
 			}
 			total_placeholder_ /= 2;

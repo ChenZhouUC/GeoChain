@@ -6,7 +6,7 @@
     },
     "VISUALIZE": {
         "INDENT": 50,
-        "PLACEHOLDER": 15,
+        "PLACEHOLDER": 20,
         "PRECISION": 3,
         "STANDARDIZE": 1000.0,
         "SPACER": 20,
@@ -19,6 +19,7 @@
     },
     "CONVENTION": {
         "INFINITY": 10000.0,
-        "ERRORCODE": 1111
+        "ERRORCODE": 1111,
+        "ELEMENTID": 0
     }
 }
