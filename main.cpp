@@ -124,13 +124,13 @@ int main(int argc, char **argv) {
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n1(&pt_1);
 	GeoChain::Euclidean::Point pt_2(GeoChain::Euclidean::EUC1D, 1);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n2(&pt_2);
-	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -3);
+	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -2);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(&pt_3);
 	GeoChain::Euclidean::Point pt_4(GeoChain::Euclidean::EUC1D, 5);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(&pt_4);
-	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, -2);
+	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, -1);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n5(&pt_5);
-	GeoChain::Euclidean::Point pt_6(GeoChain::Euclidean::EUC1D, -1);
+	GeoChain::Euclidean::Point pt_6(GeoChain::Euclidean::EUC1D, -3);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n6(&pt_6);
 
 	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(&ROOT, comparer1D);
