@@ -82,34 +82,61 @@ class BalancedBinarySearchTree {
 		}
 	};
 
+	// layer: exact layer number of the start_root
+	// depth: exact depth to check
 	bool Inspect(Node<Element>* start_root, int layer, int depth) {
 		if (start_root->parent_ == nullptr) {
 			// ROOT Node
 			if (start_root->child_ == nullptr) {
 				LOG(ERROR) << "the Tree hasn't been initiated!";
 				this->layers_[0].push_back(start_root->key_);
+				if (start_root->depth_ != 0 || start_root->layer_ != 0 || layer != 0) {
+					LOG(WARNING) << "query ROOT property error: "
+											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
+				}
 				return depth == 0;
 			} else {
-				this->layers_[0].push_back(start_root->key_ + ":(L" + std::to_string(start_root->layer_) + " D" +
+				this->layers_[0].push_back("[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
 																	 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
 																	 ")");
+				if (start_root->child_->parent_->id_ != start_root->id_) {
+					LOG(WARNING) << "Node[" << start_root->child_->key_ << "] parent is not: [" << start_root->key_ << "]";
+				}
+				if (start_root->depth_ != depth || start_root->layer_ != 0 || layer != 0) {
+					LOG(WARNING) << "query ROOT property error: "
+											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
+				}
 				return Inspect(start_root->child_, 1, depth);
 			}
 		} else {
 			// Element Node
-			this->layers_[layer].push_back(start_root->key_ + ":(L" + std::to_string(start_root->layer_) + " D" +
+			this->layers_[layer].push_back("[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
 																		 std::to_string(start_root->depth_) + " B" + std::to_string(start_root->balance_) +
 																		 ")");
 			if (start_root->lchild_ == nullptr && start_root->rchild_ == nullptr) {
 				// Leaf node
+				if (start_root->depth_ != 1 || start_root->layer_ != layer) {
+					LOG(WARNING) << "query Leaf property error: "
+											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
+				}
 				return depth == 1;
 			} else {
 				// Branch node
+				if (start_root->layer_ != layer) {
+					LOG(WARNING) << "query Branch property error: "
+											 << " L" << start_root->layer_ << " Query layer: " << layer;
+				}
 				bool l_rst = false, r_rst = false;
 				if (start_root->lchild_ != nullptr) {
+					if (start_root->lchild_->parent_->id_ != start_root->id_) {
+						LOG(WARNING) << "Node[" << start_root->lchild_->key_ << "] parent is not: [" << start_root->key_ << "]";
+					}
 					l_rst = Inspect(start_root->lchild_, layer + 1, depth - 1);
 				}
 				if (start_root->rchild_ != nullptr) {
+					if (start_root->rchild_->parent_->id_ != start_root->id_) {
+						LOG(WARNING) << "Node[" << start_root->rchild_->key_ << "] parent is not: [" << start_root->key_ << "]";
+					}
 					r_rst = Inspect(start_root->rchild_, layer + 1, depth - 1);
 				}
 				return l_rst || r_rst;
@@ -464,6 +491,7 @@ class BalancedBinarySearchTree {
 			insert_node->parent_ = this->root_;
 			insert_node->layer_ = 1;
 			insert_node->depth_ = 1;
+			this->root_->depth_ = 1;
 			this->balancing_ = 0;
 			this->deepness_ = 1;
 			return ORD;
@@ -541,7 +569,6 @@ class BalancedBinarySearchTree {
 						} else {
 							starting_->balance_ = starting_->rchild_->depth_;
 						}
-
 						starting_ = starting_->parent_;
 						continue;
 					}

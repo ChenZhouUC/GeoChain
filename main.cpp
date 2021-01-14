@@ -128,12 +128,19 @@ int main(int argc, char **argv) {
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(3, "3", &pt_3);
 	GeoChain::Euclidean::Point pt_4(GeoChain::Euclidean::EUC1D, 5);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(4, "4", &pt_4);
+	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, 1);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n5(5, "5", &pt_5);
+	GeoChain::Euclidean::Point pt_6(GeoChain::Euclidean::EUC1D, -1);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n6(6, "6", &pt_6);
 
 	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(0, "ROOT", &ROOT, comparer1D);
 	AVLTREE.Insert(&n1);
+	AVLTREE.Inspect();
 	AVLTREE.Insert(&n2);
 	AVLTREE.Insert(&n3);
 	AVLTREE.Insert(&n4);
+	AVLTREE.Insert(&n5);
+	AVLTREE.Insert(&n6);
 
 	if (AVLTREE.Max(&ROOT) != nullptr) {
 		LOG(INFO) << AVLTREE.Max(&ROOT)->layer_ << " " << AVLTREE.Max(&ROOT)->depth_ << " " << ROOT.child_->depth_;
@@ -142,6 +149,14 @@ int main(int argc, char **argv) {
 	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.layers_[2][0] << " "
 						<< AVLTREE.layers_[3][0] << " " << AVLTREE.balancing_;
 	AVLTREE.Delete(&n1);
+	AVLTREE.Inspect();
+	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.layers_[2][0] << " "
+						<< AVLTREE.layers_[3][0] << " " << AVLTREE.balancing_;
+	AVLTREE.Delete(&n1);
+	AVLTREE.Inspect();
+	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.layers_[2][0] << " "
+						<< AVLTREE.layers_[3][0] << " " << AVLTREE.balancing_;
+	AVLTREE.Delete(&n2);
 	AVLTREE.Inspect();
 	LOG(INFO) << AVLTREE.layers_[0][0] << " " << AVLTREE.layers_[1][0] << " " << AVLTREE.layers_[2][0] << " "
 						<< AVLTREE.layers_[3][0] << " " << AVLTREE.balancing_;
