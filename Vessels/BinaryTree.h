@@ -377,6 +377,17 @@ class BalancedBinarySearchTree {
 		return balancing;
 	};
 
+	// CenterizePlaceHolder
+	std::string CenterizePlaceHolder(std::string& str, int placeholder) {
+		std::string c_str = "";
+		int len_ = (placeholder - str.size()) / 2;
+		c_str += Utils::GenDuplStr(" ", len_);
+		c_str += str;
+		len_ = placeholder - c_str.size();
+		c_str += Utils::GenDuplStr(" ", len_);
+		return c_str;
+	};
+
  public:
 	int id_ = -1;
 	std::string key_ = "";
@@ -410,17 +421,6 @@ class BalancedBinarySearchTree {
 		this->root_->tree_key_ = this->key_;
 	}
 	~BalancedBinarySearchTree(){};
-
-	// CenterizePlaceHolder
-	std::string CenterizePlaceHolder(std::string& str, int placeholder) {
-		std::string c_str = "";
-		int len_ = (placeholder - str.size()) / 2;
-		c_str += Utils::GenDuplStr(" ", len_);
-		c_str += str;
-		len_ = placeholder - c_str.size();
-		c_str += Utils::GenDuplStr(" ", len_);
-		return c_str;
-	};
 
 	// Inspect: visualize and inspect the tree structure
 	void Inspect() {
