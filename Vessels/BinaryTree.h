@@ -896,11 +896,7 @@ class BalancedBinarySearchTree {
 		} else {
 			// a full branch Node
 			Node<Element>* pre_ = Predecessor(delete_node);
-			LOG(INFO) << delete_node->layer_ << " " << delete_node->depth_ << " " << delete_node->lchild_ << " "
-								<< delete_node->rchild_;
 			Swap(pre_, delete_node);
-			LOG(INFO) << delete_node->layer_ << " " << delete_node->depth_ << " " << delete_node->lchild_ << " "
-								<< delete_node->rchild_;
 			return Delete(delete_node);
 		}
 	};
@@ -908,7 +904,7 @@ class BalancedBinarySearchTree {
 	// LeftRotate: left rotate the subtree structure
 	// return:  1 if succeed and maintain balace;
 	//          0 if succeed but weaken balace;
-	//          -1 if failed deletion;
+	//          -1 if failed rotation;
 	kWellOrder LeftRotate(Node<Element>* start_node) {
 		if (start_node->tree_id_ != this->id_) {
 			// not this tree
@@ -942,12 +938,17 @@ class BalancedBinarySearchTree {
 
 		start_node->parent_ = start_node->rchild_;
 		start_node->rchild_ = start_node->parent_->lchild_;
+		if (start_node->rchild_ != nullptr) {
+			start_node->rchild_->parent_ = start_node;
+		}
 		start_node->parent_->lchild_ = start_node;
 
 		start_node->layer_ += 1;
 		start_node->parent_->layer_ -= 1;
+		int top_depth_ = 0;
 		if (start_node->parent_->rchild_ != nullptr) {
 			Relayer(start_node->parent_->rchild_, -1);
+			top_depth_ = start_node->parent_->rchild_->depth_;
 		}
 		if (start_node->lchild_ != nullptr) {
 			Relayer(start_node->lchild_, +1);
@@ -963,8 +964,91 @@ class BalancedBinarySearchTree {
 		start_node->depth_ = std::max(l_depth_, r_depth_) + 1;
 		int flag_ = std::abs(r_depth_ - l_depth_) - std::abs(start_node->balance_);
 		start_node->balance_ = r_depth_ - l_depth_;
+
+		flag_ += std::abs(top_depth_ - start_node->depth_) - std::abs(start_node->parent_->balance_);
+		start_node->parent_->depth_ = std::max(top_depth_, start_node->depth_) + 1;
+		start_node->parent_->balance_ = top_depth_ - start_node->depth_;
+
 		this->balancing_ += flag_;
-		flag_ = BacktraceDepthBalance(start_node->parent_, start_node->depth_, flag_);
+		flag_ = BacktraceDepthBalance(start_node->parent_->parent_, start_node->parent_->depth_, flag_);
+
+		if (flag_ > 0) {
+			return EQN;
+		} else {
+			return ORD;
+		}
+	};
+
+	// RightRotate: Right rotate the subtree structure
+	// return:  1 if succeed and maintain balace;
+	//          0 if succeed but weaken balace;
+	//          -1 if failed rotation;
+	kWellOrder RightRotate(Node<Element>* start_node) {
+		if (start_node->tree_id_ != this->id_) {
+			// not this tree
+			LOG(ERROR) << "rotate node not owned by this tree but: " << start_node->tree_id_ << ":" << start_node->tree_key_;
+			return INV;
+		} else if (start_node->parent_ == nullptr) {
+			// ROOT
+			LOG(ERROR) << "rotate node cannot be ROOT!";
+			return INV;
+		} else if (start_node->lchild_ == nullptr) {
+			// empty rchild
+			LOG(ERROR) << "right rotate need lchild not to be empty!";
+			return INV;
+		}
+
+		if (start_node->parent_->parent_ == nullptr) {
+			// ROOT
+			start_node->parent_->child_ = start_node->lchild_;
+			start_node->lchild_->parent_ = start_node->parent_;
+		} else {
+			// Element
+			start_node->lchild_->parent_ = start_node->parent_;
+			if (start_node->parent_->lchild_ != nullptr && start_node->parent_->lchild_->id_ == start_node->id_) {
+				// lchild
+				start_node->parent_->lchild_ = start_node->lchild_;
+			} else {
+				// rchild
+				start_node->parent_->rchild_ = start_node->lchild_;
+			}
+		}
+
+		start_node->parent_ = start_node->lchild_;
+		start_node->lchild_ = start_node->parent_->rchild_;
+		if (start_node->lchild_ != nullptr) {
+			start_node->lchild_->parent_ = start_node;
+		}
+		start_node->parent_->rchild_ = start_node;
+
+		start_node->layer_ += 1;
+		start_node->parent_->layer_ -= 1;
+		int top_depth_ = 0;
+		if (start_node->parent_->lchild_ != nullptr) {
+			Relayer(start_node->parent_->lchild_, -1);
+			top_depth_ = start_node->parent_->lchild_->depth_;
+		}
+		if (start_node->rchild_ != nullptr) {
+			Relayer(start_node->rchild_, +1);
+		}
+
+		int l_depth_ = 0, r_depth_ = 0;
+		if (start_node->lchild_ != nullptr) {
+			l_depth_ = start_node->lchild_->depth_;
+		}
+		if (start_node->rchild_ != nullptr) {
+			r_depth_ = start_node->rchild_->depth_;
+		}
+		start_node->depth_ = std::max(l_depth_, r_depth_) + 1;
+		int flag_ = std::abs(r_depth_ - l_depth_) - std::abs(start_node->balance_);
+		start_node->balance_ = r_depth_ - l_depth_;
+
+		flag_ += std::abs(start_node->depth_ - top_depth_) - std::abs(start_node->parent_->balance_);
+		start_node->parent_->depth_ = std::max(top_depth_, start_node->depth_) + 1;
+		start_node->parent_->balance_ = start_node->depth_ - top_depth_;
+
+		this->balancing_ += flag_;
+		flag_ = BacktraceDepthBalance(start_node->parent_->parent_, start_node->parent_->depth_, flag_);
 
 		if (flag_ > 0) {
 			return EQN;
