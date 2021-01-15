@@ -41,5 +41,5 @@ The above structure shows the inheritance of the geometric classes.
 #### Visualization
 
 <div align=center>
-<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/ele1D2V.png" alt="ele1D2V" align="center"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/ele1D2V.png" alt="ele1D2V" width="470" height="600" align="center"/>
 </div>

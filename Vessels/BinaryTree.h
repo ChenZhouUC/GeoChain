@@ -1,3 +1,6 @@
+#ifndef _BINARYTREE_
+#define _BINARYTREE_
+
 #include <math.h>
 #include "Timer.h"
 #include "ConfigLoader.h"
@@ -377,17 +380,6 @@ class BalancedBinarySearchTree {
 		return balancing;
 	};
 
-	// CenterizePlaceHolder
-	std::string CenterizePlaceHolder(std::string& str, int placeholder) {
-		std::string c_str = "";
-		int len_ = (placeholder - str.size()) / 2;
-		c_str += Utils::GenDuplStr(" ", len_);
-		c_str += str;
-		len_ = placeholder - c_str.size();
-		c_str += Utils::GenDuplStr(" ", len_);
-		return c_str;
-	};
-
  public:
 	int id_ = -1;
 	std::string key_ = "";
@@ -443,8 +435,8 @@ class BalancedBinarySearchTree {
 		// LOG(INFO) << "placeholder: " << this->placeholder_;
 		std::string output_tree_structure_ = "Tree:[" + this->key_ + "] Structure\n";
 		int total_placeholder_ = std::max(1, int(std::pow(2, int(this->layers_.size()) - 2)));
-		std::string root_str_ = "ROOT@" + this->layers_[0][0];
-		root_str_ = CenterizePlaceHolder(root_str_, total_placeholder_ * this->placeholder_);
+		std::string root_str_ = "ROOT＠" + this->layers_[0][0];
+		root_str_ = Utils::CenterizePlaceHolder(root_str_, total_placeholder_ * this->placeholder_, 2);
 		output_tree_structure_ += root_str_;
 		for (int l_ = 1; l_ < layers_.size(); l_++) {
 			output_tree_structure_ += "\n";
@@ -454,7 +446,7 @@ class BalancedBinarySearchTree {
 					this_layer_structure_t += Utils::GenDuplStr(" ", this->placeholder_ * total_placeholder_);
 				} else {
 					this_layer_structure_t +=
-							CenterizePlaceHolder(this->layers_[l_][n_], this->placeholder_ * total_placeholder_);
+							Utils::CenterizePlaceHolder(this->layers_[l_][n_], this->placeholder_ * total_placeholder_);
 				}
 			}
 			if (l_ > 1) {
@@ -480,7 +472,8 @@ class BalancedBinarySearchTree {
 				}
 			} else {
 				std::string this_thick_t = "||";
-				output_tree_structure_ += (CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n");
+				output_tree_structure_ +=
+						(Utils::CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n");
 			}
 			total_placeholder_ /= 2;
 			output_tree_structure_ += this_layer_structure_t;
@@ -904,3 +897,5 @@ class BalancedBinarySearchTree {
 
 }	// namespace Vessels
 }	// namespace GeoChain
+
+#endif

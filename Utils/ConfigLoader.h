@@ -8,6 +8,7 @@
 namespace GeoChain {
 namespace Utils {
 
+// IsNum: judge if a string is totally digits or not
 bool IsNum(std::string s) {
 	std::stringstream sin(s);
 	double t;
@@ -19,6 +20,7 @@ bool IsNum(std::string s) {
 		return true;
 }
 
+// GenDuplStr: generate string-like duplicated character
 std::string GenDuplStr(const std::string unit_str, int num) {
 	std::string rst = "";
 	for (int i_ = 0; i_ < num; i_++) {
@@ -27,6 +29,7 @@ std::string GenDuplStr(const std::string unit_str, int num) {
 	return rst;
 }
 
+// ExtractClassName: extract class name from typeid.name()
 std::string ExtractClassName(const std::string str) {
 	std::string rst_ = "";
 	for (int i_ = 0; i_ < str.size() - 1; i_++) {
@@ -39,6 +42,17 @@ std::string ExtractClassName(const std::string str) {
 	}
 	return rst_;
 }
+
+// CenterizePlaceHolder: centerize a string into a placeholder
+std::string CenterizePlaceHolder(std::string &str, int placeholder, int extra_adjust = 0) {
+	std::string c_str = "";
+	int len_ = (placeholder + extra_adjust - str.size()) / 2;
+	c_str += GenDuplStr(" ", len_);
+	c_str += str;
+	len_ = placeholder + extra_adjust - c_str.size();
+	c_str += GenDuplStr(" ", len_);
+	return c_str;
+};
 
 bool ReadJsonFile(const std::string &jsonFileName, Json::Value &root_group, bool collCommOpt = false) {
 	Json::CharReaderBuilder rbuilder;

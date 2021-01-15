@@ -1,3 +1,6 @@
+#ifndef _TIMER_
+#define _TIMER_
+
 #include <time.h>
 #include <iomanip>
 #include "LogGuardian.h"
@@ -20,3 +23,5 @@ class Timer {
 };
 }	// namespace Utils
 }	// namespace GeoChain
+
+#endif

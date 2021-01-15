@@ -1,3 +1,6 @@
+#ifndef _VISUALIZER2D_
+#define _VISUALIZER2D_
+
 #include <opencv2/opencv.hpp>
 #include "ElementaryElements.h"
 
@@ -252,3 +255,5 @@ class Visualizer2D {
 
 }	// namespace Euclidean
 }	// namespace GeoChain
+
+#endif
