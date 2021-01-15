@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
-	LOG(WARNING) << AVLTREE.LeftRotate(&n3);
+	LOG(WARNING) << AVLTREE.LeftRightRotate(&n1);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
-	LOG(WARNING) << AVLTREE.RightRotate(&n1);
+	LOG(WARNING) << AVLTREE.RightLeftRotate(&n5);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
