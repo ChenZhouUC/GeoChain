@@ -1,8 +1,9 @@
-## Data Vessels
+# Data Vessels
 
-### Binary Trees
+## Binary Trees
 
-#### Balanced Binary Search Tree (AVL Tree)
+### Balanced Binary Search Tree (AVL Tree)
+
 + G. M. Adelson-Velsky & E. M. Landis
 + 1962, An algorithm for the organization of information
 
@@ -10,7 +11,7 @@
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/AVL.png" alt="AVL" width="600" height="590" align="center"/>
 </div>
 
-```
+```{class}
 AVLTree
 ├── Public
 │     ├── Inspect()       // inspect the AVL Tree nodes by traversal  

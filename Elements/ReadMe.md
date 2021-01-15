@@ -1,6 +1,9 @@
-## Euclidean Space
-### Basic Elements
-#### Degree of Freedom
+# Euclidean Space
+
+## Basic Elements
+
+### Degree of Freedom
+
 <div align=center>
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/Elements.png" alt="elements" width="600" height="190" align="center"/>
 </div>
@@ -19,11 +22,11 @@ Since DOF is more like an objectve characteristic of a certain element, we have 
 </div>
 Moreover, (x) and [x] could both be viewed as 0 in calculation. Here (x) means there might be several but finite candidates for each of x parameters, while [x] stands for only one candidate value (most probably 0) for each of x parameters.
 
-#### Class Inheritance
+### Class Inheritance
 
 According to the design of GeoChain, we devide geometric elements by the degrees of freedom occupied by one of their instances in the Euclidean Space, respectively:
 
-```
+```{inheritance}
 Euclidean Space
 ├── Dim = 0 ── Point()
 │
@@ -38,7 +41,7 @@ Euclidean Space
 
 The above structure shows the inheritance of the geometric classes.
 
-#### Visualization
+### Visualization
 
 <div align=center>
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/ele1D2V.png" alt="ele1D2V" width="470" height="600" align="center"/>
