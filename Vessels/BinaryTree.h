@@ -71,6 +71,7 @@ class BalancedBinarySearchTree {
  private:
 	int placeholder_ = g_GlobalVars.visualize_placeholder;
 	std::map<int, std::map<int, std::string>> layers_;
+	bool balanced_ = true;
 
 	// layer: exact layer number of the start_root
 	// depth: exact depth to check
@@ -401,8 +402,8 @@ class BalancedBinarySearchTree {
 	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
 
 	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
-													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
-			: id_(id), key_(key), root_(root), comparer_(comparer) {
+													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2), bool balanced = true)
+			: id_(id), key_(key), root_(root), comparer_(comparer), balanced_(balanced) {
 		if (g_GlobalVars.convention_element_id >= this->id_) {
 			g_GlobalVars.convention_element_id++;
 			this->id_ = g_GlobalVars.convention_element_id;
@@ -412,8 +413,10 @@ class BalancedBinarySearchTree {
 		this->root_->tree_id_ = this->id_;
 		this->root_->tree_key_ = this->key_;
 	};
-	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2))
-			: root_(root), comparer_(comparer) {
+
+	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2),
+													 bool balanced = true)
+			: root_(root), comparer_(comparer), balanced_(balanced) {
 		g_GlobalVars.convention_element_id++;
 		this->id_ = g_GlobalVars.convention_element_id;
 		this->key_ =
@@ -943,13 +946,13 @@ class BalancedBinarySearchTree {
 				} else {
 					// Element
 					if (update_depth_ + 1 <= starting_->depth_) {
+						// from this layer up is good to go
 						this->balancing_ -= 1;
 						starting_->balance_ = std::copysign(std::abs(starting_->balance_) - 1, starting_->balance_);
 						break;
 					} else {
 						// update_depth_ + 1 > starting_->depth_
 						starting_->depth_ = update_depth_ + 1;
-						update_depth_ = starting_->depth_;
 						this->balancing_ += 1;
 						if (starting_->lchild_ != nullptr && starting_->rchild_ != nullptr) {
 							starting_->balance_ = starting_->rchild_->depth_ - starting_->lchild_->depth_;
@@ -958,6 +961,37 @@ class BalancedBinarySearchTree {
 						} else {
 							starting_->balance_ = starting_->rchild_->depth_;
 						}
+
+						// rebalance using rotations
+						if (std::abs(starting_->balance_) > 1 && this->balanced_) {
+							if (starting_->lchild_ != nullptr && starting_->lchild_->depth_ == update_depth_) {
+								// Left
+								if (starting_->lchild_->lchild_ != nullptr &&
+										starting_->lchild_->lchild_->depth_ == update_depth_ - 1) {
+									// Left Left
+									RightRotate(starting_);
+									break;
+								} else {
+									// Left Right
+									LeftRightRotate(starting_);
+									break;
+								}
+							} else {
+								// Right
+								if (starting_->rchild_->rchild_ != nullptr &&
+										starting_->rchild_->rchild_->depth_ == update_depth_ - 1) {
+									// Right Left
+									LeftRotate(starting_);
+									break;
+								} else {
+									// Right Right
+									RightLeftRotate(starting_);
+									break;
+								}
+							}
+						}
+
+						update_depth_ = starting_->depth_;
 						starting_ = starting_->parent_;
 						continue;
 					}

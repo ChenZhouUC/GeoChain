@@ -136,6 +136,18 @@ int main(int argc, char **argv) {
 	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(&ROOT, comparer1D);
 	AVLTREE.Inspect();
 
+	LOG(WARNING) << AVLTREE.Insert(&n6);
+	AVLTREE.Inspect();
+	LOG(WARNING) << AVLTREE.balancing_;
+
+	LOG(WARNING) << AVLTREE.Insert(&n3);
+	AVLTREE.Inspect();
+	LOG(WARNING) << AVLTREE.balancing_;
+
+	LOG(WARNING) << AVLTREE.Insert(&n5);
+	AVLTREE.Inspect();
+	LOG(WARNING) << AVLTREE.balancing_;
+
 	LOG(WARNING) << AVLTREE.Insert(&n1);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
@@ -144,19 +156,7 @@ int main(int argc, char **argv) {
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
-	LOG(WARNING) << AVLTREE.Insert(&n3);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
 	LOG(WARNING) << AVLTREE.Insert(&n4);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Insert(&n5);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Insert(&n6);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
