@@ -84,6 +84,10 @@ class BalancedBinarySearchTree {
 					LOG(WARNING) << "query ROOT property error: "
 											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
 				}
+				if (this->deepness_ != 0 || this->balancing_ != 0) {
+					LOG(WARNING) << "tree property error: "
+											 << "TD" << this->deepness_ << " TB" << this->balancing_;
+				}
 				return depth == 0;
 			} else {
 				this->layers_[0][0] = "[" + start_root->key_ + "]:(L" + std::to_string(start_root->layer_) + " D" +
@@ -94,6 +98,10 @@ class BalancedBinarySearchTree {
 				if (start_root->depth_ != depth || start_root->layer_ != 0 || layer != 0) {
 					LOG(WARNING) << "query ROOT property error: "
 											 << "D" << start_root->depth_ << " L" << start_root->layer_ << " Query layer: " << layer;
+				}
+				if (this->deepness_ != depth) {
+					LOG(WARNING) << "tree property error: "
+											 << "TD" << this->deepness_;
 				}
 				return Inspect(start_root->child_, 1, depth, 0);
 			}
@@ -353,24 +361,25 @@ class BalancedBinarySearchTree {
 					new_balance_ = starting->rchild_->depth_;
 					new_depth_ = update_depth + 1;
 				}
-
+				int update_balancing_ = 0;
 				if (new_balance_ == starting->balance_) {
 					// both not changed
 					break;
 				} else if (new_depth_ == starting->depth_) {
 					// this depth not changed but balance changed
-					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
-					this->balancing_ -= std::abs(starting->balance_);
+					update_balancing_ = std::abs(new_balance_) - std::abs(starting->balance_);
+					balancing += update_balancing_;
+					this->balancing_ += update_balancing_;
 					starting->balance_ = new_balance_;
-					this->balancing_ += std::abs(starting->balance_);
 					break;
 				} else {
 					// depth and balace both changed
-					balancing += (std::abs(new_balance_) - std::abs(starting->balance_));
-					this->balancing_ -= std::abs(starting->balance_);
+					update_balancing_ = std::abs(new_balance_) - std::abs(starting->balance_);
+					balancing += update_balancing_;
+					this->balancing_ += update_balancing_;
 					starting->balance_ = new_balance_;
-					this->balancing_ += std::abs(starting->balance_);
 					starting->depth_ = new_depth_;
+
 					update_depth = starting->depth_;
 					starting = starting->parent_;
 					continue;
@@ -436,10 +445,10 @@ class BalancedBinarySearchTree {
 		std::string output_tree_structure_ = "Tree:[" + this->key_ + "] Structure\n";
 		int total_placeholder_ = std::max(1, int(std::pow(2, int(this->layers_.size()) - 2)));
 		std::string root_str_ = "ROOT＠" + this->layers_[0][0];
-		root_str_ = Utils::CenterizePlaceHolder(root_str_, total_placeholder_ * this->placeholder_, 2);
-		output_tree_structure_ += root_str_;
+		root_str_ = Utils::CenterizePlaceHolder(root_str_, total_placeholder_ * this->placeholder_, 2) + "\n";
+		LOG(INFO) << output_tree_structure_;
+		LOG(INFO) << root_str_;
 		for (int l_ = 1; l_ < layers_.size(); l_++) {
-			output_tree_structure_ += "\n";
 			std::string this_layer_structure_t = "";
 			for (int n_ = 0; n_ < std::pow(2, l_ - 1); n_++) {
 				if (this->layers_[l_].count(n_) == 0) {
@@ -468,17 +477,15 @@ class BalancedBinarySearchTree {
 							}
 						}
 					}
-					output_tree_structure_ += (this_thick_t + "\n");
+					LOG(INFO) << this_thick_t + "\n";
 				}
 			} else {
 				std::string this_thick_t = "||";
-				output_tree_structure_ +=
-						(Utils::CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n");
+				LOG(INFO) << Utils::CenterizePlaceHolder(this_thick_t, this->placeholder_ * total_placeholder_) + "\n";
 			}
 			total_placeholder_ /= 2;
-			output_tree_structure_ += this_layer_structure_t;
+			LOG(INFO) << this_layer_structure_t;
 		}
-		LOG(INFO) << output_tree_structure_;
 	}
 
 	// searching methods
@@ -735,6 +742,8 @@ class BalancedBinarySearchTree {
 			LOG(ERROR) << "deleted node cannot be ROOT!";
 			return INV;
 		}
+		int flag_ = 0;
+		flag_ = -std::abs(delete_node->balance_);
 		if (delete_node->lchild_ == nullptr && delete_node->rchild_ == nullptr) {
 			// Leaf Node
 			delete_node->balance_ = 0;
@@ -754,7 +763,7 @@ class BalancedBinarySearchTree {
 				return ORD;
 			} else {
 				// Element
-				int flag_ = 0;
+				this->balancing_ += flag_;
 				if (p_->lchild_ != nullptr && p_->lchild_->id_ == delete_node->id_) {
 					// lchild
 					p_->lchild_ = nullptr;
@@ -811,7 +820,7 @@ class BalancedBinarySearchTree {
 				p_->child_ = delete_node->lchild_;
 				p_->depth_ = p_->child_->depth_;
 				this->deepness_ = p_->depth_;
-				this->balancing_ -= std::abs(delete_node->balance_);
+				this->balancing_ += flag_;
 				// child
 				p_->child_->parent_ = p_;
 				// clear the data
@@ -830,7 +839,8 @@ class BalancedBinarySearchTree {
 				// recalculate the depth and balance
 				Node<Element>* starting_ = p_;
 				int update_depth_ = delete_node->lchild_->depth_;
-				int flag_ = BacktraceDepthBalance(starting_, update_depth_);
+				this->balancing_ += flag_;
+				flag_ = BacktraceDepthBalance(starting_, update_depth_, flag_);
 				// clear the data
 				delete_node->parent_ = delete_node->lchild_ = nullptr;
 				if (flag_ > 0) {
@@ -854,7 +864,7 @@ class BalancedBinarySearchTree {
 				p_->child_ = delete_node->rchild_;
 				p_->depth_ = p_->child_->depth_;
 				this->deepness_ = p_->depth_;
-				this->balancing_ -= std::abs(delete_node->balance_);
+				this->balancing_ += flag_;
 				// child
 				p_->child_->parent_ = p_;
 				// clear the data
@@ -873,7 +883,8 @@ class BalancedBinarySearchTree {
 				// recalculate the depth and balance
 				Node<Element>* starting_ = p_;
 				int update_depth_ = delete_node->rchild_->depth_;
-				int flag_ = BacktraceDepthBalance(starting_, update_depth_);
+				this->balancing_ += flag_;
+				flag_ = BacktraceDepthBalance(starting_, update_depth_, flag_);
 				// clear the data
 				delete_node->parent_ = delete_node->rchild_ = nullptr;
 				if (flag_ > 0) {
@@ -891,6 +902,74 @@ class BalancedBinarySearchTree {
 			LOG(INFO) << delete_node->layer_ << " " << delete_node->depth_ << " " << delete_node->lchild_ << " "
 								<< delete_node->rchild_;
 			return Delete(delete_node);
+		}
+	};
+
+	// LeftRotate: left rotate the subtree structure
+	// return:  1 if succeed and maintain balace;
+	//          0 if succeed but weaken balace;
+	//          -1 if failed deletion;
+	kWellOrder LeftRotate(Node<Element>* start_node) {
+		if (start_node->tree_id_ != this->id_) {
+			// not this tree
+			LOG(ERROR) << "rotate node not owned by this tree but: " << start_node->tree_id_ << ":" << start_node->tree_key_;
+			return INV;
+		} else if (start_node->parent_ == nullptr) {
+			// ROOT
+			LOG(ERROR) << "rotate node cannot be ROOT!";
+			return INV;
+		} else if (start_node->rchild_ == nullptr) {
+			// empty rchild
+			LOG(ERROR) << "left rotate need rchild not to be empty!";
+			return INV;
+		}
+
+		if (start_node->parent_->parent_ == nullptr) {
+			// ROOT
+			start_node->parent_->child_ = start_node->rchild_;
+			start_node->rchild_->parent_ = start_node->parent_;
+		} else {
+			// Element
+			start_node->rchild_->parent_ = start_node->parent_;
+			if (start_node->parent_->lchild_ != nullptr && start_node->parent_->lchild_->id_ == start_node->id_) {
+				// lchild
+				start_node->parent_->lchild_ = start_node->rchild_;
+			} else {
+				// rchild
+				start_node->parent_->rchild_ = start_node->rchild_;
+			}
+		}
+
+		start_node->parent_ = start_node->rchild_;
+		start_node->rchild_ = start_node->parent_->lchild_;
+		start_node->parent_->lchild_ = start_node;
+
+		start_node->layer_ += 1;
+		start_node->parent_->layer_ -= 1;
+		if (start_node->parent_->rchild_ != nullptr) {
+			Relayer(start_node->parent_->rchild_, -1);
+		}
+		if (start_node->lchild_ != nullptr) {
+			Relayer(start_node->lchild_, +1);
+		}
+
+		int l_depth_ = 0, r_depth_ = 0;
+		if (start_node->lchild_ != nullptr) {
+			l_depth_ = start_node->lchild_->depth_;
+		}
+		if (start_node->rchild_ != nullptr) {
+			r_depth_ = start_node->rchild_->depth_;
+		}
+		start_node->depth_ = std::max(l_depth_, r_depth_) + 1;
+		int flag_ = std::abs(r_depth_ - l_depth_) - std::abs(start_node->balance_);
+		start_node->balance_ = r_depth_ - l_depth_;
+		this->balancing_ += flag_;
+		flag_ = BacktraceDepthBalance(start_node->parent_, start_node->depth_, flag_);
+
+		if (flag_ > 0) {
+			return EQN;
+		} else {
+			return ORD;
 		}
 	};
 };
