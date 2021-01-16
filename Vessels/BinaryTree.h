@@ -399,7 +399,7 @@ class BalancedBinarySearchTree {
 	//   2. before these modifications the whole tree was well-balanced
 	//   3. all these modifications (towards depth) are all made under starting's one subtree
 	//   4. here beneath the starting both the subtrees are already balanced
-	//   5. modifications into one is limited to change the nodes' depth by at most ±1 (here we deal with -1 especially)
+	//   5. modifications into one is limited to change the nodes' depth by at most ±1
 	bool BacktraceBalancing(Node<Element>* starting) {
 		kWellOrder rotation_flag_ = INV;
 		while (true) {
@@ -498,6 +498,7 @@ class BalancedBinarySearchTree {
 	// Inspect: visualize and inspect the tree structure
 	void Inspect() {
 		this->layers_.clear();
+		LOG(INFO) << "tree deepness: " << this->deepness_;
 		bool depth_rst = Inspect(this->root_, 0, this->deepness_, 0);
 		if (!depth_rst) {
 			LOG(ERROR) << "tree deepness error!";
@@ -1006,66 +1007,11 @@ class BalancedBinarySearchTree {
 			// recalculate the depth and balance
 			starting_ = insert_node->parent_;
 			int update_depth_ = 1;
-			while (true) {
-				if (starting_->parent_ == nullptr) {
-					// ROOT
-					starting_->depth_ = update_depth_;
-					starting_->balance_ = 0;
-					break;
-				} else {
-					// Element
-					if (update_depth_ + 1 <= starting_->depth_) {
-						// from this layer up is good to go
-						this->balancing_ -= 1;
-						starting_->balance_ = std::copysign(std::abs(starting_->balance_) - 1, starting_->balance_);
-						break;
-					} else {
-						// update_depth_ + 1 > starting_->depth_
-						starting_->depth_ = update_depth_ + 1;
-						this->balancing_ += 1;
-						if (starting_->lchild_ != nullptr && starting_->rchild_ != nullptr) {
-							starting_->balance_ = starting_->rchild_->depth_ - starting_->lchild_->depth_;
-						} else if (starting_->lchild_ != nullptr) {
-							starting_->balance_ = -starting_->lchild_->depth_;
-						} else {
-							starting_->balance_ = starting_->rchild_->depth_;
-						}
-
-						// rebalance using rotations
-						if (std::abs(starting_->balance_) > 1 && this->balanced_) {
-							if (starting_->lchild_ != nullptr && starting_->lchild_->depth_ == update_depth_) {
-								// Left
-								if (starting_->lchild_->lchild_ != nullptr &&
-										starting_->lchild_->lchild_->depth_ == update_depth_ - 1) {
-									// Left Left
-									RightRotate(starting_);
-									break;
-								} else {
-									// Left Right
-									LeftRightRotate(starting_);
-									break;
-								}
-							} else {
-								// Right
-								if (starting_->rchild_->rchild_ != nullptr &&
-										starting_->rchild_->rchild_->depth_ == update_depth_ - 1) {
-									// Right Left
-									LeftRotate(starting_);
-									break;
-								} else {
-									// Right Right
-									RightLeftRotate(starting_);
-									break;
-								}
-							}
-						}
-
-						update_depth_ = starting_->depth_;
-						starting_ = starting_->parent_;
-						continue;
-					}
-				}
+			BacktraceDepthBalance(starting_, update_depth_);
+			if (this->balanced_) {
+				BacktraceBalancing(starting_);
 			}
+
 			return flag_;
 		}
 	};
