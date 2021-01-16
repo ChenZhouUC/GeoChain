@@ -339,6 +339,9 @@ class BalancedBinarySearchTree {
 	};
 
 	// BacktraceDepthBalance: recalculate depth and balance
+	// condition:
+	//   1. all the modifications (towards depth) are made under starting (not included)
+	//   2. update_depth is the modified depth of starting's one child while the other (if exists) remains unchanged
 	int BacktraceDepthBalance(Node<Element>* starting, int update_depth, int balancing = 0) {
 		while (true) {
 			if (starting->parent_ == nullptr) {
@@ -388,6 +391,72 @@ class BalancedBinarySearchTree {
 			}
 		}
 		return balancing;
+	};
+
+	// BacktraceBalancing: backtrace balancing from starting
+	// condition:
+	//   1. the tree nodes' properties are well calculated already
+	//   2. before these modifications the whole tree was well-balanced
+	//   3. all these modifications (towards depth) are all made under starting's one subtree
+	//   4. here beneath the starting both the subtrees are already balanced
+	//   5. modifications into one is limited to change the nodes' depth by at most ±1 (here we deal with -1 especially)
+	bool BacktraceBalancing(Node<Element>* starting) {
+		kWellOrder rotation_flag_ = INV;
+		while (true) {
+			if (starting->parent_ == nullptr) {
+				// ROOT
+				starting->balance_ = 0;
+				break;
+			} else {
+				// Element
+				if (std::abs(starting->balance_) > 1) {
+					// need balancing
+					if (starting->balance_ < -1) {
+						// Left
+						if (starting->lchild_->lchild_ != nullptr && starting->lchild_->rchild_ != nullptr) {
+							if (starting->lchild_->lchild_->depth_ >= starting->lchild_->rchild_->depth_) {
+								// Left Left
+								rotation_flag_ = RightRotate(starting);
+							} else {
+								// Left Right
+								rotation_flag_ = LeftRightRotate(starting);
+							}
+						} else if (starting->lchild_->lchild_ != nullptr) {
+							// Left Left
+							rotation_flag_ = RightRotate(starting);
+						} else {
+							// Left Right
+							rotation_flag_ = LeftRightRotate(starting);
+						}
+					} else {
+						// Right
+						if (starting->rchild_->rchild_ != nullptr && starting->rchild_->lchild_ != nullptr) {
+							if (starting->rchild_->rchild_->depth_ >= starting->rchild_->rchild_->depth_) {
+								// Right Right
+								rotation_flag_ = LeftRotate(starting);
+							} else {
+								// Right Left
+								rotation_flag_ = RightLeftRotate(starting);
+							}
+						} else if (starting->rchild_->rchild_ != nullptr) {
+							// Right Right
+							rotation_flag_ = LeftRotate(starting);
+						} else {
+							// Right Left
+							rotation_flag_ = RightLeftRotate(starting);
+						}
+					}
+					if (rotation_flag_ == INV) {
+						return false;
+					} else {
+						starting = starting->parent_;
+					}
+				}
+				starting = starting->parent_;
+				continue;
+			}
+		}
+		return true;
 	};
 
  public:
@@ -1006,6 +1075,7 @@ class BalancedBinarySearchTree {
 	//          0 if succeed but weaken balace;
 	//          -1 if failed deletion;
 	kWellOrder Delete(Node<Element>* delete_node) {
+		Utils::Timer t_;
 		if (delete_node->tree_id_ != this->id_) {
 			// not this tree
 			LOG(ERROR) << "deleted node not owned by this tree but: " << delete_node->tree_id_ << ":"
@@ -1071,6 +1141,11 @@ class BalancedBinarySearchTree {
 				Node<Element>* starting_ = p_->parent_;
 				int update_depth_ = p_->depth_;
 				flag_ = BacktraceDepthBalance(starting_, update_depth_, flag_);
+				if (this->balanced_) {
+					int bal_ = this->balancing_;
+					BacktraceBalancing(p_);
+					flag_ += (this->balancing_ - bal_);
+				}
 				// clear the data
 				delete_node->parent_ = delete_node->child_ = nullptr;
 				if (flag_ > 0) {
@@ -1115,6 +1190,11 @@ class BalancedBinarySearchTree {
 				int update_depth_ = delete_node->lchild_->depth_;
 				this->balancing_ += flag_;
 				flag_ = BacktraceDepthBalance(starting_, update_depth_, flag_);
+				if (this->balanced_) {
+					int bal_ = this->balancing_;
+					BacktraceBalancing(starting_);
+					flag_ += (this->balancing_ - bal_);
+				}
 				// clear the data
 				delete_node->parent_ = delete_node->lchild_ = nullptr;
 				if (flag_ > 0) {
@@ -1159,6 +1239,11 @@ class BalancedBinarySearchTree {
 				int update_depth_ = delete_node->rchild_->depth_;
 				this->balancing_ += flag_;
 				flag_ = BacktraceDepthBalance(starting_, update_depth_, flag_);
+				if (this->balanced_) {
+					int bal_ = this->balancing_;
+					BacktraceBalancing(starting_);
+					flag_ += (this->balancing_ - bal_);
+				}
 				// clear the data
 				delete_node->parent_ = delete_node->rchild_ = nullptr;
 				if (flag_ > 0) {
@@ -1174,7 +1259,7 @@ class BalancedBinarySearchTree {
 			return Delete(delete_node);
 		}
 	};
-};
+};	// namespace Vessels
 
 }	// namespace Vessels
 }	// namespace GeoChain

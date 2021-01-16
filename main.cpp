@@ -160,22 +160,6 @@ int main(int argc, char **argv) {
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
 
-	LOG(WARNING) << AVLTREE.LeftRightRotate(&n1);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.LeftRotate(&n1);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.RightLeftRotate(&n5);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.RightRotate(&n2);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
 	LOG(WARNING) << AVLTREE.Delete(&n2);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
@@ -199,4 +183,55 @@ int main(int argc, char **argv) {
 	LOG(WARNING) << AVLTREE.Delete(&n5);
 	AVLTREE.Inspect();
 	LOG(WARNING) << AVLTREE.balancing_;
+
+	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE_F(&ROOT, comparer1D, false);
+	AVLTREE_F.Inspect();
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n6);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n3);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n5);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n1);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n2);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Insert(&n4);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n2);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n4);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n6);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n1);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n3);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
+
+	LOG(WARNING) << AVLTREE_F.Delete(&n5);
+	AVLTREE_F.Inspect();
+	LOG(WARNING) << AVLTREE_F.balancing_;
 }
