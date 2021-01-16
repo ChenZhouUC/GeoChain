@@ -1259,7 +1259,7 @@ class BalancedBinarySearchTree {
 			return Delete(delete_node);
 		}
 	};
-};	// namespace Vessels
+};
 
 }	// namespace Vessels
 }	// namespace GeoChain

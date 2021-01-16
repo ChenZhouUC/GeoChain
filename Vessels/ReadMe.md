@@ -7,21 +7,33 @@
 + G. M. Adelson-Velsky & E. M. Landis
 + 1962, An algorithm for the organization of information
 
+#### Structure
+
 <div align=center>
-<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/AVL.png" alt="AVL" width="600" height="590" align="center"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/AVL.png" alt="AVL" width="700" height="575" align="center"/>
 </div>
 
+#### Functionality
+
 ```{class}
-AVLTree
+AVLTree(balanced = true)
 ├── Public
-│     ├── Inspect()       // inspect the AVL Tree nodes by traversal  
-│     ├── Min()           // output the minimum node
-│     ├── Max()           // output the maximum node
-│     ├── Predecessor()   // output the predecessor node
-│     ├── Successor()     // output the successor node
-│     ├── Insert()        // insert one node
-│     └── Delete()        // delete one node
+│     ├── Inspect()         // inspect the AVL Tree nodes by traversal  
+│     ├── Min()             // output the minimum node
+│     ├── Max()             // output the maximum node
+│     ├── Predecessor()     // output the predecessor node
+│     ├── Successor()       // output the successor node
+│     ├── LeftRotate()      // left rotate the node
+│     ├── RightRotate()     // right rotate the node
+│     ├── LeftRightRotate() // left rotate the node
+│     ├── RightLeftRotate() // right rotate the node
+│     ├── Insert()          // insert one node
+│     └── Delete()          // delete one node
 ├── Private
-│     ├── Swap()          // swap two nodes from the structure
-│     └── Relayer()       // downgrade or upgrade subtree node layers
+│     ├── Swap()            // swap two nodes from the structure
+│     └── Relayer()         // downgrade or upgrade subtree node layers
 ```
+
+#### Remarks
+
+Here the BalancedBinarySearchTree class has realized all the functionality of Binary Search Tree. You can set the balaced option as false to create a Binary Search Tree instance.
