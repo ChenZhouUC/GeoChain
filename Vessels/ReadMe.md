@@ -25,8 +25,8 @@ AVLTree(balanced = true)
 │     ├── Successor()       // output the successor node
 │     ├── LeftRotate()      // left rotate the node
 │     ├── RightRotate()     // right rotate the node
-│     ├── LeftRightRotate() // left rotate the node
-│     ├── RightLeftRotate() // right rotate the node
+│     ├── LeftRightRotate() // left-right rotate the node
+│     ├── RightLeftRotate() // right-left rotate the node
 │     ├── Insert()          // insert one node
 │     └── Delete()          // delete one node
 ├── Private
@@ -36,4 +36,4 @@ AVLTree(balanced = true)
 
 #### Remarks
 
-Here the BalancedBinarySearchTree class has realized all the functionality of Binary Search Tree. You can set the balaced option as false to create a Binary Search Tree instance.
+Here the BalancedBinarySearchTree class has realized all the functionality of Binary Search Tree. You can set the balaced option as bool value "false" to create a Binary Search Tree instance.
