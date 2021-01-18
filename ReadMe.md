@@ -8,7 +8,7 @@
 
 ## References & Textbooks
 
-1. 《Computational Geometry: Algorithms and Applications》Mark de Berg, Otfried Cheong, Marc van Kreveld, Mark Overmars
+1. 《Computational Geometry: Algorithms and Applications》Mark de Berg, etc.
 2. 《计算几何：算法与应用》邓俊辉 译
 3. 《计算几何》周培德 著
 

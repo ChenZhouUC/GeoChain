@@ -45,5 +45,5 @@ AVLTree(balanced = true)
   + `RightRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
   + `LeftRightRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
   + `RightLeftRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
-  + `Insert()`: 𝓞⟨㏒𝓷⟩ → 𝓞⟨㏒𝓷⟩ (because `Insert` operation would require one round of rotation only)
+  + `Insert()`: 𝓞⟨㏒𝓷⟩ → 𝓞⟨㏒𝓷⟩ (because `Insert` operation would require at most one round of rotation only)
   + `Delete()`: 𝓞⟨㏒𝓷⟩ → 𝓞⟨㏒²𝓷⟩
