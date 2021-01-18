@@ -18,7 +18,7 @@
 ```{class}
 AVLTree(balanced = true)
 ├── Public
-│     ├── Inspect()         // inspect the AVL Tree nodes by traversal  
+│     ├── Inspect()         // inspect the AVL Tree nodes by traversal
 │     ├── Min()             // output the minimum node
 │     ├── Max()             // output the maximum node
 │     ├── Predecessor()     // output the predecessor node
@@ -36,4 +36,12 @@ AVLTree(balanced = true)
 
 #### Remarks
 
-Here the BalancedBinarySearchTree class has realized all the functionality of Binary Search Tree. You can set the balaced option as bool value "false" to create a Binary Search Tree instance.
++ Here the `BalancedBinarySearchTree` class has realized all the functionalities of Binary Search Tree. You can set the balaced option as bool value "false" to create a Binary Search Tree instance.
+
++ In order to record the balance score and depth information, the realization of AVL Tree here is lightly different from the original one mentioned in the paper, both spacially and temporally. Each node stores both children and parent, as well as balance score and subtree depth. What's more, the following methods are prolonged for simplicity of code:
+  + `LeftRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
+  + `RightRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
+  + `LeftRightRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
+  + `RightLeftRotate()`: 𝓞⟨1⟩ → 𝓞⟨㏒𝓷⟩
+  + `Insert()`: 𝓞⟨㏒𝓷⟩ → 𝓞⟨㏒𝓷⟩ (because `Insert` operation would require one round of rotation only)
+  + `Delete()`: 𝓞⟨㏒𝓷⟩ → 𝓞⟨㏒²𝓷⟩

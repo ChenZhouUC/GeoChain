@@ -6,6 +6,18 @@
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/Concept.png" alt="concept" width="800" height="390" align="center"/>
 </div>
 
+## References & Textbooks
+
+1. 《Computational Geometry: Algorithms and Applications》Mark de Berg, Otfried Cheong, Marc van Kreveld, Mark Overmars
+2. 《计算几何：算法与应用》邓俊辉 译
+3. 《计算几何》周培德 著
+
+<div align=center>
+<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_eng.jpg" alt="eng" width="230" height="300"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_chn.jpg" alt="chn" width="212" height="300"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_zpd.jpg" alt="zpd" width="213" height="300"/>
+</div>
+
 ## Geometric Elements
 
 Please refer to [Geometric Elements](https://github.com/ChenZhouUC/GeoChain/tree/master/Elements).
