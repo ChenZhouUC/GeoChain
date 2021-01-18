@@ -13,9 +13,9 @@
 3. 《计算几何》周培德 著
 
 <div align=center>
-<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_eng.jpg" alt="eng" width="230" height="300"/>
-<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_chn.jpg" alt="chn" width="212" height="300"/>
-<img src="https://github.com/ChenZhouUC/GeoChain/tree/master/assets/CGtextbook_zpd.jpg" alt="zpd" width="213" height="300"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/CGtextbook_eng.jpg" alt="eng" width="230" height="300"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/CGtextbook_chn.jpg" alt="chn" width="212" height="300"/>
+<img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/CGtextbook_zpd.jpg" alt="zpd" width="213" height="300"/>
 </div>
 
 ## Geometric Elements
