@@ -118,120 +118,31 @@ int main(int argc, char **argv) {
 	// visual.Visualize("GEOCHAIN");
 
 	// AVL Tree Test
-	GeoChain::Euclidean::Point ROOT_PT(GeoChain::Euclidean::EUC1D);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(&ROOT_PT);
-	GeoChain::Euclidean::Point pt_1(GeoChain::Euclidean::EUC1D, 0);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n1(&pt_1);
-	GeoChain::Euclidean::Point pt_2(GeoChain::Euclidean::EUC1D, 1);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n2(&pt_2);
-	GeoChain::Euclidean::Point pt_3(GeoChain::Euclidean::EUC1D, -2);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n3(&pt_3);
-	GeoChain::Euclidean::Point pt_4(GeoChain::Euclidean::EUC1D, 5);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n4(&pt_4);
-	GeoChain::Euclidean::Point pt_5(GeoChain::Euclidean::EUC1D, -1);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n5(&pt_5);
-	GeoChain::Euclidean::Point pt_6(GeoChain::Euclidean::EUC1D, -3);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> n6(&pt_6);
-
+	GeoChain::Euclidean::Point root_pt_(GeoChain::Euclidean::EUC1D);
+	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(&root_pt_);
 	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(&ROOT, comparer1D);
 	AVLTREE.Inspect();
 
-	LOG(WARNING) << AVLTREE.Insert(&n6);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
+	std::vector<GeoChain::Vessels::Node<GeoChain::Euclidean::Point>> node_series;
+	srand((unsigned)time(NULL));
+	for (int n_ = 0; n_ < 20; n_++) {
+		double rand_unit_ = rand() / double(RAND_MAX);
+		float coord_ = (rand_unit_ - 0.5) * 10.0;
+		LOG(WARNING) << "RANDOM:" << coord_;
+		GeoChain::Euclidean::Point pt_(GeoChain::Euclidean::EUC1D, coord_);
+		GeoChain::Vessels::Node<GeoChain::Euclidean::Point> node_(&pt_);
+		node_series.push_back(node_);
+	}
 
-	LOG(WARNING) << AVLTREE.Insert(&n3);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
+	for (auto &&n_ : node_series) {
+		LOG(WARNING) << AVLTREE.Insert(&n_);
+		AVLTREE.Inspect();
+		LOG(WARNING) << AVLTREE.balancing_;
+	}
 
-	LOG(WARNING) << AVLTREE.Insert(&n5);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Insert(&n1);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Insert(&n2);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Insert(&n4);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n2);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n4);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n6);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n1);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n3);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	LOG(WARNING) << AVLTREE.Delete(&n5);
-	AVLTREE.Inspect();
-	LOG(WARNING) << AVLTREE.balancing_;
-
-	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE_F(&ROOT, comparer1D, false);
-	AVLTREE_F.Inspect();
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n6);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n3);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n5);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n1);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n2);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Insert(&n4);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n2);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n4);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n6);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n1);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n3);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
-
-	LOG(WARNING) << AVLTREE_F.Delete(&n5);
-	AVLTREE_F.Inspect();
-	LOG(WARNING) << AVLTREE_F.balancing_;
+	for (auto &&n_ : node_series) {
+		LOG(WARNING) << AVLTREE.Delete(&n_);
+		AVLTREE.Inspect();
+		LOG(WARNING) << AVLTREE.balancing_;
+	}
 }
