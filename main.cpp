@@ -10,15 +10,9 @@ GeoChain::Utils::GlobalKey g_GlobalKeys;
 const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
 
-GeoChain::Vessels::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
-																				 GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
-	if (node_1->geometric_element_->x_ < node_2->geometric_element_->x_) {
-		return GeoChain::Vessels::ORD;
-	} else if (node_1->geometric_element_->x_ > node_2->geometric_element_->x_) {
-		return GeoChain::Vessels::INV;
-	} else {
-		return GeoChain::Vessels::EQN;
-	}
+GeoChain::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
+																GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
+	return GeoChain::Euclidean::PointCoordSequence(node_1->geometric_element_, node_2->geometric_element_);
 };
 
 int main(int argc, char **argv) {
@@ -124,13 +118,24 @@ int main(int argc, char **argv) {
 	AVLTREE.Inspect();
 
 	std::vector<GeoChain::Vessels::Node<GeoChain::Euclidean::Point>> node_series;
+	std::vector<GeoChain::Euclidean::Point> pt_series;
 	srand((unsigned)time(NULL));
-	for (int n_ = 0; n_ < 20; n_++) {
+	int total_num = 7;
+	float range = 10.0;
+	for (int n_ = 0; n_ < total_num; n_++) {
 		double rand_unit_ = rand() / double(RAND_MAX);
-		float coord_ = (rand_unit_ - 0.5) * 10.0;
-		LOG(WARNING) << "RANDOM:" << coord_;
-		GeoChain::Euclidean::Point pt_(GeoChain::Euclidean::EUC1D, coord_);
-		GeoChain::Vessels::Node<GeoChain::Euclidean::Point> node_(&pt_);
+		float coord_x = (rand_unit_ - 0.5) * range;
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_y = (rand_unit_ - 0.5) * range;
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_z = (rand_unit_ - 0.5) * range;
+		LOG(WARNING) << "RANDOM:" << coord_x << " " << coord_y << " " << coord_z;
+		GeoChain::Euclidean::Point pt_(GeoChain::Euclidean::EUC3D, coord_x, coord_y, coord_z);
+		pt_series.push_back(pt_);
+	}
+
+	for (int n_ = 0; n_ < pt_series.size(); n_++) {
+		GeoChain::Vessels::Node<GeoChain::Euclidean::Point> node_(&pt_series[n_]);
 		node_series.push_back(node_);
 	}
 

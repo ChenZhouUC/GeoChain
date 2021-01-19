@@ -4,17 +4,11 @@
 #include <math.h>
 #include "Timer.h"
 #include "ConfigLoader.h"
+#include "Sequence.h"
 
 namespace GeoChain {
-namespace Vessels {
 
-/**
- * @brief Well-Order Relationship
- * let (a, b) = ORD   if a < b;
- *            = EQN   if a == b;
- *            = INV   if a > b
- */
-enum kWellOrder { INV = -1, EQN = 0, ORD = 1 };
+namespace Vessels {
 
 /**
  * @brief AVL Tree Node (Balanced Binary Search Tree Node)
@@ -431,7 +425,7 @@ class BalancedBinarySearchTree {
 					} else {
 						// Right
 						if (starting->rchild_->rchild_ != nullptr && starting->rchild_->lchild_ != nullptr) {
-							if (starting->rchild_->rchild_->depth_ >= starting->rchild_->rchild_->depth_) {
+							if (starting->rchild_->rchild_->depth_ >= starting->rchild_->lchild_->depth_) {
 								// Right Right
 								rotation_flag_ = LeftRotate(starting);
 							} else {
