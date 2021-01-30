@@ -10,12 +10,7 @@ GeoChain::Utils::GlobalKey g_GlobalKeys;
 const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
 
-GeoChain::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
-																GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
-	return GeoChain::Euclidean::PointCoordSequence(node_1->geometric_element_, node_2->geometric_element_);
-};
-
-int main(int argc, char **argv) {
+int init_logger_config(int argc, char **argv) {
 	// initiate logger
 	GeoChain::Utils::LogGuardian g_Logger(argc, argv);
 	// define global config keys
@@ -28,7 +23,10 @@ int main(int argc, char **argv) {
 		GeoChain::Utils::LoadingConfig(g_ConfigRoot);
 		LOG(INFO) << g_ConfigRoot;
 	}
+	return 0;
+}
 
+void visualizer_test() {
 	LOG(INFO) << "Half Line - no intercept";
 	GeoChain::Euclidean::Point center1(GeoChain::Euclidean::EUC2D, 0, 1);
 	float theta1 = M_PI_4f32;
@@ -109,8 +107,15 @@ int main(int argc, char **argv) {
 	visual.Draw(segment4.terminal_vertex_2_);
 	visual.Draw(segment5.terminal_vertex_1_);
 	visual.Draw(segment5.terminal_vertex_2_);
-	// visual.Visualize("GEOCHAIN");
+	visual.Visualize("GEOCHAIN");
+}
 
+GeoChain::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
+																GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
+	return GeoChain::Euclidean::PointCoordSequence(node_1->geometric_element_, node_2->geometric_element_);
+};
+
+void avltree_test() {
 	// AVL Tree Test
 	GeoChain::Euclidean::Point root_pt_(GeoChain::Euclidean::EUC1D);
 	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(&root_pt_);
@@ -150,4 +155,13 @@ int main(int argc, char **argv) {
 		AVLTREE.Inspect();
 		LOG(WARNING) << AVLTREE.balancing_;
 	}
+}
+
+int main(int argc, char **argv) {
+	int init_flag = init_logger_config(argc, argv);
+	if (init_flag != 0) {
+		return init_flag;
+	}
+	visualizer_test();
+	avltree_test();
 }

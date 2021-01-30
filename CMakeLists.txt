@@ -64,6 +64,7 @@ INCLUDE_DIRECTORIES(
     ${SOURCE_ROOT}/Utils
     ${SOURCE_ROOT}/Vessels
     ${SOURCE_ROOT}/Visualizers
+    ${SOURCE_ROOT}/Topics
 )
 
 # assign shared lib path
