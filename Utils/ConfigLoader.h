@@ -40,6 +40,7 @@ std::string ExtractClassName(const std::string str) {
 			rst_ = str[str.size() - 2 - i_] + rst_;
 		}
 	}
+	// LOG(WARNING) << rst_;
 	return rst_;
 }
 

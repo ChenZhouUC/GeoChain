@@ -65,7 +65,6 @@ class BalancedBinarySearchTree {
  private:
 	int placeholder_ = g_GlobalVars.visualize_placeholder;
 	std::map<int, std::map<int, std::string>> layers_;
-	bool balanced_ = true;
 
 	// layer: exact layer number of the start_root
 	// depth: exact depth to check
@@ -331,6 +330,9 @@ class BalancedBinarySearchTree {
 			return true;
 		}
 	};
+
+ public:
+	bool balanced_ = true;
 
 	// BacktraceDepthBalance: recalculate depth and balance
 	// condition:

@@ -3,28 +3,13 @@
 #include "Arithmetics/BasicArithmetics.h"
 #include "Visualizers/Visualizer2D.h"
 #include "Vessels/BinaryTree.h"
+#include "Topics/Line Segment Intersection/PlaneSweepAlgorithm.h"
 
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
 
 const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
-
-int init_logger_config(int argc, char **argv) {
-	// initiate logger
-	GeoChain::Utils::LogGuardian g_Logger(argc, argv);
-	// define global config keys
-	GeoChain::Utils::DefineGlobalKeys();
-	// load config file into global variables
-	if (!GeoChain::Utils::ReadJsonFile(g_JsonConfigPath, g_ConfigRoot)) {
-		LOG(FATAL) << "[FATAL] ===> Reading config file failed! Exit with code 1.";
-		return 1;
-	} else {
-		GeoChain::Utils::LoadingConfig(g_ConfigRoot);
-		LOG(INFO) << g_ConfigRoot;
-	}
-	return 0;
-}
 
 void visualizer_test() {
 	LOG(INFO) << "Half Line - no intercept";
@@ -157,11 +142,55 @@ void avltree_test() {
 	}
 }
 
-int main(int argc, char **argv) {
-	int init_flag = init_logger_config(argc, argv);
-	if (init_flag != 0) {
-		return init_flag;
+void sweepline_test() {
+	using namespace GeoChain;
+	using namespace Algorithms;
+	using namespace Euclidean;
+
+	int total_num = 7;
+
+	PointSegmentAffiliation root_event(EUC2D, total_num);
+	SweeperSegmentRelation root_status(EUC2D);
+	Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
+	Node<SweeperSegmentRelation> ROOT_STATUS(&root_status);
+
+	std::vector<Segment> segments;
+	srand((unsigned)time(NULL));
+	float range = 10.0;
+	double rand_unit_;
+	for (int n_ = 0; n_ < total_num; n_++) {
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_x_1 = 0.0;	//(rand_unit_ - 0.5) * range;
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_y_1 = 0.0;	// (rand_unit_ - 0.5) * range;
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_x_2 = (rand_unit_ - 0.5) * range;
+		rand_unit_ = rand() / double(RAND_MAX);
+		float coord_y_2 = (rand_unit_ - 0.5) * range;
+		LOG(WARNING) << "RANDOM: (" << coord_x_1 << " " << coord_y_1 << ") (" << coord_x_2 << " " << coord_y_2 << ")";
+		Point pt_1(EUC2D, coord_x_1, coord_y_1);
+		Point pt_2(EUC2D, coord_x_2, coord_y_2);
+		segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
 	}
-	visualizer_test();
-	avltree_test();
+
+	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS, comparerSweepedSegments);
+	plane_sweeper.events_table_.Inspect();
+}
+
+int main(int argc, char **argv) {
+	// initiate logger
+	GeoChain::Utils::LogGuardian g_Logger(argc, argv);
+	// define global config keys
+	GeoChain::Utils::DefineGlobalKeys();
+	// load config file into global variables
+	if (!GeoChain::Utils::ReadJsonFile(g_JsonConfigPath, g_ConfigRoot)) {
+		LOG(FATAL) << "[FATAL] ===> Reading config file failed! Exit with code 1.";
+		return 1;
+	} else {
+		GeoChain::Utils::LoadingConfig(g_ConfigRoot);
+		LOG(INFO) << g_ConfigRoot;
+	}
+	// visualizer_test();
+	// avltree_test();
+	sweepline_test();
 }
