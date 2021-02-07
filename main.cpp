@@ -12,64 +12,65 @@ const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
 
 void visualizer_test() {
+	using namespace GeoChain;
+	using namespace Euclidean;
+
 	LOG(INFO) << "Half Line - no intercept";
-	GeoChain::Euclidean::Point center1(GeoChain::Euclidean::EUC2D, 0, 1);
+	Point center1(EUC2D, 0, 1);
 	float theta1 = M_PI_4f32;
-	GeoChain::Euclidean::HalfLine halfline1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center1, theta1);
+	HalfLine halfline1(EUC2D, DESC, center1, theta1);
 	halfline1.Describe();
 	halfline1.Maturate();
 	halfline1.Describe();
 
 	LOG(INFO) << "Line - DESC";
-	GeoChain::Euclidean::Line line1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, center1, -theta1);
+	Line line1(EUC2D, DESC, center1, -theta1);
 	line1.Describe();
 	line1.Maturate();
 	line1.Describe();
 
 	LOG(INFO) << "Line - PARM";
-	GeoChain::Euclidean::Line line2(GeoChain::Euclidean::EUC2D, 1, 2, 3);
+	Line line2(EUC2D, 1, 2, 3);
 	line2.Describe();
 	line2.Maturate();
 	line2.Describe();
 
 	LOG(INFO) << "Segment - DESC";
-	GeoChain::Euclidean::Point term1(GeoChain::Euclidean::EUC2D, 2, 6);
-	GeoChain::Euclidean::Point term2(GeoChain::Euclidean::EUC2D, -1, 10);
-	GeoChain::Euclidean::Segment segment1(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term1, term2);
+	Point term1(EUC2D, 2, 6);
+	Point term2(EUC2D, -1, 10);
+	Segment segment1(EUC2D, DESC, term1, term2);
 	segment1.Describe();
 
 	LOG(INFO) << "Half Line - 1D";
-	GeoChain::Euclidean::Point term3(GeoChain::Euclidean::EUC1D, 2);
-	GeoChain::Euclidean::HalfLine halfline2(GeoChain::Euclidean::EUC1D, GeoChain::Euclidean::DESC, term3, -M_PIf32);
+	Point term3(EUC1D, 2);
+	HalfLine halfline2(EUC1D, DESC, term3, -M_PIf32);
 	halfline2.Describe();
 
 	LOG(INFO) << "Segment - DESC";
-	GeoChain::Euclidean::Point term4(GeoChain::Euclidean::EUC2D, 2, 10);
-	GeoChain::Euclidean::Point term5(GeoChain::Euclidean::EUC2D, -3, -6);
-	GeoChain::Euclidean::Point term6(GeoChain::Euclidean::EUC2D, -4, 5);
-	GeoChain::Euclidean::Point term7(GeoChain::Euclidean::EUC2D, 9, -1);
-	GeoChain::Euclidean::Segment segment2(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term4, term5,
-																				GeoChain::Euclidean::EuclideanDistance);
+	Point term4(EUC2D, 2, 10);
+	Point term5(EUC2D, -3, -6);
+	Point term6(EUC2D, -4, 5);
+	Point term7(EUC2D, 9, -1);
+	Segment segment2(EUC2D, DESC, term4, term5, EuclideanDistance);
 	segment2.Describe();
-	GeoChain::Euclidean::Segment segment3(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term5, term6);
-	GeoChain::Euclidean::Segment segment4(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term6, term7);
-	GeoChain::Euclidean::Segment segment5(GeoChain::Euclidean::EUC2D, GeoChain::Euclidean::DESC, term7, term4);
+	Segment segment3(EUC2D, DESC, term5, term6);
+	Segment segment4(EUC2D, DESC, term6, term7);
+	Segment segment5(EUC2D, DESC, term7, term4);
 
-	std::vector<GeoChain::Euclidean::Point> attendents = {line1.intercept_,
-																												line2.intercept_,
-																												halfline1.center_,
-																												segment1.terminal_vertex_1_,
-																												segment1.terminal_vertex_2_,
-																												segment2.terminal_vertex_1_,
-																												segment2.terminal_vertex_2_,
-																												segment3.terminal_vertex_1_,
-																												segment3.terminal_vertex_2_,
-																												segment4.terminal_vertex_1_,
-																												segment4.terminal_vertex_2_,
-																												segment5.terminal_vertex_1_,
-																												segment5.terminal_vertex_2_};
-	GeoChain::Euclidean::Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize,
-																					 g_GlobalVars.visualize_spacer);
+	std::vector<Point> attendents = {line1.intercept_,
+																	 line2.intercept_,
+																	 halfline1.center_,
+																	 segment1.terminal_vertex_1_,
+																	 segment1.terminal_vertex_2_,
+																	 segment2.terminal_vertex_1_,
+																	 segment2.terminal_vertex_2_,
+																	 segment3.terminal_vertex_1_,
+																	 segment3.terminal_vertex_2_,
+																	 segment4.terminal_vertex_1_,
+																	 segment4.terminal_vertex_2_,
+																	 segment5.terminal_vertex_1_,
+																	 segment5.terminal_vertex_2_};
+	Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
 	visual.Init();
 
 	visual.Draw(line1);
@@ -101,14 +102,18 @@ GeoChain::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Poi
 };
 
 void avltree_test() {
+	using namespace GeoChain;
+	using namespace Euclidean;
+	using namespace Vessels;
+
 	// AVL Tree Test
-	GeoChain::Euclidean::Point root_pt_(GeoChain::Euclidean::EUC1D);
-	GeoChain::Vessels::Node<GeoChain::Euclidean::Point> ROOT(&root_pt_);
-	GeoChain::Vessels::BalancedBinarySearchTree<GeoChain::Euclidean::Point> AVLTREE(&ROOT, comparer1D);
+	Point root_pt_(EUC1D);
+	Node<Point> ROOT(&root_pt_);
+	BalancedBinarySearchTree<Point> AVLTREE(&ROOT, comparer1D);
 	AVLTREE.Inspect();
 
-	std::vector<GeoChain::Vessels::Node<GeoChain::Euclidean::Point>> node_series;
-	std::vector<GeoChain::Euclidean::Point> pt_series;
+	std::vector<Node<Point>> node_series;
+	std::vector<Point> pt_series;
 	srand((unsigned)time(NULL));
 	int total_num = 7;
 	float range = 10.0;
@@ -120,12 +125,12 @@ void avltree_test() {
 		rand_unit_ = rand() / double(RAND_MAX);
 		float coord_z = (rand_unit_ - 0.5) * range;
 		LOG(WARNING) << "RANDOM:" << coord_x << " " << coord_y << " " << coord_z;
-		GeoChain::Euclidean::Point pt_(GeoChain::Euclidean::EUC3D, coord_x, coord_y, coord_z);
+		Point pt_(EUC3D, coord_x, coord_y, coord_z);
 		pt_series.push_back(pt_);
 	}
 
 	for (int n_ = 0; n_ < pt_series.size(); n_++) {
-		GeoChain::Vessels::Node<GeoChain::Euclidean::Point> node_(&pt_series[n_]);
+		Node<Point> node_(&pt_series[n_]);
 		node_series.push_back(node_);
 	}
 

@@ -24,6 +24,8 @@ struct PointSegmentAffiliation {
 		l_segs_.reserve(num_segs);
 		m_segs_.reserve(num_segs);
 	};
+	// if only data but not ptr here is useful, reservation is unnecessary
+	PointSegmentAffiliation(kDimension dim) : dim_(dim){};
 };
 
 struct SweeperSegmentRelation {
@@ -160,6 +162,7 @@ class PlaneSweeper {
 				segments_(*seg_list),
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
 				status_table_(BalancedBinarySearchTree<SweeperSegmentRelation>(root_status, comparer_status)) {
+		// reserve the vector space could avoid data relocating in order to use ptr further
 		events_list_.reserve(seg_list->size() * seg_list->size());
 		status_list_.reserve(seg_list->size());
 		events_nodes_.reserve(seg_list->size() * seg_list->size());
@@ -179,7 +182,7 @@ class PlaneSweeper {
 			} else {
 				this_upper_ = &(s.terminal_vertex_2_);
 			}
-			PointSegmentAffiliation this_event_(this->dim_, this->segments_.size());
+			PointSegmentAffiliation this_event_(this->dim_);
 			this_event_.point_ = this_upper_;
 			this_event_.u_segs_.push_back(&s);
 			this_event_.segments_.push_back(&s);
@@ -190,8 +193,9 @@ class PlaneSweeper {
 			Node<PointSegmentAffiliation> this_event_node_(&(this->events_list_.back()));
 			this->events_nodes_.push_back(this_event_node_);
 			LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
-			this->events_table_.Inspect();
 		}
+
+		this->events_table_.Inspect();
 
 		if (segments_.size() > 0) {
 			status_ = MATR;
