@@ -9,5 +9,7 @@ echo "====> Existing Counters:"
 ls -hl ./.VSCodeCounter/
 echo "====> Starting Counters Flushing..."
 rm -rv ./.VSCodeCounter/*
+clear
+echo "***********************************"
 echo "====> Log Flushing Finished!"
 echo "***********************************"

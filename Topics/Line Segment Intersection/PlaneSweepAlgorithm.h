@@ -94,7 +94,8 @@ kWellOrder InsertEvent(BalancedBinarySearchTree<PointSegmentAffiliation>* events
 				starting_->geometric_element_->u_num_ += insert_event->geometric_element_->u_num_;
 				starting_->geometric_element_->m_num_ += insert_event->geometric_element_->m_num_;
 				starting_->geometric_element_->l_num_ += insert_event->geometric_element_->l_num_;
-				LOG(WARNING) << "U num:" << starting_->geometric_element_->u_num_;
+				LOG(WARNING) << "[U]:" << starting_->geometric_element_->u_num_
+										 << " [L]:" << starting_->geometric_element_->l_num_;
 				flag_ = EQN;
 				break;
 			} else {
@@ -139,9 +140,10 @@ class PlaneSweeper {
 
 	static Point SweeperState;
 
-	static void Update(Point* event) {
+	static bool Update(Point* event) {
 		if (SweeperState.dim_ != event->dim_ || event->status_ == INIT) {
 			LOG(ERROR) << "please make sure that the updating events dimension match";
+			return false;
 		} else {
 			LOG(WARNING) << "previous status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
 			SweeperState.x_ = event->x_;
@@ -208,6 +210,7 @@ class PlaneSweeper {
 		}
 	}
 
+	// Constructor function
 	PlaneSweeper(kDimension dim, std::vector<Segment>* seg_list, Node<PointSegmentAffiliation>* root_events,
 							 kWellOrder (*comparer_events)(Node<PointSegmentAffiliation>*, Node<PointSegmentAffiliation>*),
 							 Node<Segment>* root_status)
@@ -216,9 +219,13 @@ class PlaneSweeper {
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
 				status_table_(BalancedBinarySearchTree<Segment>(root_status, PlaneSweeper::SegmentComparer)) {
 		// reserve the vector space could avoid data relocating in order to use ptr further
-		events_list_.reserve(seg_list->size() * seg_list->size());
-		events_nodes_.reserve(seg_list->size() * seg_list->size());
+		int max_event_num_ = (seg_list->size() * seg_list->size() + 3 * seg_list->size()) / 2;
+		events_list_.reserve(max_event_num_);
+		events_nodes_.reserve(max_event_num_);
 		status_nodes_.reserve(seg_list->size());
+		// here though we considered the maximum number of potential events, we cannot assure that each event in the vector
+		// could be useful. Some duplicated events may occur in the vector but only the first one is useful in the tree and
+		// stored correct data value.
 
 		for (auto&& s : this->segments_) {
 			if (s.dim_ != this->dim_ || s.status_ == INIT) {
@@ -227,23 +234,50 @@ class PlaneSweeper {
 				return;
 			}
 			kWellOrder this_order_ = PointCoordSequence(&(s.terminal_vertex_1_), &(s.terminal_vertex_2_));
-			Point* this_upper_;
-			if (this_order_ >= 0) {
+			Point *this_upper_, *this_lower_;
+			if (this_order_ > 0) {
 				// including points superposition
 				this_upper_ = &(s.terminal_vertex_1_);
-			} else {
+				this_lower_ = &(s.terminal_vertex_2_);
+			} else if (this_order_ < 0) {
 				this_upper_ = &(s.terminal_vertex_2_);
-			}
-			PointSegmentAffiliation this_event_(this->dim_);
-			this_event_.point_ = this_upper_;
-			this_event_.u_segs_.push_back(&s);
-			this_event_.segments_.push_back(&s);
-			this_event_.u_num_++;
-			this_event_.num_++;
-			this->events_list_.push_back(this_event_);
+				this_lower_ = &(s.terminal_vertex_1_);
+			} else {
+				// only apply lower one to avoid counting duplicated
+				PointSegmentAffiliation this_event_(this->dim_);
+				this_event_.point_ = &(s.terminal_vertex_1_);
+				this_event_.l_segs_.push_back(&s);
+				this_event_.segments_.push_back(&s);
+				this_event_.l_num_++;
+				this_event_.num_++;
 
-			Node<PointSegmentAffiliation> this_event_node_(&(this->events_list_.back()));
-			this->events_nodes_.push_back(this_event_node_);
+				this->events_list_.push_back(this_event_);
+				Node<PointSegmentAffiliation> this_event_node_(&(this->events_list_.back()));
+				this->events_nodes_.push_back(this_event_node_);
+				LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+				continue;
+			}
+			PointSegmentAffiliation upper_event_(this->dim_), lower_event_(this->dim_);
+			upper_event_.point_ = this_upper_;
+			upper_event_.u_segs_.push_back(&s);
+			upper_event_.segments_.push_back(&s);
+			upper_event_.u_num_++;
+			upper_event_.num_++;
+
+			lower_event_.point_ = this_lower_;
+			lower_event_.l_segs_.push_back(&s);
+			lower_event_.segments_.push_back(&s);
+			lower_event_.l_num_++;
+			lower_event_.num_++;
+
+			this->events_list_.push_back(upper_event_);
+			Node<PointSegmentAffiliation> upper_event_node_(&(this->events_list_.back()));
+			this->events_nodes_.push_back(upper_event_node_);
+			LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+
+			this->events_list_.push_back(lower_event_);
+			Node<PointSegmentAffiliation> lower_event_node_(&(this->events_list_.back()));
+			this->events_nodes_.push_back(lower_event_node_);
 			LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
 		}
 
