@@ -182,8 +182,6 @@ void sweepline_test() {
 	}
 
 	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
-	Point *min_pt = plane_sweeper.events_table_.Min(plane_sweeper.events_table_.root_)->geometric_element_->point_;
-	plane_sweeper.Update(min_pt);
 }
 
 int main(int argc, char **argv) {

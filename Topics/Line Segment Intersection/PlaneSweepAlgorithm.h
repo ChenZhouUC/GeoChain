@@ -140,7 +140,7 @@ class PlaneSweeper {
 
 	static Point SweeperState;
 
-	static bool Update(Point* event) {
+	static bool UpdateSweeper(Point* event) {
 		if (SweeperState.dim_ != event->dim_ || event->status_ == INIT) {
 			LOG(ERROR) << "please make sure that the updating events dimension match";
 			return false;
@@ -150,6 +150,7 @@ class PlaneSweeper {
 			SweeperState.y_ = event->y_;
 			SweeperState.z_ = event->z_;
 			LOG(WARNING) << "new status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+			return true;
 		}
 	}
 
@@ -284,6 +285,8 @@ class PlaneSweeper {
 		this->events_table_.Inspect();
 
 		if (segments_.size() > 0) {
+			Point* min_pt = this->events_table_.Min(this->events_table_.root_)->geometric_element_->point_;
+			this->UpdateSweeper(min_pt);
 			status_ = MATR;
 		} else {
 			status_ = INIT;
@@ -291,6 +294,17 @@ class PlaneSweeper {
 	};
 
 	~PlaneSweeper(){};
+
+	// query status tree in order to find all related segments to the current sweeper
+	void QueryStatus(Node<Segment>* starting) {
+		//
+		Node<Segment>* starting_ = this->status_table_.root_->child_;
+	}
+
+	void Update() {
+		if (this->status_table_.root_->child_ == nullptr) {
+		}
+	}
 };
 
 }	// namespace Algorithms

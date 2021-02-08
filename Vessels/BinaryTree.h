@@ -629,6 +629,7 @@ class BalancedBinarySearchTree {
 					Node<Element>* this_parent_ = start_root->parent_;
 					if (this_parent_->parent_ == nullptr) {
 						// this_parent_ == ROOT
+						start_root = nullptr;
 						break;
 					} else {
 						// this_parent_ is Element Node
@@ -667,6 +668,7 @@ class BalancedBinarySearchTree {
 					Node<Element>* this_parent_ = start_root->parent_;
 					if (this_parent_->parent_ == nullptr) {
 						// this_parent_ == ROOT
+						start_root = nullptr;
 						break;
 					} else {
 						// this_parent_ is Element Node
