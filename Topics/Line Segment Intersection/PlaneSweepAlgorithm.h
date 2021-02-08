@@ -28,22 +28,8 @@ struct PointSegmentAffiliation {
 	PointSegmentAffiliation(kDimension dim) : dim_(dim){};
 };
 
-struct SweeperSegmentRelation {
-	kDimension dim_;
-	Point sweeper_state_;	// the coordinates which sweeper intersects
-	Segment* segment_;
-	kSweeperRelation relation_;
-
-	SweeperSegmentRelation(kDimension dim) : dim_(dim), sweeper_state_(Point(dim)){};
-};
-
 kWellOrder comparer2D(Node<PointSegmentAffiliation>* node_1, Node<PointSegmentAffiliation>* node_2) {
 	return PointCoordSequence(node_1->geometric_element_->point_, node_2->geometric_element_->point_);
-};
-
-kWellOrder comparerSweepedSegments(Node<SweeperSegmentRelation>* node_1, Node<SweeperSegmentRelation>* node_2) {
-	return PointCoordSequence(&(node_1->geometric_element_->sweeper_state_),
-														&(node_2->geometric_element_->sweeper_state_));
 };
 
 // InsertEvent: insert ONE node into Tree and maintain the search Tree property
@@ -143,28 +129,94 @@ class PlaneSweeper {
 	const kDimension dim_ = EUC0D;
 	kMaturityStatus status_ = INIT;
 	std::vector<PointSegmentAffiliation> events_list_ = std::vector<PointSegmentAffiliation>();
-	std::vector<SweeperSegmentRelation> status_list_ = std::vector<SweeperSegmentRelation>();
 	std::vector<Node<PointSegmentAffiliation>> events_nodes_ = std::vector<Node<PointSegmentAffiliation>>();
-	std::vector<Node<SweeperSegmentRelation>> status_nodes_ = std::vector<Node<SweeperSegmentRelation>>();
+	std::vector<Node<Segment>> status_nodes_ = std::vector<Node<Segment>>();
 
  public:
 	std::vector<Segment> segments_;
 	BalancedBinarySearchTree<PointSegmentAffiliation> events_table_;
-	BalancedBinarySearchTree<SweeperSegmentRelation> status_table_;
+	BalancedBinarySearchTree<Segment> status_table_;
+
+	static Point SweeperState;
+
+	static void Update(Point* event) {
+		if (SweeperState.dim_ != event->dim_ || event->status_ == INIT) {
+			LOG(ERROR) << "please make sure that the updating events dimension match";
+		} else {
+			LOG(WARNING) << "previous status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+			SweeperState.x_ = event->x_;
+			SweeperState.y_ = event->y_;
+			SweeperState.z_ = event->z_;
+			LOG(WARNING) << "new status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+		}
+	}
+
+	static kWellOrder SegmentComparer(Node<Segment>* node_1, Node<Segment>* node_2) {
+		float intersect_1, intersect_2;
+		float theta_1, theta_2;	// (-PI/2, PI/2]
+		LOG(WARNING) << "sweeper status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+		if (node_1->geometric_element_->terminal_vertex_1_.x_ == node_1->geometric_element_->terminal_vertex_2_.x_) {
+			// node_1 parellel to sweeper
+			intersect_1 = SweeperState.y_;
+			theta_1 = M_PI_2f32;
+		} else {
+			intersect_1 = (SweeperState.x_ - node_1->geometric_element_->terminal_vertex_1_.x_) *
+												node_1->geometric_element_->terminal_vertex_2_.y_ -
+										(SweeperState.x_ - node_1->geometric_element_->terminal_vertex_2_.x_) *
+												node_1->geometric_element_->terminal_vertex_1_.y_;
+			intersect_1 /=
+					(node_2->geometric_element_->terminal_vertex_2_.x_ - node_1->geometric_element_->terminal_vertex_1_.x_);
+			if (node_1->geometric_element_->theta_ <= -M_PI_2f32) {
+				theta_1 = node_1->geometric_element_->theta_ + M_PIf32;
+			} else if (node_1->geometric_element_->theta_ > M_PI_2f32) {
+				theta_1 = node_1->geometric_element_->theta_ - M_PIf32;
+			} else {
+				theta_1 = node_1->geometric_element_->theta_;
+			}
+		}
+		if (node_2->geometric_element_->terminal_vertex_2_.x_ == node_2->geometric_element_->terminal_vertex_2_.x_) {
+			// node_1 parellel to sweeper
+			intersect_2 = SweeperState.y_;
+			theta_2 = M_PI_2f32;
+		} else {
+			intersect_2 = (SweeperState.x_ - node_2->geometric_element_->terminal_vertex_1_.x_) *
+												node_2->geometric_element_->terminal_vertex_2_.y_ -
+										(SweeperState.x_ - node_2->geometric_element_->terminal_vertex_2_.x_) *
+												node_2->geometric_element_->terminal_vertex_1_.y_;
+			intersect_2 /=
+					(node_2->geometric_element_->terminal_vertex_1_.x_ - node_2->geometric_element_->terminal_vertex_1_.x_);
+			if (node_2->geometric_element_->theta_ <= -M_PI_2f32) {
+				theta_2 = node_2->geometric_element_->theta_ + M_PIf32;
+			} else if (node_2->geometric_element_->theta_ > M_PI_2f32) {
+				theta_2 = node_2->geometric_element_->theta_ - M_PIf32;
+			} else {
+				theta_2 = node_2->geometric_element_->theta_;
+			}
+		}
+		if (intersect_1 < intersect_2) {
+			return ORD;
+		} else if (intersect_1 > intersect_2) {
+			return INV;
+		} else {
+			if (theta_1 < theta_2) {
+				return ORD;
+			} else if (theta_1 > theta_2) {
+				return INV;
+			} else {
+				return EQN;
+			}
+		}
+	}
 
 	PlaneSweeper(kDimension dim, std::vector<Segment>* seg_list, Node<PointSegmentAffiliation>* root_events,
-							 kWellOrder (*comparer_events)(Node<PointSegmentAffiliation>* node_1,
-																						 Node<PointSegmentAffiliation>* node_2),
-							 Node<SweeperSegmentRelation>* root_status,
-							 kWellOrder (*comparer_status)(Node<SweeperSegmentRelation>* node_1,
-																						 Node<SweeperSegmentRelation>* node_2))
+							 kWellOrder (*comparer_events)(Node<PointSegmentAffiliation>*, Node<PointSegmentAffiliation>*),
+							 Node<Segment>* root_status)
 			: dim_(dim),
 				segments_(*seg_list),
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
-				status_table_(BalancedBinarySearchTree<SweeperSegmentRelation>(root_status, comparer_status)) {
+				status_table_(BalancedBinarySearchTree<Segment>(root_status, PlaneSweeper::SegmentComparer)) {
 		// reserve the vector space could avoid data relocating in order to use ptr further
 		events_list_.reserve(seg_list->size() * seg_list->size());
-		status_list_.reserve(seg_list->size());
 		events_nodes_.reserve(seg_list->size() * seg_list->size());
 		status_nodes_.reserve(seg_list->size());
 

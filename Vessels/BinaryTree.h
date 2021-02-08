@@ -467,7 +467,7 @@ class BalancedBinarySearchTree {
 	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
 
 	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
-													 kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2), bool balanced = true)
+													 kWellOrder (*comparer)(Node<Element>*, Node<Element>*), bool balanced = true)
 			: id_(id), key_(key), root_(root), comparer_(comparer), balanced_(balanced) {
 		if (g_GlobalVars.convention_element_id >= this->id_) {
 			g_GlobalVars.convention_element_id++;
@@ -479,7 +479,7 @@ class BalancedBinarySearchTree {
 		this->root_->tree_key_ = this->key_;
 	};
 
-	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>* node_1, Node<Element>* node_2),
+	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>*, Node<Element>*),
 													 bool balanced = true)
 			: root_(root), comparer_(comparer), balanced_(balanced) {
 		g_GlobalVars.convention_element_id++;

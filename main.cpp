@@ -147,6 +147,9 @@ void avltree_test() {
 	}
 }
 
+GeoChain::Euclidean::Point GeoChain::Algorithms::PlaneSweeper::SweeperState =
+		GeoChain::Euclidean::Point(EUC2D, -g_GlobalVars.convention_infinity, -g_GlobalVars.convention_infinity);
+
 void sweepline_test() {
 	using namespace GeoChain;
 	using namespace Algorithms;
@@ -155,9 +158,9 @@ void sweepline_test() {
 	int total_num = 7;
 
 	PointSegmentAffiliation root_event(EUC2D, total_num);
-	SweeperSegmentRelation root_status(EUC2D);
+	Segment root_status(EUC2D);
 	Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
-	Node<SweeperSegmentRelation> ROOT_STATUS(&root_status);
+	Node<Segment> ROOT_STATUS(&root_status);
 
 	std::vector<Segment> segments;
 	srand((unsigned)time(NULL));
@@ -178,8 +181,9 @@ void sweepline_test() {
 		segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
 	}
 
-	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS, comparerSweepedSegments);
-	plane_sweeper.events_table_.Inspect();
+	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
+	Point *min_pt = plane_sweeper.events_table_.Min(plane_sweeper.events_table_.root_)->geometric_element_->point_;
+	plane_sweeper.Update(min_pt);
 }
 
 int main(int argc, char **argv) {
@@ -197,5 +201,6 @@ int main(int argc, char **argv) {
 	}
 	// visualizer_test();
 	// avltree_test();
+
 	sweepline_test();
 }
