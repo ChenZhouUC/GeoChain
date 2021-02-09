@@ -148,6 +148,7 @@ void LoadingConfig(const Json::Value &root_config) {
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_window_height,
 									 g_GlobalVars.visualize_window_height);
 
+	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_epsilon, g_GlobalVars.convention_epsilon);
 	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_infinity,
 									 g_GlobalVars.convention_infinity);
 	LoadStringLikeKV(root_config, g_GlobalKeys.convention_key, g_GlobalKeys.key_error_code,
@@ -176,6 +177,7 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.key_window_width = "WINDOWWIDTH";
 
 	g_GlobalKeys.convention_key = "CONVENTION";
+	g_GlobalKeys.key_epsilon = "EPSILON";
 	g_GlobalKeys.key_infinity = "INFINITY";
 	g_GlobalKeys.key_error_code = "ERRORCODE";
 	g_GlobalKeys.key_element_id = "ELEMENTID";

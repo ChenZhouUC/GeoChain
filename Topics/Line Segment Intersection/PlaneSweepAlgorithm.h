@@ -95,8 +95,8 @@ kWellOrder InsertEvent(BalancedBinarySearchTree<PointSegmentAffiliation>* events
 				starting_->geometric_element_->u_num_ += insert_event->geometric_element_->u_num_;
 				starting_->geometric_element_->m_num_ += insert_event->geometric_element_->m_num_;
 				starting_->geometric_element_->l_num_ += insert_event->geometric_element_->l_num_;
-				LOG(WARNING) << "[U]:" << starting_->geometric_element_->u_num_
-										 << " [L]:" << starting_->geometric_element_->l_num_;
+				// LOG(WARNING) << "[U]:" << starting_->geometric_element_->u_num_
+				// 						 << " [L]:" << starting_->geometric_element_->l_num_;
 				flag_ = EQN;
 				break;
 			} else {
@@ -149,11 +149,11 @@ class PlaneSweeper {
 			LOG(ERROR) << "please make sure that the updating events dimension match";
 			return false;
 		} else {
-			LOG(WARNING) << "previous status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+			// LOG(WARNING) << "previous status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
 			SweeperState.x_ = event->x_;
 			SweeperState.y_ = event->y_;
 			SweeperState.z_ = event->z_;
-			LOG(WARNING) << "new status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+			// LOG(WARNING) << "new status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
 			return true;
 		}
 	}
@@ -161,7 +161,7 @@ class PlaneSweeper {
 	static kWellOrder SegmentComparer(Node<Segment>* node_1, Node<Segment>* node_2) {
 		float intersect_1, intersect_2;
 		float theta_1, theta_2;	// (-PI/2, PI/2]
-		LOG(WARNING) << "sweeper status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+		// LOG(WARNING) << "sweeper status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
 		if (node_1->geometric_element_->terminal_vertex_1_.x_ == node_1->geometric_element_->terminal_vertex_2_.x_) {
 			// node_1 parellel to sweeper
 			intersect_1 = SweeperState.y_;
@@ -191,7 +191,7 @@ class PlaneSweeper {
 										(SweeperState.x_ - node_2->geometric_element_->terminal_vertex_2_.x_) *
 												node_2->geometric_element_->terminal_vertex_1_.y_;
 			intersect_2 /=
-					(node_2->geometric_element_->terminal_vertex_1_.x_ - node_2->geometric_element_->terminal_vertex_1_.x_);
+					(node_2->geometric_element_->terminal_vertex_2_.x_ - node_2->geometric_element_->terminal_vertex_1_.x_);
 			if (node_2->geometric_element_->theta_ <= -M_PI_2f32) {
 				theta_2 = node_2->geometric_element_->theta_ + M_PIf32;
 			} else if (node_2->geometric_element_->theta_ > M_PI_2f32) {
@@ -200,14 +200,15 @@ class PlaneSweeper {
 				theta_2 = node_2->geometric_element_->theta_;
 			}
 		}
-		if (intersect_1 < intersect_2) {
+
+		if (intersect_1 < intersect_2 - g_GlobalVars.convention_epsilon) {
 			return ORD;
-		} else if (intersect_1 > intersect_2) {
+		} else if (intersect_1 > intersect_2 + g_GlobalVars.convention_epsilon) {
 			return INV;
 		} else {
-			if (theta_1 < theta_2) {
+			if (theta_1 < theta_2 - g_GlobalVars.convention_epsilon) {
 				return ORD;
-			} else if (theta_1 > theta_2) {
+			} else if (theta_1 > theta_2 + g_GlobalVars.convention_epsilon) {
 				return INV;
 			} else {
 				return EQN;
@@ -263,7 +264,7 @@ class PlaneSweeper {
 				this->events_list_.push_back(this_event_);
 				Node<PointSegmentAffiliation> this_event_node_(&(this->events_list_.back()));
 				this->events_nodes_.push_back(this_event_node_);
-				LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+				InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
 				continue;
 			}
 			PointSegmentAffiliation upper_event_(this->dim_), lower_event_(this->dim_);
@@ -285,15 +286,15 @@ class PlaneSweeper {
 			this->events_list_.push_back(upper_event_);
 			Node<PointSegmentAffiliation> upper_event_node_(&(this->events_list_.back()));
 			this->events_nodes_.push_back(upper_event_node_);
-			LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+			InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
 
 			this->events_list_.push_back(lower_event_);
 			Node<PointSegmentAffiliation> lower_event_node_(&(this->events_list_.back()));
 			this->events_nodes_.push_back(lower_event_node_);
-			LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+			InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
 		}
 
-		this->events_table_.Inspect();
+		// this->events_table_.Inspect();
 
 		if (segments_.size() > 0) {
 			this->event_state_ = this->events_table_.Min(this->events_table_.root_);
@@ -332,18 +333,10 @@ class PlaneSweeper {
 			}
 		} else {
 			// starting cross to sweeper
-			float r1_ =
-					(SweeperState.x_ - starting->geometric_element_->terminal_vertex_1_.x_) /
-					(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
-			float r2_ =
-					(SweeperState.x_ - starting->geometric_element_->terminal_vertex_2_.x_) /
-					(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
-			float intersect_y = r1_ * starting->geometric_element_->terminal_vertex_2_.y_ -
-													r2_ * starting->geometric_element_->terminal_vertex_1_.y_;
-
-			if (intersect_y == SweeperState.y_) {
+			if (PointInSegment(&(this->SweeperState), starting->geometric_element_)) {
 				// cross the sweeper
-				if (r1_ * r2_ != 0) {
+				if (PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_1_)) != EQN &&
+						PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_2_)) != EQN) {
 					// sweeper is not the lower of starting
 					this->event_state_->geometric_element_->m_segs_.push_back(starting);
 					this->event_state_->geometric_element_->segments_.push_back(starting);
@@ -356,13 +349,24 @@ class PlaneSweeper {
 				if (starting->lchild_ != nullptr) {
 					QueryStatus(starting->lchild_);
 				}
-			} else if (intersect_y > SweeperState.y_) {
-				if (starting->lchild_ != nullptr) {
-					QueryStatus(starting->lchild_);
-				}
 			} else {
-				if (starting->rchild_ != nullptr) {
-					QueryStatus(starting->rchild_);
+				float r1_ =
+						(SweeperState.x_ - starting->geometric_element_->terminal_vertex_1_.x_) /
+						(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
+				float r2_ =
+						(SweeperState.x_ - starting->geometric_element_->terminal_vertex_2_.x_) /
+						(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
+				float intersect_y = r1_ * starting->geometric_element_->terminal_vertex_2_.y_ -
+														r2_ * starting->geometric_element_->terminal_vertex_1_.y_;
+
+				if (intersect_y > SweeperState.y_) {
+					if (starting->lchild_ != nullptr) {
+						QueryStatus(starting->lchild_);
+					}
+				} else {
+					if (starting->rchild_ != nullptr) {
+						QueryStatus(starting->rchild_);
+					}
 				}
 			}
 		}
@@ -370,7 +374,7 @@ class PlaneSweeper {
 
 	void SweepAcross() {
 		if (this->event_state_->geometric_element_->num_ == 0) {
-			LOG(WARNING) << "one event meet no belonging, this might be caused by computational precision!";
+			LOG(FATAL) << "one event meet no belonging, this might be caused by computational precision!";
 			return;
 		}
 		Node<Segment>*l_neighbor = nullptr, *r_neighbor = nullptr;
@@ -385,6 +389,7 @@ class PlaneSweeper {
 			}
 			if (l_neighbor != nullptr && r_neighbor != nullptr) {
 				Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, r_neighbor->geometric_element_);
+				// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 				if (intersection_.status_ == MATR) {
 					this->new_events_.push_back(intersection_);
 					PointSegmentAffiliation new_event_(this->dim_);
@@ -392,7 +397,13 @@ class PlaneSweeper {
 					this->events_list_.push_back(new_event_);
 					Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
 					this->events_nodes_.push_back(new_event_node_);
-					LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+					kWellOrder flag_ = InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+					if (flag_ == 0) {
+						// LOG(ERROR) << "duplicated events";
+						this->new_events_.pop_back();
+						this->events_list_.pop_back();
+						this->events_nodes_.pop_back();
+					}
 				}
 			}
 
@@ -420,6 +431,7 @@ class PlaneSweeper {
 				Node<Segment>* newone_ = this->status_table_.Successor(l_neighbor);
 				if (newone_ != nullptr) {
 					Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, newone_->geometric_element_);
+					// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 					if (intersection_.status_ == MATR) {
 						this->new_events_.push_back(intersection_);
 						PointSegmentAffiliation new_event_(this->dim_);
@@ -427,7 +439,13 @@ class PlaneSweeper {
 						this->events_list_.push_back(new_event_);
 						Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
 						this->events_nodes_.push_back(new_event_node_);
-						LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+						kWellOrder flag_ = InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+						if (flag_ == 0) {
+							// LOG(ERROR) << "duplicated events";
+							this->new_events_.pop_back();
+							this->events_list_.pop_back();
+							this->events_nodes_.pop_back();
+						}
 					}
 				}
 			}
@@ -436,6 +454,7 @@ class PlaneSweeper {
 				Node<Segment>* newone_ = this->status_table_.Predecessor(r_neighbor);
 				if (newone_ != nullptr) {
 					Point intersection_ = SegmentIntersection(r_neighbor->geometric_element_, newone_->geometric_element_);
+					// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 					if (intersection_.status_ == MATR) {
 						this->new_events_.push_back(intersection_);
 						PointSegmentAffiliation new_event_(this->dim_);
@@ -443,7 +462,13 @@ class PlaneSweeper {
 						this->events_list_.push_back(new_event_);
 						Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
 						this->events_nodes_.push_back(new_event_node_);
-						LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+						kWellOrder flag_ = InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+						if (flag_ == 0) {
+							// LOG(ERROR) << "duplicated events";
+							this->new_events_.pop_back();
+							this->events_list_.pop_back();
+							this->events_nodes_.pop_back();
+						}
 					}
 				}
 			}
@@ -466,7 +491,7 @@ class PlaneSweeper {
 			return false;
 		}
 	}
-};
+};	// namespace Algorithms
 
 }	// namespace Algorithms
 }	// namespace GeoChain

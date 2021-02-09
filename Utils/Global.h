@@ -26,6 +26,7 @@ struct GlobalVar {
 	int visualize_window_width;
 	int visualize_window_height;
 
+	float convention_epsilon;
 	float convention_infinity;
 	int convention_error_code;
 	int convention_element_id;
@@ -54,6 +55,7 @@ struct GlobalKey {
 
 	std::string convention_key;
 
+	std::string key_epsilon;
 	std::string key_infinity;
 	std::string key_error_code;
 	std::string key_element_id;

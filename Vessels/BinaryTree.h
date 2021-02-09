@@ -935,7 +935,7 @@ class BalancedBinarySearchTree {
 	//          0 if succeed but violate strict order;
 	//          -1 if failed insertion;
 	kWellOrder Insert(Node<Element>* insert_node) {
-		Utils::Timer t_;
+		// Utils::Timer t_;
 		if (insert_node->tree_id_ != -1 || insert_node->tree_key_ != "") {
 			// already owned by tree
 			LOG(ERROR) << "inserted node already owned by tree: " << insert_node->tree_id_ << ":" << insert_node->tree_key_;
@@ -1019,7 +1019,7 @@ class BalancedBinarySearchTree {
 	//          0 if succeed but weaken balace;
 	//          -1 if failed deletion;
 	kWellOrder Delete(Node<Element>* delete_node) {
-		Utils::Timer t_;
+		// Utils::Timer t_;
 		if (delete_node->tree_id_ != this->id_) {
 			// not this tree
 			LOG(ERROR) << "deleted node not owned by this tree but: " << delete_node->tree_id_ << ":"

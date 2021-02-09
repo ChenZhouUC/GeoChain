@@ -18,6 +18,7 @@
         "WINDOWHEIGHT": 1000
     },
     "CONVENTION": {
+        "EPSILON": 0.0001,
         "INFINITY": 10000.0,
         "ERRORCODE": 1111,
         "ELEMENTID": 0

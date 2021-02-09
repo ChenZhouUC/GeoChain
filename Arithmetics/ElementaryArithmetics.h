@@ -53,7 +53,8 @@ bool PointInSegment(Point *pt, Segment *sgmnt) {
 	if (pt->dim_ == 1) {
 		return (pt->x_ - sgmnt->terminal_vertex_1_.x_) * (pt->x_ - sgmnt->terminal_vertex_2_.x_) <= 0;
 	} else if (pt->dim_ == 2) {
-		if (sgmnt->a_ * pt->x_ + sgmnt->b_ * pt->y_ + sgmnt->c_ == 0) {
+		// LOG(WARNING) << "GAP:" << sgmnt->a_ * pt->x_ + sgmnt->b_ * pt->y_ + sgmnt->c_;
+		if (abs(sgmnt->a_ * pt->x_ + sgmnt->b_ * pt->y_ + sgmnt->c_) <= g_GlobalVars.convention_epsilon) {
 			// match the function on the line
 			return ((pt->x_ - sgmnt->terminal_vertex_1_.x_) * (pt->x_ - sgmnt->terminal_vertex_2_.x_) <= 0) &&
 						 ((pt->y_ - sgmnt->terminal_vertex_1_.y_) * (pt->y_ - sgmnt->terminal_vertex_2_.y_) <= 0);
