@@ -1,5 +1,6 @@
 #include "ElementaryElements.h"
 #include "BinaryTree.h"
+#include "ElementaryArithmetics.h"
 
 namespace GeoChain {
 namespace Algorithms {
@@ -12,9 +13,9 @@ enum kSweeperRelation { PASSED = -1, RELATE = 0, NOTYET = 1 };
 struct PointSegmentAffiliation {
 	kDimension dim_;
 	Point* point_;
-	std::vector<Segment*> segments_ = std::vector<Segment*>();
-	std::vector<Segment*> u_segs_ = std::vector<Segment*>(), l_segs_ = std::vector<Segment*>(),
-												m_segs_ = std::vector<Segment*>();
+	std::vector<Node<Segment>*> segments_ = std::vector<Node<Segment>*>();
+	std::vector<Node<Segment>*> u_segs_ = std::vector<Node<Segment>*>(), l_segs_ = std::vector<Node<Segment>*>(),
+															m_segs_ = std::vector<Node<Segment>*>();
 	int num_ = 0;
 	int u_num_ = 0, l_num_ = 0, m_num_ = 0;
 
@@ -137,6 +138,8 @@ class PlaneSweeper {
 	std::vector<Segment> segments_;
 	BalancedBinarySearchTree<PointSegmentAffiliation> events_table_;
 	BalancedBinarySearchTree<Segment> status_table_;
+	Node<PointSegmentAffiliation>* event_state_;
+	std::vector<Point> new_events_;
 
 	static Point SweeperState;
 
@@ -168,7 +171,7 @@ class PlaneSweeper {
 										(SweeperState.x_ - node_1->geometric_element_->terminal_vertex_2_.x_) *
 												node_1->geometric_element_->terminal_vertex_1_.y_;
 			intersect_1 /=
-					(node_2->geometric_element_->terminal_vertex_2_.x_ - node_1->geometric_element_->terminal_vertex_1_.x_);
+					(node_1->geometric_element_->terminal_vertex_2_.x_ - node_1->geometric_element_->terminal_vertex_1_.x_);
 			if (node_1->geometric_element_->theta_ <= -M_PI_2f32) {
 				theta_1 = node_1->geometric_element_->theta_ + M_PIf32;
 			} else if (node_1->geometric_element_->theta_ > M_PI_2f32) {
@@ -220,10 +223,11 @@ class PlaneSweeper {
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
 				status_table_(BalancedBinarySearchTree<Segment>(root_status, PlaneSweeper::SegmentComparer)) {
 		// reserve the vector space could avoid data relocating in order to use ptr further
-		int max_event_num_ = (seg_list->size() * seg_list->size() + 3 * seg_list->size()) / 2;
-		events_list_.reserve(max_event_num_);
-		events_nodes_.reserve(max_event_num_);
+		int max_event_num_ = (seg_list->size() * seg_list->size() - seg_list->size()) / 2;
+		events_list_.reserve(max_event_num_ + 2 * seg_list->size());
+		events_nodes_.reserve(max_event_num_ + 2 * seg_list->size());
 		status_nodes_.reserve(seg_list->size());
+		new_events_.reserve(max_event_num_);
 		// here though we considered the maximum number of potential events, we cannot assure that each event in the vector
 		// could be useful. Some duplicated events may occur in the vector but only the first one is useful in the tree and
 		// stored correct data value.
@@ -247,8 +251,11 @@ class PlaneSweeper {
 				// only apply lower one to avoid counting duplicated
 				PointSegmentAffiliation this_event_(this->dim_);
 				this_event_.point_ = &(s.terminal_vertex_1_);
-				this_event_.l_segs_.push_back(&s);
-				this_event_.segments_.push_back(&s);
+
+				Node<Segment> this_status_(&s);
+				this->status_nodes_.push_back(this_status_);
+				this_event_.l_segs_.push_back(&(this->status_nodes_.back()));
+				this_event_.segments_.push_back(&(this->status_nodes_.back()));
 				this_event_.l_num_++;
 				this_event_.num_++;
 
@@ -260,14 +267,17 @@ class PlaneSweeper {
 			}
 			PointSegmentAffiliation upper_event_(this->dim_), lower_event_(this->dim_);
 			upper_event_.point_ = this_upper_;
-			upper_event_.u_segs_.push_back(&s);
-			upper_event_.segments_.push_back(&s);
+
+			Node<Segment> this_status_(&s);
+			this->status_nodes_.push_back(this_status_);
+			upper_event_.u_segs_.push_back(&(this->status_nodes_.back()));
+			upper_event_.segments_.push_back(&(this->status_nodes_.back()));
 			upper_event_.u_num_++;
 			upper_event_.num_++;
 
 			lower_event_.point_ = this_lower_;
-			lower_event_.l_segs_.push_back(&s);
-			lower_event_.segments_.push_back(&s);
+			lower_event_.l_segs_.push_back(&(this->status_nodes_.back()));
+			lower_event_.segments_.push_back(&(this->status_nodes_.back()));
 			lower_event_.l_num_++;
 			lower_event_.num_++;
 
@@ -285,7 +295,8 @@ class PlaneSweeper {
 		this->events_table_.Inspect();
 
 		if (segments_.size() > 0) {
-			Point* min_pt = this->events_table_.Min(this->events_table_.root_)->geometric_element_->point_;
+			this->event_state_ = this->events_table_.Min(this->events_table_.root_);
+			Point* min_pt = this->event_state_->geometric_element_->point_;
 			this->UpdateSweeper(min_pt);
 			status_ = MATR;
 		} else {
@@ -297,12 +308,161 @@ class PlaneSweeper {
 
 	// query status tree in order to find all related segments to the current sweeper
 	void QueryStatus(Node<Segment>* starting) {
-		//
-		Node<Segment>* starting_ = this->status_table_.root_->child_;
+		if (starting->geometric_element_->terminal_vertex_1_.x_ == starting->geometric_element_->terminal_vertex_2_.x_) {
+			// starting parellel to sweeper
+			if ((SweeperState.y_ - starting->geometric_element_->terminal_vertex_1_.y_) *
+							(SweeperState.y_ - starting->geometric_element_->terminal_vertex_1_.y_) <
+					0) {
+				this->event_state_->geometric_element_->m_segs_.push_back(starting);
+				this->event_state_->geometric_element_->segments_.push_back(starting);
+				this->event_state_->geometric_element_->m_num_++;
+				this->event_state_->geometric_element_->num_++;
+				if (starting->rchild_ != nullptr) {
+					QueryStatus(starting->rchild_);
+				}
+				// if (starting->lchild_ != nullptr) {
+				// 	QueryStatus(starting->lchild_);
+				// }
+			} else {
+				// sweeper is the lower of starting
+				if (starting->rchild_ != nullptr) {
+					QueryStatus(starting->rchild_);
+				}
+			}
+		} else {
+			// starting cross to sweeper
+			float r1_ =
+					(SweeperState.x_ - starting->geometric_element_->terminal_vertex_1_.x_) /
+					(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
+			float r2_ =
+					(SweeperState.x_ - starting->geometric_element_->terminal_vertex_2_.x_) /
+					(starting->geometric_element_->terminal_vertex_2_.x_ - starting->geometric_element_->terminal_vertex_1_.x_);
+			float intersect_y = r1_ * starting->geometric_element_->terminal_vertex_2_.y_ -
+													r2_ * starting->geometric_element_->terminal_vertex_1_.y_;
+
+			if (intersect_y == SweeperState.y_) {
+				// cross the sweeper
+				if (r1_ * r2_ != 0) {
+					// sweeper is not the lower of starting
+					this->event_state_->geometric_element_->m_segs_.push_back(starting);
+					this->event_state_->geometric_element_->segments_.push_back(starting);
+					this->event_state_->geometric_element_->m_num_++;
+					this->event_state_->geometric_element_->num_++;
+				}
+				if (starting->rchild_ != nullptr) {
+					QueryStatus(starting->rchild_);
+				}
+				if (starting->lchild_ != nullptr) {
+					QueryStatus(starting->lchild_);
+				}
+			} else if (intersect_y > SweeperState.y_) {
+				if (starting->lchild_ != nullptr) {
+					QueryStatus(starting->lchild_);
+				}
+			} else {
+				if (starting->rchild_ != nullptr) {
+					QueryStatus(starting->rchild_);
+				}
+			}
+		}
 	}
 
-	void Update() {
+	void SweepAcross() {
+		if (this->event_state_->geometric_element_->num_ == 0) {
+			LOG(WARNING) << "one event meet no belonging, this might be caused by computational precision!";
+			return;
+		}
+		Node<Segment>*l_neighbor = nullptr, *r_neighbor = nullptr;
+		if (this->event_state_->geometric_element_->u_num_ + this->event_state_->geometric_element_->m_num_ == 0) {
+			// ending event should compute the neighbors to generate a new event
+			for (int i_ = 0; i_ < this->event_state_->geometric_element_->l_num_; i_++) {
+				if (i_ == this->event_state_->geometric_element_->l_num_ - 1) {
+					r_neighbor = this->status_table_.Successor(this->event_state_->geometric_element_->l_segs_[i_]);
+					l_neighbor = this->status_table_.Predecessor(this->event_state_->geometric_element_->l_segs_[i_]);
+				}
+				this->status_table_.Delete(this->event_state_->geometric_element_->l_segs_[i_]);
+			}
+			if (l_neighbor != nullptr && r_neighbor != nullptr) {
+				Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, r_neighbor->geometric_element_);
+				if (intersection_.status_ == MATR) {
+					this->new_events_.push_back(intersection_);
+					PointSegmentAffiliation new_event_(this->dim_);
+					new_event_.point_ = &(this->new_events_.back());
+					this->events_list_.push_back(new_event_);
+					Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
+					this->events_nodes_.push_back(new_event_node_);
+					LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+				}
+			}
+
+		} else {
+			for (auto&& l_ : this->event_state_->geometric_element_->l_segs_) {
+				this->status_table_.Delete(l_);
+			}
+			for (auto&& m_ : this->event_state_->geometric_element_->m_segs_) {
+				this->status_table_.Delete(m_);
+			}
+			std::vector<Node<Segment>*> U_M_ = std::vector<Node<Segment>*>();
+			U_M_.insert(U_M_.end(), this->event_state_->geometric_element_->m_segs_.begin(),
+									this->event_state_->geometric_element_->m_segs_.end());
+			U_M_.insert(U_M_.end(), this->event_state_->geometric_element_->u_segs_.begin(),
+									this->event_state_->geometric_element_->u_segs_.end());
+			for (int i_ = 0; i_ < U_M_.size(); i_++) {
+				this->status_table_.Insert(U_M_[i_]);
+				if (i_ == 1) {
+					r_neighbor = this->status_table_.Successor(U_M_[i_]);
+					l_neighbor = this->status_table_.Predecessor(U_M_[i_]);
+				}
+			}
+
+			if (l_neighbor != nullptr) {
+				Node<Segment>* newone_ = this->status_table_.Successor(l_neighbor);
+				if (newone_ != nullptr) {
+					Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, newone_->geometric_element_);
+					if (intersection_.status_ == MATR) {
+						this->new_events_.push_back(intersection_);
+						PointSegmentAffiliation new_event_(this->dim_);
+						new_event_.point_ = &(this->new_events_.back());
+						this->events_list_.push_back(new_event_);
+						Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
+						this->events_nodes_.push_back(new_event_node_);
+						LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+					}
+				}
+			}
+
+			if (r_neighbor != nullptr) {
+				Node<Segment>* newone_ = this->status_table_.Predecessor(r_neighbor);
+				if (newone_ != nullptr) {
+					Point intersection_ = SegmentIntersection(r_neighbor->geometric_element_, newone_->geometric_element_);
+					if (intersection_.status_ == MATR) {
+						this->new_events_.push_back(intersection_);
+						PointSegmentAffiliation new_event_(this->dim_);
+						new_event_.point_ = &(this->new_events_.back());
+						this->events_list_.push_back(new_event_);
+						Node<PointSegmentAffiliation> new_event_node_(&(this->events_list_.back()));
+						this->events_nodes_.push_back(new_event_node_);
+						LOG(WARNING) << InsertEvent(&(this->events_table_), &(this->events_nodes_.back()));
+					}
+				}
+			}
+		}
+	}
+
+	bool Update() {
 		if (this->status_table_.root_->child_ == nullptr) {
+			LOG(WARNING) << "status tree not initiated!";
+		} else {
+			QueryStatus(this->status_table_.root_->child_);
+		}
+		SweepAcross();
+		this->event_state_ = this->events_table_.Successor(this->event_state_);
+		if (this->event_state_ != nullptr) {
+			Point* min_pt = this->event_state_->geometric_element_->point_;
+			this->UpdateSweeper(min_pt);
+			return true;
+		} else {
+			return false;
 		}
 	}
 };

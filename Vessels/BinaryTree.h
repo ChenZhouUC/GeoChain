@@ -633,7 +633,7 @@ class BalancedBinarySearchTree {
 						break;
 					} else {
 						// this_parent_ is Element Node
-						if (this_parent_->rchild_->id_ == start_root->id_) {
+						if (this_parent_->rchild_ != nullptr && this_parent_->rchild_->id_ == start_root->id_) {
 							// rchild-like parent
 							start_root = this_parent_;
 							break;
@@ -672,7 +672,7 @@ class BalancedBinarySearchTree {
 						break;
 					} else {
 						// this_parent_ is Element Node
-						if (this_parent_->lchild_->id_ == start_root->id_) {
+						if (this_parent_->lchild_ != nullptr && this_parent_->lchild_->id_ == start_root->id_) {
 							// lchild-like parent
 							start_root = this_parent_;
 							break;

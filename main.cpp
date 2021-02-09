@@ -182,6 +182,11 @@ void sweepline_test() {
 	}
 
 	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
+	int counter = 0;
+	while (plane_sweeper.Update()) {
+		LOG(INFO) << "finish sweeping event: " << ++counter;
+	}
+	LOG(INFO) << "finish sweeping event: " << ++counter;
 }
 
 int main(int argc, char **argv) {
