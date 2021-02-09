@@ -130,7 +130,7 @@ class PlaneSweeper {
  private:
 	const kDimension dim_ = EUC0D;
 	kMaturityStatus status_ = INIT;
-	std::vector<PointSegmentAffiliation> events_list_ = std::vector<PointSegmentAffiliation>();
+
 	std::vector<Node<PointSegmentAffiliation>> events_nodes_ = std::vector<Node<PointSegmentAffiliation>>();
 	std::vector<Node<Segment>> status_nodes_ = std::vector<Node<Segment>>();
 
@@ -140,6 +140,7 @@ class PlaneSweeper {
 	BalancedBinarySearchTree<Segment> status_table_;
 	Node<PointSegmentAffiliation>* event_state_;
 	std::vector<Point> new_events_;
+	std::vector<PointSegmentAffiliation> events_list_ = std::vector<PointSegmentAffiliation>();
 
 	static Point SweeperState;
 
@@ -180,7 +181,7 @@ class PlaneSweeper {
 				theta_1 = node_1->geometric_element_->theta_;
 			}
 		}
-		if (node_2->geometric_element_->terminal_vertex_2_.x_ == node_2->geometric_element_->terminal_vertex_2_.x_) {
+		if (node_2->geometric_element_->terminal_vertex_1_.x_ == node_2->geometric_element_->terminal_vertex_2_.x_) {
 			// node_1 parellel to sweeper
 			intersect_2 = SweeperState.y_;
 			theta_2 = M_PI_2f32;
@@ -409,7 +410,7 @@ class PlaneSweeper {
 									this->event_state_->geometric_element_->u_segs_.end());
 			for (int i_ = 0; i_ < U_M_.size(); i_++) {
 				this->status_table_.Insert(U_M_[i_]);
-				if (i_ == 1) {
+				if (i_ == 0) {
 					r_neighbor = this->status_table_.Successor(U_M_[i_]);
 					l_neighbor = this->status_table_.Predecessor(U_M_[i_]);
 				}

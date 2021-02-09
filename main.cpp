@@ -166,11 +166,13 @@ void sweepline_test() {
 	srand((unsigned)time(NULL));
 	float range = 10.0;
 	double rand_unit_;
+
+	std::vector<Point> attendents;
 	for (int n_ = 0; n_ < total_num; n_++) {
 		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_x_1 = 0.0;	//(rand_unit_ - 0.5) * range;
+		float coord_x_1 = (rand_unit_ - 0.5) * range;
 		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_y_1 = 0.0;	// (rand_unit_ - 0.5) * range;
+		float coord_y_1 = (rand_unit_ - 0.5) * range;
 		rand_unit_ = rand() / double(RAND_MAX);
 		float coord_x_2 = (rand_unit_ - 0.5) * range;
 		rand_unit_ = rand() / double(RAND_MAX);
@@ -179,12 +181,24 @@ void sweepline_test() {
 		Point pt_1(EUC2D, coord_x_1, coord_y_1);
 		Point pt_2(EUC2D, coord_x_2, coord_y_2);
 		segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
+		attendents.push_back(pt_1);
+		attendents.push_back(pt_2);
+	}
+
+	Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
+	visual.Init();
+	for (auto &&s : segments) {
+		visual.Draw(s);
 	}
 
 	PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
+	visual.Draw(plane_sweeper.SweeperState);
+	visual.Visualize("GEOCHAIN");
 	int counter = 0;
 	while (plane_sweeper.Update()) {
 		LOG(INFO) << "finish sweeping event: " << ++counter;
+		visual.Draw(plane_sweeper.SweeperState);
+		visual.Visualize("GEOCHAIN");
 	}
 	LOG(INFO) << "finish sweeping event: " << ++counter;
 }
