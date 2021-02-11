@@ -307,7 +307,7 @@ void sweepline_test(float range, float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	visual_traverse.Visualize("Traverse");
+	visual_traverse.Visualize("Traversal", "Topics/Line Segment Intersection/Traversal.png");
 
 	cv::destroyAllWindows();
 }
@@ -328,7 +328,7 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	sweepline_test(2.0, 3.0, 1);
+	sweepline_test(2.0, 2.0, 1);
 
 	// for (float exp_ = 1.2; exp_ < 4.5; exp_ += 0.1) {
 	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {

@@ -207,6 +207,8 @@ class Visualizer2D {
 		if (save_name != "") {
 			cv::Mat flipped;
 			cv::flip(this->canvas_, flipped, 0);
+			cv::putText(flipped, window_name, show_location_, CV_FONT_HERSHEY_TRIPLEX, g_GlobalVars.visualize_font_scale,
+									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imwrite(save_name, flipped);
 			cv::destroyWindow(window_name);
 		}
