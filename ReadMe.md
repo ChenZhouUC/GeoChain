@@ -28,6 +28,6 @@ Please refer to [Data Vessels](https://github.com/ChenZhouUC/GeoChain/tree/maste
 
 ## Topics
 
-### Line Segemnt Intersection
+### Line Segment Intersection
 
-Please refer to [Line Segemnt Intersection](https://github.com/ChenZhouUC/GeoChain/tree/master/Topics/Line%20Segment%20Intersection).
+Please refer to [Line Segment Intersection](https://github.com/ChenZhouUC/GeoChain/tree/master/Topics/Line%20Segment%20Intersection).
