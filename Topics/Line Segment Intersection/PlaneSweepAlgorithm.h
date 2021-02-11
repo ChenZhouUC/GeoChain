@@ -477,7 +477,7 @@ class PlaneSweeper {
 
 	bool Update() {
 		if (this->status_table_.root_->child_ == nullptr) {
-			LOG(WARNING) << "status tree not initiated!";
+			LOG(WARNING) << "status tree empty!";
 		} else {
 			QueryStatus(this->status_table_.root_->child_);
 		}

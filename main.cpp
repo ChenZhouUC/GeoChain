@@ -190,7 +190,7 @@ std::vector<GeoChain::Euclidean::Point> line_intersection_traverse(
 	return intersection;
 }
 
-void sweepline_test(int total_num) {
+void sweepline_test(float expand) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
@@ -198,24 +198,30 @@ void sweepline_test(int total_num) {
 	std::vector<Segment> segments;
 	srand((unsigned)time(NULL));
 	float range = 10.0;
+	float unit = 1.0;
+	float thresh = 0.3;
 	double rand_unit_;
 
 	std::vector<Point> attendents;
-	for (int n_ = 0; n_ < total_num; n_++) {
-		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_x_1 = (rand_unit_ - 0.5) * range;
-		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_y_1 = (rand_unit_ - 0.5) * range;
-		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_x_2 = (rand_unit_ - 0.5) * range;
-		rand_unit_ = rand() / double(RAND_MAX);
-		float coord_y_2 = (rand_unit_ - 0.5) * range;
-		LOG(WARNING) << "RANDOM: (" << coord_x_1 << " " << coord_y_1 << ") (" << coord_x_2 << " " << coord_y_2 << ")";
-		Point pt_1(EUC2D, coord_x_1, coord_y_1);
-		Point pt_2(EUC2D, coord_x_2, coord_y_2);
-		segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
-		attendents.push_back(pt_1);
-		attendents.push_back(pt_2);
+	for (int c_ = -range; c_ <= range; c_ += unit) {
+		for (int r_ = -range; r_ <= range; r_ += unit) {
+			rand_unit_ = rand() / double(RAND_MAX);
+			float coord_x_1 = c_ + (rand_unit_ - 0.5) * expand * unit;
+			rand_unit_ = rand() / double(RAND_MAX);
+			float coord_y_1 = r_ + (rand_unit_ - 0.5) * expand * unit;
+			rand_unit_ = rand() / double(RAND_MAX);
+			float coord_x_2 = c_ + (rand_unit_ - 0.5) * expand * unit;
+			rand_unit_ = rand() / double(RAND_MAX);
+			float coord_y_2 = r_ + (rand_unit_ - 0.5) * expand * unit;
+			LOG(WARNING) << "RANDOM: (" << coord_x_1 << " " << coord_y_1 << ") (" << coord_x_2 << " " << coord_y_2 << ")";
+			Point pt_1(EUC2D, coord_x_1, coord_y_1);
+			Point pt_2(EUC2D, coord_x_2, coord_y_2);
+			if (EuclideanDistance(pt_1, pt_2) > thresh * expand) {
+				segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
+				attendents.push_back(pt_1);
+				attendents.push_back(pt_2);
+			}
+		}
 	}
 
 	Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
@@ -238,6 +244,8 @@ void sweepline_test(int total_num) {
 	}
 	LOG(INFO) << "sweepline find: " << counter;
 
+	visual.Visualize("Sweepline");
+
 	// PointSegmentAffiliation root_event(EUC2D, segments.size());
 	// Segment root_status(EUC2D);
 	// Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
@@ -258,7 +266,6 @@ void sweepline_test(int total_num) {
 		visual_traverse.Draw(inter_);
 	}
 
-	visual.Visualize("Sweepline");
 	visual_traverse.Visualize("Traverse");
 }
 
@@ -278,5 +285,5 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	sweepline_test(atoi(argv[1]));
+	sweepline_test(atof(argv[1]));
 }
