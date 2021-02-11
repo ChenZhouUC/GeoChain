@@ -206,7 +206,7 @@ class Visualizer2D {
 		}
 		if (save_name != "") {
 			cv::Mat flipped;
-			cv::flip(visual_, flipped, 0);
+			cv::flip(this->canvas_, flipped, 0);
 			cv::imwrite(save_name, flipped);
 			cv::destroyWindow(window_name);
 		}
