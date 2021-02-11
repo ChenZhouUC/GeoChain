@@ -150,32 +150,59 @@ void avltree_test() {
 GeoChain::Euclidean::Point GeoChain::Algorithms::PlaneSweeper::SweeperState =
 		GeoChain::Euclidean::Point(EUC2D, -g_GlobalVars.convention_infinity, -g_GlobalVars.convention_infinity);
 
-GeoChain::Algorithms::PlaneSweeper sweepline_algo(std::vector<GeoChain::Euclidean::Segment> *ptr_segs) {
+GeoChain::Algorithms::PlaneSweeper line_intersection_sweepline(std::vector<GeoChain::Euclidean::Segment> *ptr_segs,
+																															 int repeat_num) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
-	Utils::Timer t_;
+	Utils::ExperimentalTimer t_(repeat_num);
+
+	for (int r = 1; r < repeat_num; r++) {
+		PointSegmentAffiliation root_event(EUC2D, (*ptr_segs).size());
+		Segment root_status(EUC2D);
+		Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
+		Node<Segment> ROOT_STATUS(&root_status);
+		PlaneSweeper plane_sweeper(EUC2D, ptr_segs, &ROOT_EVENT, PointComparer2D, &ROOT_STATUS);
+		int counter = 0;
+		while (plane_sweeper.Update()) {
+			counter++;
+			// LOG(INFO) << "finish sweeping event: " << counter;
+		}
+		// LOG(INFO) << "finish sweeping event: " << ++counter;
+	}
 
 	PointSegmentAffiliation root_event(EUC2D, (*ptr_segs).size());
 	Segment root_status(EUC2D);
 	Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
 	Node<Segment> ROOT_STATUS(&root_status);
-	PlaneSweeper plane_sweeper(EUC2D, ptr_segs, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
+	PlaneSweeper plane_sweeper(EUC2D, ptr_segs, &ROOT_EVENT, PointComparer2D, &ROOT_STATUS);
 	int counter = 0;
 	while (plane_sweeper.Update()) {
 		counter++;
 		// LOG(INFO) << "finish sweeping event: " << counter;
 	}
-	LOG(INFO) << "finish sweeping event: " << ++counter;
+	// LOG(INFO) << "finish sweeping event: " << ++counter;
+
 	return plane_sweeper;
 }
 
-std::vector<GeoChain::Euclidean::Point> line_intersection_traverse(
-		std::vector<GeoChain::Euclidean::Segment> *ptr_segs) {
+std::vector<GeoChain::Euclidean::Point> line_intersection_traversal(std::vector<GeoChain::Euclidean::Segment> *ptr_segs,
+																																		int repeat_num) {
 	using namespace GeoChain;
 	using namespace Euclidean;
-	Utils::Timer t_;
-
+	Utils::ExperimentalTimer t_(repeat_num);
+	for (int r = 1; r < repeat_num; r++) {
+		std::vector<Point> intersection;
+		for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
+			for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
+				Point intersection_ = SegmentIntersection(&((*ptr_segs)[i_]), &((*ptr_segs)[j_]));
+				if (intersection_.status_ == MATR) {
+					intersection.push_back(intersection_);
+					// LOG(INFO) << "find one intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				}
+			}
+		}
+	}
 	std::vector<Point> intersection;
 	for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
 		for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
@@ -186,11 +213,10 @@ std::vector<GeoChain::Euclidean::Point> line_intersection_traverse(
 			}
 		}
 	}
-	LOG(INFO) << "find intersections: " << intersection.size();
 	return intersection;
 }
 
-void sweepline_test(float expand) {
+void sweepline_test(float expand, int repeat_experiments) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
@@ -224,6 +250,18 @@ void sweepline_test(float expand) {
 		}
 	}
 
+	Point pt_1(EUC2D, 0, -2);
+	Point pt_2(EUC2D, 0, 2);
+	segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
+	attendents.push_back(pt_1);
+	attendents.push_back(pt_2);
+
+	Point pt_3(EUC2D, -1, -1);
+	Point pt_4(EUC2D, -1, 1);
+	segments.push_back(Segment(EUC2D, DESC, pt_3, pt_4));
+	attendents.push_back(pt_3);
+	attendents.push_back(pt_4);
+
 	Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
 	Visualizer2D visual_traverse(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
 	visual.Init();
@@ -233,7 +271,7 @@ void sweepline_test(float expand) {
 		visual_traverse.Draw(s);
 	}
 
-	PlaneSweeper plane_sweeper = sweepline_algo(&segments);
+	PlaneSweeper plane_sweeper = line_intersection_sweepline(&segments, repeat_experiments);
 	int counter = 0;
 	for (auto &&e_ : plane_sweeper.events_list_) {
 		// LOG(INFO) << e_.num_ << ": " << e_.u_num_ << " " << e_.m_num_ << " " << e_.l_num_;
@@ -242,15 +280,16 @@ void sweepline_test(float expand) {
 			visual.Draw(*(e_.point_));
 		}
 	}
-	LOG(INFO) << "sweepline find: " << counter;
-
+	LOG(INFO) << "[#] sweepline intersections find: " << counter;
+	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
+						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
 	visual.Visualize("Sweepline");
 
 	// PointSegmentAffiliation root_event(EUC2D, segments.size());
 	// Segment root_status(EUC2D);
 	// Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
 	// Node<Segment> ROOT_STATUS(&root_status);
-	// PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, comparer2D, &ROOT_STATUS);
+	// PlaneSweeper plane_sweeper(EUC2D, &segments, &ROOT_EVENT, PointComparer2D, &ROOT_STATUS);
 	// int counter = 0;
 	// visual.Draw(plane_sweeper.SweeperState);
 	// visual.Visualize("Sweepline");
@@ -261,12 +300,17 @@ void sweepline_test(float expand) {
 	// }
 	// LOG(INFO) << "finish sweeping event: " << ++counter;
 
-	std::vector<Point> intersection = line_intersection_traverse(&segments);
+	std::vector<Point> intersection = line_intersection_traversal(&segments, repeat_experiments);
 	for (auto &&inter_ : intersection) {
 		visual_traverse.Draw(inter_);
 	}
 
+	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
+	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
+						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
 	visual_traverse.Visualize("Traverse");
+
+	cv::destroyAllWindows();
 }
 
 int main(int argc, char **argv) {
@@ -285,5 +329,5 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	sweepline_test(atof(argv[1]));
+	sweepline_test(atof(argv[1]), atoi(argv[2]));
 }

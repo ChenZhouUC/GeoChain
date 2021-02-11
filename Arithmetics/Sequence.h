@@ -12,7 +12,7 @@ enum kWellOrder { INV = -1, EQN = 0, ORD = 1 };
 
 namespace Euclidean {
 
-kWellOrder PointCoordSequence(Point* pt_1, Point* pt_2) {
+kWellOrder PointCoordSequence(Point* pt_1, Point* pt_2, float epsilon = 0.0) {
 	if (pt_1->status_ == INIT || pt_2->status_ == INIT) {
 		LOG(ERROR) << "points haven't been initiated completedly!";
 		return EQN;
@@ -21,41 +21,41 @@ kWellOrder PointCoordSequence(Point* pt_1, Point* pt_2) {
 		return EQN;
 	}
 	if (pt_1->dim_ == 1) {
-		if (pt_1->x_ < pt_2->x_) {
+		if (pt_1->x_ < pt_2->x_ - epsilon) {
 			return ORD;
-		} else if (pt_1->x_ > pt_2->x_) {
+		} else if (pt_1->x_ > pt_2->x_ + epsilon) {
 			return INV;
 		} else {
 			return EQN;
 		}
 	} else if (pt_1->dim_ == 2) {
-		if (pt_1->x_ < pt_2->x_) {
+		if (pt_1->x_ < pt_2->x_ - epsilon) {
 			return ORD;
-		} else if (pt_1->x_ > pt_2->x_) {
+		} else if (pt_1->x_ > pt_2->x_ + epsilon) {
 			return INV;
 		} else {
-			if (pt_1->y_ < pt_2->y_) {
+			if (pt_1->y_ < pt_2->y_ - epsilon) {
 				return ORD;
-			} else if (pt_1->y_ > pt_2->y_) {
+			} else if (pt_1->y_ > pt_2->y_ + epsilon) {
 				return INV;
 			} else {
 				return EQN;
 			}
 		}
 	} else if (pt_1->dim_ == 3) {
-		if (pt_1->x_ < pt_2->x_) {
+		if (pt_1->x_ < pt_2->x_ - epsilon) {
 			return ORD;
-		} else if (pt_1->x_ > pt_2->x_) {
+		} else if (pt_1->x_ > pt_2->x_ + epsilon) {
 			return INV;
 		} else {
-			if (pt_1->y_ < pt_2->y_) {
+			if (pt_1->y_ < pt_2->y_ - epsilon) {
 				return ORD;
-			} else if (pt_1->y_ > pt_2->y_) {
+			} else if (pt_1->y_ > pt_2->y_ + epsilon) {
 				return INV;
 			} else {
-				if (pt_1->z_ < pt_2->z_) {
+				if (pt_1->z_ < pt_2->z_ - epsilon) {
 					return ORD;
-				} else if (pt_1->z_ > pt_2->z_) {
+				} else if (pt_1->z_ > pt_2->z_ + epsilon) {
 					return INV;
 				} else {
 					return EQN;

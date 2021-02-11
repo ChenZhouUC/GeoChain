@@ -29,8 +29,9 @@ struct PointSegmentAffiliation {
 	PointSegmentAffiliation(kDimension dim) : dim_(dim){};
 };
 
-kWellOrder comparer2D(Node<PointSegmentAffiliation>* node_1, Node<PointSegmentAffiliation>* node_2) {
-	return PointCoordSequence(node_1->geometric_element_->point_, node_2->geometric_element_->point_);
+kWellOrder PointComparer2D(Node<PointSegmentAffiliation>* node_1, Node<PointSegmentAffiliation>* node_2) {
+	return PointCoordSequence(node_1->geometric_element_->point_, node_2->geometric_element_->point_,
+														g_GlobalVars.convention_epsilon);
 };
 
 // InsertEvent: insert ONE node into Tree and maintain the search Tree property
@@ -313,7 +314,7 @@ class PlaneSweeper {
 		if (starting->geometric_element_->terminal_vertex_1_.x_ == starting->geometric_element_->terminal_vertex_2_.x_) {
 			// starting parellel to sweeper
 			if ((SweeperState.y_ - starting->geometric_element_->terminal_vertex_1_.y_) *
-							(SweeperState.y_ - starting->geometric_element_->terminal_vertex_1_.y_) <
+							(SweeperState.y_ - starting->geometric_element_->terminal_vertex_2_.y_) <
 					0) {
 				this->event_state_->geometric_element_->m_segs_.push_back(starting);
 				this->event_state_->geometric_element_->segments_.push_back(starting);
@@ -374,7 +375,7 @@ class PlaneSweeper {
 
 	void SweepAcross() {
 		if (this->event_state_->geometric_element_->num_ == 0) {
-			LOG(FATAL) << "one event meet no belonging, this might be caused by computational precision!";
+			LOG(FATAL) << "one event has no belonging segments, this might be caused by computational precision!";
 			return;
 		}
 		Node<Segment>*l_neighbor = nullptr, *r_neighbor = nullptr;
@@ -406,7 +407,6 @@ class PlaneSweeper {
 					}
 				}
 			}
-
 		} else {
 			for (auto&& l_ : this->event_state_->geometric_element_->l_segs_) {
 				this->status_table_.Delete(l_);

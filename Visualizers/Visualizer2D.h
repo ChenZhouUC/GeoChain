@@ -204,6 +204,7 @@ class Visualizer2D {
 									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imshow(window_name, visual_);
 		}
+		// cv::destroyWindow(window_name);
 	};
 
  private:
