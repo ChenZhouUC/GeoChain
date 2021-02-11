@@ -32,7 +32,7 @@ class ExperimentalTimer {
 	ExperimentalTimer(int experiment_num) : experiments_(experiment_num) { this->begin_ = clock(); };
 	~ExperimentalTimer() {
 		this->end_ = clock();
-		LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision) << "time cost per experiment: "
+		LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision) << "[$] time cost per experiment: "
 							<< (double)(this->end_ - this->begin_) / (this->experiments_ * CLOCKS_PER_SEC) << " s";
 	};
 };

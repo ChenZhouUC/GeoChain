@@ -25,3 +25,9 @@ Please refer to [Geometric Elements](https://github.com/ChenZhouUC/GeoChain/tree
 ## Data Vessels
 
 Please refer to [Data Vessels](https://github.com/ChenZhouUC/GeoChain/tree/master/Vessels).
+
+## Topics
+
+### Line Segemnt Intersection
+
+Please refer to [Line Segemnt Intersection](https://github.com/ChenZhouUC/GeoChain/tree/master/Topics/Line%20Segment%20Intersection).

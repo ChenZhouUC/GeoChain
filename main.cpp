@@ -223,7 +223,7 @@ void sweepline_test(float expand, int repeat_experiments) {
 
 	std::vector<Segment> segments;
 	srand((unsigned)time(NULL));
-	float range = 10.0;
+	float range = 5.0;
 	float unit = 1.0;
 	float thresh = 0.3;
 	double rand_unit_;
@@ -283,7 +283,7 @@ void sweepline_test(float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] sweepline intersections find: " << counter;
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	visual.Visualize("Sweepline");
+	visual.Visualize("Sweepline", "Sweepline.png");
 
 	// PointSegmentAffiliation root_event(EUC2D, segments.size());
 	// Segment root_status(EUC2D);
@@ -308,7 +308,7 @@ void sweepline_test(float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	visual_traverse.Visualize("Traverse");
+	// visual_traverse.Visualize("Traverse");
 
 	cv::destroyAllWindows();
 }
@@ -329,5 +329,9 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	sweepline_test(atof(argv[1]), atoi(argv[2]));
+	for (float exp_ = 2.0; exp_ < 2.09; exp_ += 0.1) {
+		for (int expr_ = 0; expr_ < 1; expr_ += 1) {
+			sweepline_test(exp_, 10);	// atof(argv[1]), atoi(argv[2])
+		}
+	}
 }

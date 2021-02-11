@@ -14,7 +14,7 @@ namespace Euclidean {
 #define COLOR_YELLOW cv::Scalar(205, 250, 255)
 #define COLOR_GREEN cv::Scalar(193, 255, 193)
 
-#define COLOR_SPACE cv::Scalar(200, 200, 200)
+#define COLOR_SPACE cv::Scalar(230, 230, 230)
 #define COLOR_NOTATION cv::Scalar(50, 50, 50)
 
 static void MouseLocator(int event, int x, int y, int flag, void *param) {
@@ -167,7 +167,7 @@ class Visualizer2D {
 		cv::line(this->canvas_, term_point_1_, term_point_2_, COLOR_BLUE, g_GlobalVars.visualize_line_width);
 	};
 
-	void Visualize(std::string window_name) {
+	void Visualize(std::string window_name, std::string save_name = "") {
 		cv::namedWindow(window_name, cv::WINDOW_KEEPRATIO);
 		cv::resizeWindow(window_name, cv::Size(g_GlobalVars.visualize_window_width, g_GlobalVars.visualize_window_height));
 		cv::Point mouse_location_(-g_GlobalVars.convention_error_code, -g_GlobalVars.convention_error_code);
@@ -204,7 +204,10 @@ class Visualizer2D {
 									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imshow(window_name, visual_);
 		}
-		// cv::destroyWindow(window_name);
+		if (save_name != "") {
+			cv::imwrite(save_name, this->canvas_);
+			cv::destroyWindow(window_name);
+		}
 	};
 
  private:
