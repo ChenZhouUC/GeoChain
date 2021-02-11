@@ -8,14 +8,14 @@
         "INDENT": 50,
         "PLACEHOLDER": 20,
         "PRECISION": 3,
-        "STANDARDIZE": 1000.0,
+        "STANDARDIZE": 400.0,
         "SPACER": 20,
         "LINEWIDTH": 2,
-        "POINTSIZE": 4,
+        "POINTSIZE": 3,
         "FONTSCALE": 0.5,
         "FONTTHICKNESS": 1,
         "WINDOWWIDTH": 800,
-        "WINDOWHEIGHT": 1000
+        "WINDOWHEIGHT": 800
     },
     "CONVENTION": {
         "EPSILON": 0.0001,
