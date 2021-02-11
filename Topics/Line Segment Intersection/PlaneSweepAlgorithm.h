@@ -241,7 +241,8 @@ class PlaneSweeper {
 				LOG(ERROR) << "please make sure the dimensions match as well as segments status NOT ONLY INIT";
 				return;
 			}
-			kWellOrder this_order_ = PointCoordSequence(&(s.terminal_vertex_1_), &(s.terminal_vertex_2_));
+			kWellOrder this_order_ =
+					PointCoordSequence(&(s.terminal_vertex_1_), &(s.terminal_vertex_2_), g_GlobalVars.convention_epsilon);
 			Point *this_upper_, *this_lower_;
 			if (this_order_ > 0) {
 				// including points superposition
@@ -336,8 +337,10 @@ class PlaneSweeper {
 			// starting cross to sweeper
 			if (PointInSegment(&(this->SweeperState), starting->geometric_element_)) {
 				// cross the sweeper
-				if (PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_1_)) != EQN &&
-						PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_2_)) != EQN) {
+				if (PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_1_),
+															 g_GlobalVars.convention_epsilon) != EQN &&
+						PointCoordSequence(&SweeperState, &(starting->geometric_element_->terminal_vertex_2_),
+															 g_GlobalVars.convention_epsilon) != EQN) {
 					// sweeper is not the lower of starting
 					this->event_state_->geometric_element_->m_segs_.push_back(starting);
 					this->event_state_->geometric_element_->segments_.push_back(starting);

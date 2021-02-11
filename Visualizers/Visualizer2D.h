@@ -9,12 +9,12 @@ namespace Euclidean {
 
 #define COLOR_WHITE cv::Scalar(255, 255, 255)
 #define COLOR_BLACK cv::Scalar(0, 0, 0)
-#define COLOR_RED cv::Scalar(34, 34, 178)
-#define COLOR_BLUE cv::Scalar(139, 78, 16)
-#define COLOR_YELLOW cv::Scalar(205, 250, 255)
+#define COLOR_RED cv::Scalar(34, 34, 200)
+#define COLOR_BLUE cv::Scalar(200, 78, 16)
+#define COLOR_YELLOW cv::Scalar(180, 255, 255)
 #define COLOR_GREEN cv::Scalar(193, 255, 193)
 
-#define COLOR_SPACE cv::Scalar(230, 230, 230)
+#define COLOR_SPACE cv::Scalar(210, 230, 230)
 #define COLOR_NOTATION cv::Scalar(50, 50, 50)
 
 static void MouseLocator(int event, int x, int y, int flag, void *param) {
@@ -205,7 +205,9 @@ class Visualizer2D {
 			cv::imshow(window_name, visual_);
 		}
 		if (save_name != "") {
-			cv::imwrite(save_name, this->canvas_);
+			cv::Mat flipped;
+			cv::flip(visual_, flipped, 0);
+			cv::imwrite(save_name, flipped);
 			cv::destroyWindow(window_name);
 		}
 	};

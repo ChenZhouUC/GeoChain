@@ -216,14 +216,13 @@ std::vector<GeoChain::Euclidean::Point> line_intersection_traversal(std::vector<
 	return intersection;
 }
 
-void sweepline_test(float expand, int repeat_experiments) {
+void sweepline_test(float range, float expand, int repeat_experiments) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
 
 	std::vector<Segment> segments;
 	srand((unsigned)time(NULL));
-	float range = 5.0;
 	float unit = 1.0;
 	float thresh = 0.3;
 	double rand_unit_;
@@ -250,8 +249,8 @@ void sweepline_test(float expand, int repeat_experiments) {
 		}
 	}
 
-	Point pt_1(EUC2D, 0, -2);
-	Point pt_2(EUC2D, 0, 2);
+	Point pt_1(EUC2D, -2, 1);
+	Point pt_2(EUC2D, 2, 1);
 	segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
 	attendents.push_back(pt_1);
 	attendents.push_back(pt_2);
@@ -283,7 +282,7 @@ void sweepline_test(float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] sweepline intersections find: " << counter;
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	visual.Visualize("Sweepline", "Sweepline.png");
+	visual.Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
 
 	// PointSegmentAffiliation root_event(EUC2D, segments.size());
 	// Segment root_status(EUC2D);
@@ -308,7 +307,7 @@ void sweepline_test(float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	// visual_traverse.Visualize("Traverse");
+	visual_traverse.Visualize("Traverse");
 
 	cv::destroyAllWindows();
 }
@@ -329,9 +328,11 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	for (float exp_ = 2.0; exp_ < 2.09; exp_ += 0.1) {
-		for (int expr_ = 0; expr_ < 1; expr_ += 1) {
-			sweepline_test(exp_, 10);	// atof(argv[1]), atoi(argv[2])
-		}
-	}
+	sweepline_test(2.0, 3.0, 1);
+
+	// for (float exp_ = 1.2; exp_ < 4.5; exp_ += 0.1) {
+	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
+	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
+	// 	}
+	// }
 }
