@@ -186,34 +186,62 @@ GeoChain::Algorithms::PlaneSweeper line_intersection_sweepline(std::vector<GeoCh
 	return plane_sweeper;
 }
 
-std::vector<GeoChain::Euclidean::Point> line_intersection_traversal(std::vector<GeoChain::Euclidean::Segment> *ptr_segs,
-																																		int repeat_num) {
+std::vector<GeoChain::Algorithms::PointSegmentAffiliation> line_intersection_traversal(
+		std::vector<GeoChain::Euclidean::Segment> *ptr_segs, int repeat_num,
+		std::vector<GeoChain::Euclidean::Point> *intersections) {
 	using namespace GeoChain;
 	using namespace Euclidean;
+	using namespace Algorithms;
+
 	Utils::ExperimentalTimer t_(repeat_num);
 	for (int r = 1; r < repeat_num; r++) {
-		std::vector<Point> intersection;
-		for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
-			for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
-				Point intersection_ = SegmentIntersection(&((*ptr_segs)[i_]), &((*ptr_segs)[j_]));
-				if (intersection_.status_ == MATR) {
-					intersection.push_back(intersection_);
-					// LOG(INFO) << "find one intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
-				}
-			}
-		}
 	}
-	std::vector<Point> intersection;
+
+	std::vector<PointSegmentAffiliation> inter_info;
+	std::vector<Node<Segment>> node_segs;
+	for (auto &&s_ : (*ptr_segs)) {
+		Node<Segment> seg_node_(&s_);
+		node_segs.push_back(seg_node_);
+	}
 	for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
+		std::vector<PointSegmentAffiliation> inter_info_tmp;
+		inter_info_tmp.reserve((*ptr_segs).size());
 		for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
 			Point intersection_ = SegmentIntersection(&((*ptr_segs)[i_]), &((*ptr_segs)[j_]));
 			if (intersection_.status_ == MATR) {
-				intersection.push_back(intersection_);
-				// LOG(INFO) << "find one intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				int match_index_ = -1;
+				for (int inter_ = 0; inter_ < inter_info_tmp.size(); inter_++) {
+					if (PointCoordSequence(inter_info_tmp[inter_].point_, &intersection_, g_GlobalVars.convention_epsilon) !=
+							EQN) {
+						// not match
+					} else {
+						// match
+						match_index_ = inter_;
+						break;
+					}
+				}
+				if (match_index_ > 0) {
+					// match
+					inter_info_tmp[match_index_].segments_.push_back(&(node_segs[j_]));
+					inter_info_tmp[match_index_].num_ += 1;
+					// LOG(INFO) << "find one existing intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				} else {
+					// new one
+					intersections->push_back(intersection_);
+					PointSegmentAffiliation info_tmp(EUC2D, (*ptr_segs).size());
+					intersections->push_back(intersection_);
+					info_tmp.point_ = &(intersections->back());
+					info_tmp.segments_.push_back(&(node_segs[j_]));
+					info_tmp.segments_.push_back(&(node_segs[i_]));
+					info_tmp.num_ += 2;
+					inter_info_tmp.push_back(info_tmp);
+					// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				}
 			}
 		}
+		inter_info.insert(inter_info.end(), inter_info_tmp.begin(), inter_info_tmp.end());
 	}
-	return intersection;
+	return inter_info;
 }
 
 void sweepline_test(float range, float expand, int repeat_experiments) {
@@ -274,9 +302,9 @@ void sweepline_test(float range, float expand, int repeat_experiments) {
 	int counter = 0;
 	for (auto &&e_ : plane_sweeper.events_list_) {
 		// LOG(INFO) << e_.num_ << ": " << e_.u_num_ << " " << e_.m_num_ << " " << e_.l_num_;
-		if (e_.m_num_ > 0) {
+		if (e_.num_ >= 2) {
 			counter++;
-			visual.Draw(*(e_.point_));
+			visual.Draw(*(e_.point_), std::to_string(e_.num_));
 		}
 	}
 	LOG(INFO) << "[#] sweepline intersections find: " << counter;
@@ -299,14 +327,17 @@ void sweepline_test(float range, float expand, int repeat_experiments) {
 	// }
 	// LOG(INFO) << "finish sweeping event: " << ++counter;
 
-	std::vector<Point> intersection = line_intersection_traversal(&segments, repeat_experiments);
+	std::vector<Point> intersections;
+	intersections.reserve((segments.size() * segments.size() - segments.size()) / 2);
+	std::vector<PointSegmentAffiliation> intersection =
+			line_intersection_traversal(&segments, repeat_experiments, &intersections);
 	for (auto &&inter_ : intersection) {
-		visual_traverse.Draw(inter_);
+		visual_traverse.Draw(*(inter_.point_), std::to_string(inter_.num_));
 	}
 
 	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
-						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
+						<< "[%] intersections/segments: " << float(intersection.size()) / segments.size() * 100 << "%";
 	visual_traverse.Visualize("Traversal", "Topics/Line Segment Intersection/Traversal.png");
 
 	cv::destroyAllWindows();

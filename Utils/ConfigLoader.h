@@ -143,6 +143,10 @@ void LoadingConfig(const Json::Value &root_config) {
 									 g_GlobalVars.visualize_font_scale);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_font_thickness,
 									 g_GlobalVars.visualize_font_thickness);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_label_scale,
+									 g_GlobalVars.visualize_label_scale);
+	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_label_thickness,
+									 g_GlobalVars.visualize_label_thickness);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_window_width,
 									 g_GlobalVars.visualize_window_width);
 	LoadStringLikeKV(root_config, g_GlobalKeys.visualize_key, g_GlobalKeys.key_window_height,
@@ -173,6 +177,8 @@ void DefineGlobalKeys() {
 	g_GlobalKeys.key_point_size = "POINTSIZE";
 	g_GlobalKeys.key_font_scale = "FONTSCALE";
 	g_GlobalKeys.key_font_thickness = "FONTTHICKNESS";
+	g_GlobalKeys.key_label_scale = "LABELSCALE";
+	g_GlobalKeys.key_label_thickness = "LABELTHICKNESS";
 	g_GlobalKeys.key_window_height = "WINDOWHEIGHT";
 	g_GlobalKeys.key_window_width = "WINDOWWIDTH";
 

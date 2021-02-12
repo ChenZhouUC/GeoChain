@@ -23,6 +23,8 @@ struct GlobalVar {
 	int visualize_point_size;
 	float visualize_font_scale;
 	int visualize_font_thickness;
+	float visualize_label_scale;
+	int visualize_label_thickness;
 	int visualize_window_width;
 	int visualize_window_height;
 
@@ -50,6 +52,8 @@ struct GlobalKey {
 	std::string key_point_size;
 	std::string key_font_scale;
 	std::string key_font_thickness;
+	std::string key_label_scale;
+	std::string key_label_thickness;
 	std::string key_window_width;
 	std::string key_window_height;
 

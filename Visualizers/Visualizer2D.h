@@ -127,10 +127,17 @@ class Visualizer2D {
 		cv::circle(this->canvas_, origin_, g_GlobalVars.visualize_point_size, COLOR_BLACK, -1);
 	};
 
-	void Draw(Point pt) {
+	void Draw(Point pt, std::string label = "") {
 		cv::Point2f this_point_ = {pt.x_, pt.y_};
 		cv::Point2f pt_pixel_ = this_point_ * this->scaling_ + this->shift_;
 		cv::circle(this->canvas_, pt_pixel_, g_GlobalVars.visualize_point_size, COLOR_RED, -1);
+		if (label != "") {
+			cv::flip(this->canvas_, this->canvas_, 0);
+			pt_pixel_.y = this->canvas_.rows - 1 - pt_pixel_.y;
+			cv::putText(this->canvas_, label, pt_pixel_, CV_FONT_HERSHEY_TRIPLEX, g_GlobalVars.visualize_label_scale,
+									COLOR_NOTATION, g_GlobalVars.visualize_label_thickness);
+			cv::flip(this->canvas_, this->canvas_, 0);
+		}
 	};
 
 	void Draw(Line line) {
