@@ -193,16 +193,56 @@ std::vector<GeoChain::Algorithms::PointSegmentAffiliation> line_intersection_tra
 	using namespace Euclidean;
 	using namespace Algorithms;
 
-	Utils::ExperimentalTimer t_(repeat_num);
-	for (int r = 1; r < repeat_num; r++) {
-	}
-
-	std::vector<PointSegmentAffiliation> inter_info;
 	std::vector<Node<Segment>> node_segs;
 	for (auto &&s_ : (*ptr_segs)) {
 		Node<Segment> seg_node_(&s_);
 		node_segs.push_back(seg_node_);
 	}
+
+	Utils::ExperimentalTimer t_(repeat_num);
+	for (int r = 1; r < repeat_num; r++) {
+		std::vector<PointSegmentAffiliation> inter_info;
+		for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
+			std::vector<PointSegmentAffiliation> inter_info_tmp;
+			inter_info_tmp.reserve((*ptr_segs).size());
+			for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
+				Point intersection_ = SegmentIntersection(&((*ptr_segs)[i_]), &((*ptr_segs)[j_]));
+				if (intersection_.status_ == MATR) {
+					int match_index_ = -1;
+					for (int inter_ = 0; inter_ < inter_info_tmp.size(); inter_++) {
+						if (PointCoordSequence(inter_info_tmp[inter_].point_, &intersection_, g_GlobalVars.convention_epsilon) !=
+								EQN) {
+							// not match
+						} else {
+							// match
+							match_index_ = inter_;
+							break;
+						}
+					}
+					if (match_index_ > 0) {
+						// match
+						inter_info_tmp[match_index_].segments_.push_back(&(node_segs[j_]));
+						inter_info_tmp[match_index_].num_ += 1;
+						// LOG(INFO) << "find one existing intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+					} else {
+						// new one
+						intersections->push_back(intersection_);
+						PointSegmentAffiliation info_tmp(EUC2D, (*ptr_segs).size());
+						intersections->push_back(intersection_);
+						info_tmp.point_ = &(intersections->back());
+						info_tmp.segments_.push_back(&(node_segs[j_]));
+						info_tmp.segments_.push_back(&(node_segs[i_]));
+						info_tmp.num_ += 2;
+						inter_info_tmp.push_back(info_tmp);
+						// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+					}
+				}
+			}
+			inter_info.insert(inter_info.end(), inter_info_tmp.begin(), inter_info_tmp.end());
+		}
+	}
+
+	std::vector<PointSegmentAffiliation> inter_info;
 	for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
 		std::vector<PointSegmentAffiliation> inter_info_tmp;
 		inter_info_tmp.reserve((*ptr_segs).size());
@@ -310,7 +350,7 @@ void sweepline_test(float range, float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] sweepline intersections find: " << counter;
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
-	visual.Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
+	// visual.Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
 
 	// PointSegmentAffiliation root_event(EUC2D, segments.size());
 	// Segment root_status(EUC2D);
@@ -338,7 +378,7 @@ void sweepline_test(float range, float expand, int repeat_experiments) {
 	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(intersection.size()) / segments.size() * 100 << "%";
-	visual_traverse.Visualize("Traversal", "Topics/Line Segment Intersection/Traversal.png");
+	// visual_traverse.Visualize("Traversal", "Topics/Line Segment Intersection/Traversal.png");
 
 	cv::destroyAllWindows();
 }
@@ -359,11 +399,11 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	sweepline_test(2.0, 2.0, 1);
+	// sweepline_test(2.0, 2.0, 1);
 
-	// for (float exp_ = 1.2; exp_ < 4.5; exp_ += 0.1) {
-	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
-	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
-	// 	}
-	// }
+	for (float exp_ = 1.2; exp_ < 4.5; exp_ += 0.1) {
+		for (int expr_ = 0; expr_ < 5; expr_ += 1) {
+			sweepline_test(10.0, exp_, 5);	// atof(argv[1]), atoi(argv[2])
+		}
+	}
 }
