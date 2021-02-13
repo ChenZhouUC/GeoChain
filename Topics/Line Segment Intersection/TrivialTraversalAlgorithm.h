@@ -58,18 +58,8 @@ std::vector<PointSegmentAffiliationTraversal> SegmentIntersectionTraversal(std::
 				continue;
 			}
 			int match_index_ = -1;
-			std::vector<PointSegmentAffiliationTraversal> inter_info_hist;
-			std::vector<PointSegmentAffiliationTraversal> *ptr_inter_info_hist;
-			if (simplify_opt) {
-				ptr_inter_info_hist = &inter_info_tmp;
-			} else {
-				inter_info_hist.insert(inter_info_hist.end(), inter_info.begin(), inter_info.end());
-				inter_info_hist.insert(inter_info_hist.end(), inter_info_tmp.begin(), inter_info_tmp.end());
-				ptr_inter_info_hist = &inter_info_hist;
-			}
-			for (int inter_ = 0; inter_ < ptr_inter_info_hist->size(); inter_++) {
-				if (PointCoordSequence((*ptr_inter_info_hist)[inter_].point_, &intersection_,
-															 g_GlobalVars.convention_epsilon) != EQN) {
+			for (int inter_ = 0; inter_ < inter_info_tmp.size(); inter_++) {
+				if (PointCoordSequence(inter_info_tmp[inter_].point_, &intersection_, g_GlobalVars.convention_epsilon) != EQN) {
 					// not match
 				} else {
 					// match
@@ -78,30 +68,57 @@ std::vector<PointSegmentAffiliationTraversal> SegmentIntersectionTraversal(std::
 				}
 			}
 			if (match_index_ > 0) {
-				// match
-				(*ptr_inter_info_hist)[match_index_].segments_.push_back(&((*ptr_segs)[j_]));
-				(*ptr_inter_info_hist)[match_index_].num_ += 1;
-				for (int index_ = 1; index_ < (*ptr_inter_info_hist)[match_index_].seg_indeces_.size(); index_++) {
-					std::map<int, std::vector<int>>::iterator ptr_jump_index_tmp = jump_dict.find(index_);
-					if (ptr_jump_index_tmp != jump_dict.end()) {
-						jump_dict[index_] = std::vector<int>(j_);
-					} else {
-						jump_dict[index_].push_back(j_);
+				// match one tmp
+				inter_info_tmp[match_index_].segments_.push_back(&((*ptr_segs)[j_]));
+				inter_info_tmp[match_index_].num_ += 1;
+				if (simplify_opt) {
+					for (int index_ = 1; index_ < inter_info_tmp[match_index_].seg_indeces_.size(); index_++) {
+						std::map<int, std::vector<int>>::iterator ptr_jump_index_tmp = jump_dict.find(index_);
+						if (ptr_jump_index_tmp != jump_dict.end()) {
+							jump_dict[index_] = std::vector<int>(j_);
+						} else {
+							jump_dict[index_].push_back(j_);
+						}
 					}
+					inter_info_tmp[match_index_].seg_indeces_.push_back(j_);
 				}
-				(*ptr_inter_info_hist)[match_index_].seg_indeces_.push_back(j_);
 				// LOG(INFO) << "find one existing intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
 			} else {
-				// new one
-				intersection_pts->push_back(intersection_);
-				PointSegmentAffiliationTraversal info_tmp(EUC2D, (*ptr_segs).size(), &(intersection_pts->back()));
-				info_tmp.segments_.push_back(&((*ptr_segs)[i_]));
-				info_tmp.segments_.push_back(&((*ptr_segs)[j_]));
-				info_tmp.num_ += 2;
-				info_tmp.seg_indeces_.push_back(i_);
-				info_tmp.seg_indeces_.push_back(j_);
-				inter_info_tmp.push_back(info_tmp);
-				// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				if (simplify_opt) {
+					// new one
+					intersection_pts->push_back(intersection_);
+					PointSegmentAffiliationTraversal info_tmp(EUC2D, (*ptr_segs).size(), &(intersection_pts->back()));
+					info_tmp.segments_.push_back(&((*ptr_segs)[i_]));
+					info_tmp.segments_.push_back(&((*ptr_segs)[j_]));
+					info_tmp.num_ += 2;
+					info_tmp.seg_indeces_.push_back(i_);
+					info_tmp.seg_indeces_.push_back(j_);
+					inter_info_tmp.push_back(info_tmp);
+					// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+				} else {
+					// new one or previously generated
+					for (int inter_ = 0; inter_ < inter_info.size(); inter_++) {
+						if (PointCoordSequence(inter_info[inter_].point_, &intersection_, g_GlobalVars.convention_epsilon) != EQN) {
+							// not match
+						} else {
+							// match
+							match_index_ = inter_;
+							break;
+						}
+					}
+					if (match_index_ > 0) {
+						// match one previously generated
+					} else {
+						// new one
+						intersection_pts->push_back(intersection_);
+						PointSegmentAffiliationTraversal info_tmp(EUC2D, (*ptr_segs).size(), &(intersection_pts->back()));
+						info_tmp.segments_.push_back(&((*ptr_segs)[i_]));
+						info_tmp.segments_.push_back(&((*ptr_segs)[j_]));
+						info_tmp.num_ += 2;
+						inter_info_tmp.push_back(info_tmp);
+						// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
+					}
+				}
 			}
 		}
 		inter_info.insert(inter_info.end(), inter_info_tmp.begin(), inter_info_tmp.end());

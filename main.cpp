@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
 
 	// sweepline_test(10.0, 4.0, 1, true);
 
-	for (float exp_ = 1.2; exp_ < 4.5; exp_ += 0.1) {
+	for (float exp_ = 1.2; exp_ < 6.5; exp_ += 0.1) {
 		for (int expr_ = 0; expr_ < 5; expr_ += 1) {
 			sweepline_test(10.0, exp_, 5);	// atof(argv[1]), atoi(argv[2])
 		}
