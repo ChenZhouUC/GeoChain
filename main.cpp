@@ -270,25 +270,25 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 			visual.Draw(*(e_.point_), std::to_string(e_.num_));
 		}
 	}
-	LOG(INFO) << "[#] sweepline intersections find: " << counter;
+	LOG(INFO) << "[#] PlaneSweep intersections find: " << counter;
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(counter) / segments.size() * 100 << "%";
 
 	std::vector<Point> intersection_pts;
 	intersection_pts.reserve((segments.size() * segments.size() - segments.size()) / 2);
 	std::vector<PointSegmentAffiliationTraversal> intersection =
-			line_intersection_traversal(&segments, &intersection_pts, repeat_experiments, true);
+			line_intersection_traversal(&segments, &intersection_pts, repeat_experiments, false);
 	for (auto &&inter_ : intersection) {
 		visual_traverse.Draw(*(inter_.point_), std::to_string(inter_.num_));
 	}
 
-	LOG(INFO) << "[#] traversal-optimized intersections find: " << intersection.size();
+	LOG(INFO) << "[#] TrivialTraversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(intersection.size()) / segments.size() * 100 << "%";
 
-	intersection = line_intersection_traversal(&segments, &intersection_pts, repeat_experiments, false);
+	intersection = line_intersection_traversal(&segments, &intersection_pts, repeat_experiments, true);
 
-	LOG(INFO) << "[#] traversal intersections find: " << intersection.size();
+	LOG(INFO) << "[#] OptimizedTraversal intersections find: " << intersection.size();
 	LOG(INFO) << std::setprecision(g_GlobalVars.visualize_precision)
 						<< "[%] intersections/segments: " << float(intersection.size()) / segments.size() * 100 << "%";
 
@@ -315,11 +315,11 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	// sweepline_test(10.0, 4.0, 1, true);
+	// sweepline_test(10.0, 5.0, 20, true);
 
-	for (float exp_ = 1.2; exp_ < 6.5; exp_ += 0.1) {
+	for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
 		for (int expr_ = 0; expr_ < 5; expr_ += 1) {
-			sweepline_test(10.0, exp_, 5);	// atof(argv[1]), atoi(argv[2])
+			sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
 		}
 	}
 }

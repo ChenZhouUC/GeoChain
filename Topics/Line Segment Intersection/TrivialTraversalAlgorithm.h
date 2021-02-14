@@ -38,16 +38,14 @@ std::vector<PointSegmentAffiliationTraversal> SegmentIntersectionTraversal(std::
 	for (int i_ = 0; i_ < (*ptr_segs).size() - 1; i_++) {
 		std::vector<PointSegmentAffiliationTraversal> inter_info_tmp;
 		std::vector<int> jump_list;
-		if (simplify_opt) {
+		if (simplify_opt && jump_dict.size() > 0) {
 			std::map<int, std::vector<int>>::iterator ptr_jump_tmp = jump_dict.find(i_);
 			if (ptr_jump_tmp != jump_dict.end()) {
 				jump_list = ptr_jump_tmp->second;
-			} else {
-				jump_list = std::vector<int>();
 			}
 		}
 		for (int j_ = i_ + 1; j_ < (*ptr_segs).size(); j_++) {
-			if (simplify_opt) {
+			if (simplify_opt && jump_list.size() > 0) {
 				std::vector<int>::iterator ptr_jump_ = find(jump_list.begin(), jump_list.end(), j_);
 				if (ptr_jump_ != jump_list.end()) {
 					continue;
@@ -73,14 +71,15 @@ std::vector<PointSegmentAffiliationTraversal> SegmentIntersectionTraversal(std::
 				inter_info_tmp[match_index_].num_ += 1;
 				if (simplify_opt) {
 					for (int index_ = 1; index_ < inter_info_tmp[match_index_].seg_indeces_.size(); index_++) {
-						std::map<int, std::vector<int>>::iterator ptr_jump_index_tmp = jump_dict.find(index_);
-						if (ptr_jump_index_tmp != jump_dict.end()) {
-							jump_dict[index_] = std::vector<int>(j_);
+						std::map<int, std::vector<int>>::iterator ptr_jump_index_tmp =
+								jump_dict.find(inter_info_tmp[match_index_].seg_indeces_[index_]);
+						if (ptr_jump_index_tmp == jump_dict.end()) {
+							jump_dict[inter_info_tmp[match_index_].seg_indeces_[index_]] = std::vector<int>(j_);
 						} else {
-							jump_dict[index_].push_back(j_);
+							jump_dict[inter_info_tmp[match_index_].seg_indeces_[index_]].push_back(j_);	// unnecessarily sequential
 						}
 					}
-					inter_info_tmp[match_index_].seg_indeces_.push_back(j_);
+					inter_info_tmp[match_index_].seg_indeces_.push_back(j_);	// sequential
 				}
 				// LOG(INFO) << "find one existing intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
 			} else {
@@ -97,6 +96,7 @@ std::vector<PointSegmentAffiliationTraversal> SegmentIntersectionTraversal(std::
 					// LOG(INFO) << "find one new intersection: (" << intersection_.x_ << "," << intersection_.y_ << ")";
 				} else {
 					// new one or previously generated
+					match_index_ = -1;
 					for (int inter_ = 0; inter_ < inter_info.size(); inter_++) {
 						if (PointCoordSequence(inter_info[inter_].point_, &intersection_, g_GlobalVars.convention_epsilon) != EQN) {
 							// not match
