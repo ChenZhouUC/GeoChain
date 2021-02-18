@@ -19,3 +19,15 @@ Only when #intersections/#segments is less than 100% or so could the Plane Sweep
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/Topics/Line%20Segment%20Intersection/Sweepline.png" alt="sweepline" width="400" height="390"/>
 <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/Topics/Line%20Segment%20Intersection/Traversal.png" alt="traversal" width="400" height="390"/>
 </div>
+
+## Computational Precision
+
+The mentioned 3 algorithms (TrivialTraversal, OptimizedTraversal, PlaneSweeper) are all theoretically correct that could find out all the segment intersections as well as their belonging relationships, as long as the problem is not ill-conditioned, i.e. there exist two segments share more than one intersections. However, in the computational view, all the algorithms suffer from computational precision limit which is influential and crucial to the algorithm feasibility.
+
+Here in this problem, the error exist mainly at decision of point within segments as well as decision of terminals. In consideration of algorithm complexity, the results from TrivialTraversal may have a reasonable error estimation, so as OptimizedTraversal since it only utilize the topological properties. PlaneSweeper should be the hardest one to master for it makes full use of geometric properties and strongly depend on them. This explanation coincides with the above plot of accuracy test.
+
+For now I have not got time to figured out a perfect solution for the error. Maybe I will consider this further in the future.
+
+## Remarks
+
+For algorithm proof and further explanations, please FEEL FREE to contact me at chenzhou@uchicago.edu. I would regularly check my mailbox and reply if it is worthy and necessary. Please DO NOT ask me details about the algorithms (i.e. algorithm steps) because you can easily find out the answer by yourself through my codes and referenced books.

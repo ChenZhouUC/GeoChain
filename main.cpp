@@ -315,11 +315,11 @@ int main(int argc, char **argv) {
 	// visualizer_test();
 	// avltree_test();
 
-	// sweepline_test(10.0, 5.0, 20, true);
+	sweepline_test(4.0, 2.5, 50, true);
 
-	for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
-		for (int expr_ = 0; expr_ < 5; expr_ += 1) {
-			sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
-		}
-	}
+	// for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
+	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
+	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
+	// 	}
+	// }
 }
