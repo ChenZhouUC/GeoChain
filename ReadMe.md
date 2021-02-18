@@ -1,4 +1,4 @@
-# <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/geochain.png" height="60"/> <center>GeoChain</center>
+# <img src="https://github.com/ChenZhouUC/GeoChain/blob/master/assets/geochain.png" height="30"/> GeoChain
 
 ## <font size=3><center>A Delicate CPP Package for Computational Geometry</center></font>
 
