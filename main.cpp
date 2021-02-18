@@ -6,11 +6,15 @@
 #include "Topics/Line Segment Intersection/PlaneSweepAlgorithm.h"
 #include "Topics/Line Segment Intersection/TrivialTraversalAlgorithm.h"
 
+// ================ Configure Loading ================
+
 GeoChain::Utils::GlobalVar g_GlobalVars;
 GeoChain::Utils::GlobalKey g_GlobalKeys;
 
 const std::string g_JsonConfigPath = "./config.json";
 Json::Value g_ConfigRoot;
+
+// ================ Visualizer Test ================
 
 void visualizer_test() {
 	using namespace GeoChain;
@@ -97,6 +101,8 @@ void visualizer_test() {
 	visual.Visualize("GEOCHAIN");
 }
 
+// ================ AVL-Tree Test ================
+
 GeoChain::kWellOrder comparer1D(GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_1,
 																GeoChain::Vessels::Node<GeoChain::Euclidean::Point> *node_2) {
 	return GeoChain::Euclidean::PointCoordSequence(node_1->geometric_element_, node_2->geometric_element_);
@@ -147,6 +153,8 @@ void avltree_test() {
 		LOG(WARNING) << AVLTREE.balancing_;
 	}
 }
+
+// ================ line Segment Intersection Test ================
 
 GeoChain::Euclidean::Point GeoChain::Algorithms::PlaneSweeper::SweeperState =
 		GeoChain::Euclidean::Point(EUC2D, -g_GlobalVars.convention_infinity, -g_GlobalVars.convention_infinity);
@@ -299,9 +307,12 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 	}
 }
 
+// ================ Main Entrance ================
+
 int main(int argc, char **argv) {
 	// initiate logger
 	GeoChain::Utils::LogGuardian g_Logger(argc, argv);
+
 	// define global config keys
 	GeoChain::Utils::DefineGlobalKeys();
 	// load config file into global variables
@@ -312,14 +323,20 @@ int main(int argc, char **argv) {
 		GeoChain::Utils::LoadingConfig(g_ConfigRoot);
 		LOG(INFO) << g_ConfigRoot;
 	}
+
+	// visualizer test part
 	// visualizer_test();
+
+	// avl-tree test part
 	// avltree_test();
 
+	// line segment intersection test part
 	sweepline_test(4.0, 2.5, 50, true);
-
 	// for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
 	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
 	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
 	// 	}
 	// }
+
+	// TODO
 }
