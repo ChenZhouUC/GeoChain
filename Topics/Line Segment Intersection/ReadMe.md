@@ -30,4 +30,7 @@ For now I have not got time to figured out a perfect solution for the error. May
 
 ## Remarks
 
-For algorithm proof and further explanations, please FEEL FREE to contact me at chenzhou@uchicago.edu. I would regularly check my mailbox and reply if it is worthy and necessary. Please DO NOT ask me details about the algorithms (i.e. algorithm steps) because you can easily find out the answer by yourself through my codes and referenced books.
+1. For algorithm proof and further explanations, please FEEL FREE to contact me at chenzhou@uchicago.edu. I would regularly check my mailbox and reply if it is worthy and necessary. Please DO NOT ask me details about the algorithms (i.e. algorithm steps) because you can easily find out the answer by yourself through my codes and referenced books.
+
+2. Obviously, as mentioned in the reference[1], Plane Sweep Algorithm is surely not the best algorithm to solve the segment intersection problem. Actually Balaban(1995) had already found one optimal algorithm which you could research into further and I have put it under this same directory. The time complexity remains 𝓞⟨𝓷㏒𝓷+𝓴⟩ while space complexity remains 𝓞⟨𝓷⟩, which should be the first optimum work.
+    - Balaban, Ivan J. "An optimal algorithm for finding segments intersections." In Proceedings of the eleventh annual symposium on Computational geometry, pp. 211-219. 1995.
