@@ -5,6 +5,7 @@
 #include "Vessels/BinaryTree.h"
 #include "Topics/Line Segment Intersection/PlaneSweepAlgorithm.h"
 #include "Topics/Line Segment Intersection/TrivialTraversalAlgorithm.h"
+#include "Vessels/DoublyConnectedEdgeList.h"
 
 // ================ Configure Loading ================
 
@@ -307,6 +308,28 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 	}
 }
 
+// ================ Doubly-Connected Edge List ================
+
+void dbconnected_edgelist_test() {
+	using namespace GeoChain;
+	using namespace Euclidean;
+	using namespace Vessels;
+
+	std::vector<Point> vertices;
+	vertices.push_back(Point(EUC2D, 3, 0));
+	vertices.push_back(Point(EUC2D, -1, 1));
+	vertices.push_back(Point(EUC2D, 1, 3));
+	vertices.push_back(Point(EUC2D, 2, 2));
+
+	std::map<int, std::vector<int>> relationships;
+	relationships[0] = std::vector<int>{1, 2, 3};
+	relationships[1] = std::vector<int>{2};
+	relationships[2] = std::vector<int>{3, 2};
+
+	PlanarGraph planar_graph(vertices, relationships);
+	DoublyConnectedEdgeList dcel(&planar_graph);
+}
+
 // ================ Main Entrance ================
 
 int main(int argc, char **argv) {
@@ -331,12 +354,12 @@ int main(int argc, char **argv) {
 	// avltree_test();
 
 	// line segment intersection test part
-	sweepline_test(4.0, 2.5, 50, true);
+	// sweepline_test(4.0, 2.5, 50, true);
 	// for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
 	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
 	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
 	// 	}
 	// }
 
-	// TODO
+	dbconnected_edgelist_test();
 }
