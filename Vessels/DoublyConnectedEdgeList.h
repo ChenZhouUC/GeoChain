@@ -45,8 +45,13 @@ class PlanarGraph {
 		}
 		for (iter = this->relationships_.begin(); iter != this->relationships_.end(); iter++) {
 			int r_1 = iter->first;
+			int this_pt_relation = 0;
 			for (auto &&r_2 : iter->second) {
 				this->num_edges_++;
+				this_pt_relation++;
+			}
+			if (this_pt_relation < 2) {
+				LOG(ERROR) << "there exists isolated point with index: " << r_1;
 			}
 		}
 		this->num_edges_ /= 2;
@@ -66,6 +71,8 @@ class HalfEdge {
 	PlanarFace *face_ = nullptr;
 	Segment *successor_ = nullptr;
 	Segment *predecessor_ = nullptr;
+	int origin_index_ = -1;
+	int terminus_index_ = -1;
 
 	HalfEdge(){};
 	HalfEdge(Point *origin) : origin_(origin){};
@@ -87,6 +94,20 @@ class DoublyConnectedEdgeList {
 	std::map<Point *, std::vector<Segment *>> VertexList_;
 	std::map<Segment *, HalfEdge> EdgeList_;
 
+	static void findFaces(std::map<int, std::map<int, Segment *>> *relation_trace,
+												std::map<Segment *, HalfEdge> *edge_list) {
+		std::map<int, std::map<int, Segment *>>::iterator iter_1;
+		std::map<int, Segment *>::iterator iter_2;
+		for (iter_1 = relation_trace->begin(); iter_1 != relation_trace->end(); iter_1++) {
+			int r_1 = iter_1->first;
+			for (iter_2 = iter_1->second.begin(); iter_2 != iter_1->second.end(); iter_2++) {
+				int r_2 = iter_2->first;
+				Segment *this_segment_ptr = iter_2->second;
+				// TODO
+			}
+		}
+	}
+
 	DoublyConnectedEdgeList(PlanarGraph *planar_graph) : vertices_(planar_graph->vertices_) {
 		// LOG(WARNING) << planar_graph->num_edges_;
 		this->halfedges_.reserve(planar_graph->num_edges_ * 2 + 1);
@@ -103,6 +124,8 @@ class DoublyConnectedEdgeList {
 				this->relations_[r_1][r_2] = &(this->halfedges_.back());
 				this->VertexList_[&(this->vertices_[r_1])].push_back(&(this->halfedges_.back()));
 				this->EdgeList_[&(this->halfedges_.back())] = HalfEdge(&(this->vertices_[r_1]));
+				this->EdgeList_[&(this->halfedges_.back())].origin_index_ = r_1;
+				this->EdgeList_[&(this->halfedges_.back())].terminus_index_ = r_2;
 			}
 		}
 		for (iter = planar_graph->relationships_.begin(); iter != planar_graph->relationships_.end(); iter++) {
@@ -113,6 +136,8 @@ class DoublyConnectedEdgeList {
 				// this->EdgeList_[this->relations_[r_1][r_2]].twin_->Describe();
 			}
 		}
+		std::map<int, std::map<int, Segment *>> relations_trace_;
+		std::copy(relations_.begin(), relations_.end(), std::inserter(relations_trace_, relations_trace_.begin()));
 	};
 };
 }	// namespace Vessels
