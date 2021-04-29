@@ -136,7 +136,7 @@ class PlaneSweeper {
 	std::vector<Node<Segment>> status_nodes_ = std::vector<Node<Segment>>();
 
  public:
-	std::vector<Segment> segments_;
+	std::vector<Segment*> segments_;
 	BalancedBinarySearchTree<PointSegmentAffiliation> events_table_;
 	BalancedBinarySearchTree<Segment> status_table_;
 	Node<PointSegmentAffiliation>* event_state_;
@@ -222,7 +222,6 @@ class PlaneSweeper {
 							 kWellOrder (*comparer_events)(Node<PointSegmentAffiliation>*, Node<PointSegmentAffiliation>*),
 							 Node<Segment>* root_status)
 			: dim_(dim),
-				segments_(*seg_list),
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
 				status_table_(BalancedBinarySearchTree<Segment>(root_status, PlaneSweeper::SegmentComparer)) {
 		// reserve the vector space could avoid data relocating in order to use ptr further
@@ -235,7 +234,8 @@ class PlaneSweeper {
 		// could be useful. Some duplicated events may occur in the vector but only the first one is useful in the tree and
 		// stored correct data value.
 
-		for (auto&& s : this->segments_) {
+		for (auto&& s : (*seg_list)) {
+			this->segments_.push_back(&s);
 			if (s.dim_ != this->dim_ || s.status_ == INIT) {
 				status_ = INIT;
 				LOG(ERROR) << "please make sure the dimensions match as well as segments status NOT ONLY INIT";
