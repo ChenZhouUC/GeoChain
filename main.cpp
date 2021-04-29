@@ -320,13 +320,22 @@ void dbconnected_edgelist_test() {
 	vertices.push_back(Point(EUC2D, -1, 1));
 	vertices.push_back(Point(EUC2D, 1, 3));
 	vertices.push_back(Point(EUC2D, 2, 2));
+	vertices.push_back(Point(EUC2D, 2, -2));
+	vertices.push_back(Point(EUC2D, 4, -2));
+	vertices.push_back(Point(EUC2D, 0, -3));
+	vertices.push_back(Point(EUC2D, 0, -5));
+	vertices.push_back(Point(EUC2D, 1, -4));
 
 	std::map<int, std::vector<int>> relationships;
-	relationships[0] = std::vector<int>{1, 2, 3};
-	relationships[1] = std::vector<int>{2};
-	relationships[2] = std::vector<int>{3, 2};
+	relationships[0] = std::vector<int>{4, 5};
+	relationships[4] = std::vector<int>{5};
+	relationships[1] = std::vector<int>{2, 3};
+	relationships[2] = std::vector<int>{3};
+	relationships[6] = std::vector<int>{7, 8};
+	relationships[7] = std::vector<int>{8};
 
 	PlanarGraph planar_graph(vertices, relationships);
+	planar_graph.CheckConnectedComponents();
 	DoublyConnectedEdgeList dcel(&planar_graph);
 }
 
@@ -354,12 +363,12 @@ int main(int argc, char **argv) {
 	// avltree_test();
 
 	// line segment intersection test part
-	// sweepline_test(4.0, 2.5, 50, true);
-	// for (float exp_ = 1.2; exp_ < 5.5; exp_ += 0.1) {
-	// 	for (int expr_ = 0; expr_ < 5; expr_ += 1) {
-	// 		sweepline_test(10.0, exp_, 10);	// atof(argv[1]), atoi(argv[2])
-	// 	}
-	// }
+	sweepline_test(4.0, 2.5, 50, true);
+	for (float exp_ = 2.4; exp_ < 3.5; exp_ += 0.1) {
+		for (int expr_ = 0; expr_ < 1; expr_ += 1) {
+			sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
+		}
+	}
 
-	dbconnected_edgelist_test();
+	// dbconnected_edgelist_test();
 }

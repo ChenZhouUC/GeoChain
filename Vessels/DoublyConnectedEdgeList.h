@@ -54,7 +54,65 @@ class PlanarGraph {
 				LOG(ERROR) << "there exists isolated point with index: " << r_1;
 			}
 		}
+		if (this->relationships_.size() != this->vertices_.size()) {
+			LOG(ERROR) << "there exists isolated point with no connections with others!";
+		}
 		this->num_edges_ /= 2;
+	};
+
+	// trimConnectedComponents: return num of components being trimmed
+	int trimConnectedComponents(int num, int id, std::map<int, std::vector<int>> *ptr_relationships,
+															std::vector<int> *residuals) {
+		if ((*residuals).size() == 0 || num == 0) {
+			return 0;
+		}
+		int trimmed = 0;
+		if (num < 0) {
+			num = (*residuals).size();
+		}
+		if (num == 1) {
+			int entry = id;
+			if (entry < 0) {
+				entry = residuals->back();
+				residuals->pop_back();
+			} else {
+				std::vector<int>::iterator ptr_checker = find(residuals->begin(), residuals->end(), entry);
+				if (ptr_checker != residuals->end()) {
+					residuals->erase(ptr_checker);
+				} else {
+					entry = -1;
+				}
+			}
+			if (entry < 0) {
+				return 0;
+			} else {
+				std::vector<int>::iterator iter;
+				for (iter = (*ptr_relationships)[entry].begin(); iter != (*ptr_relationships)[entry].end(); iter++) {
+					trimConnectedComponents(1, *iter, ptr_relationships, residuals);
+				};
+				return 1;
+			}
+		} else {
+			while (trimmed < num) {
+				int tmp_this_time_ = trimConnectedComponents(1, -1, ptr_relationships, residuals);
+				if (tmp_this_time_ < 1) {
+					break;
+				} else {
+					trimmed++;
+				}
+			}
+			return trimmed;
+		}
+	};
+
+	// CheckConnectedComponents: check all the connected components
+	bool CheckConnectedComponents() {
+		std::vector<int> residuals_;
+		for (int _i = 0; _i < this->vertices_.size(); _i++) {
+			residuals_.push_back(_i);
+		}
+		int num_conn_comp_ = trimConnectedComponents(-1, -1, &(this->relationships_), &residuals_);
+		LOG(INFO) << "number of components detected: " << num_conn_comp_;
 	};
 };
 
