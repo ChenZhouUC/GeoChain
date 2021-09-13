@@ -308,6 +308,95 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 	}
 }
 
+std::vector<GeoChain::Algorithms::PlaneSweeper> multi_sweepline(
+		std::vector<std::vector<GeoChain::Euclidean::Segment>> *ptr_seg_vecs) {
+	using namespace GeoChain;
+	using namespace Algorithms;
+	using namespace Euclidean;
+
+	std::vector<PlaneSweeper> plane_sweeper_list;
+	std::vector<int> step_counter_list;
+	std::vector<bool> continue_flag_list;
+	for (auto &&ptr_ : *ptr_seg_vecs) {
+		PointSegmentAffiliation root_event(EUC2D, ptr_.size());
+		Segment root_status(EUC2D);
+		Node<PointSegmentAffiliation> ROOT_EVENT(&root_event);
+		Node<Segment> ROOT_STATUS(&root_status);
+		PlaneSweeper plane_sweeper(EUC2D, &ptr_, &ROOT_EVENT, PointComparer2D, &ROOT_STATUS);
+		plane_sweeper_list.push_back(plane_sweeper);
+		step_counter_list.push_back(0);
+		continue_flag_list.push_back(true);
+	}
+
+	for (int i = 0; i < plane_sweeper_list.size(); i++) {
+		if (continue_flag_list[i] & plane_sweeper_list[i].Update()) {
+			step_counter_list[i]++;
+		} else {
+			continue_flag_list[i] = false;
+		}
+	}
+	return plane_sweeper_list;
+}
+
+void multi_sweepline_test(float range, float expand, int repeat_experiments, bool visual_opt = false) {
+	using namespace GeoChain;
+	using namespace Algorithms;
+	using namespace Euclidean;
+
+	std::vector<Segment> segments;
+	srand((unsigned)time(NULL));
+	float unit = 1.0;
+	float thresh = 0.3;
+	double rand_unit_;
+
+	std::vector<Visualizer2D> visual_list;
+	std::vector<std::vector<Segment>> seg_vecs;
+	for (int r_ = 0; r_ < repeat_experiments; r_++) {
+		std::vector<Point> attendents;
+		for (int c_ = -range; c_ <= range; c_ += unit) {
+			for (int r_ = -range; r_ <= range; r_ += unit) {
+				rand_unit_ = rand() / double(RAND_MAX);
+				float coord_x_1 = c_ + (rand_unit_ - 0.5) * expand * unit;
+				rand_unit_ = rand() / double(RAND_MAX);
+				float coord_y_1 = r_ + (rand_unit_ - 0.5) * expand * unit;
+				rand_unit_ = rand() / double(RAND_MAX);
+				float coord_x_2 = c_ + (rand_unit_ - 0.5) * expand * unit;
+				rand_unit_ = rand() / double(RAND_MAX);
+				float coord_y_2 = r_ + (rand_unit_ - 0.5) * expand * unit;
+				LOG(WARNING) << "RANDOM: (" << coord_x_1 << " " << coord_y_1 << ") (" << coord_x_2 << " " << coord_y_2 << ")";
+				Point pt_1(EUC2D, coord_x_1, coord_y_1);
+				Point pt_2(EUC2D, coord_x_2, coord_y_2);
+				if (EuclideanDistance(pt_1, pt_2) > thresh * expand) {
+					segments.push_back(Segment(EUC2D, DESC, pt_1, pt_2));
+					attendents.push_back(pt_1);
+					attendents.push_back(pt_2);
+				}
+			}
+		}
+
+		Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
+		visual.Init();
+		for (auto &&s : segments) {
+			visual.Draw(s);
+		}
+		visual_list.push_back(visual);
+		seg_vecs.push_back(segments);
+	}
+
+	std::vector<PlaneSweeper> plane_sweeper_list = multi_sweepline(&seg_vecs);
+	for (int i_; i_ < plane_sweeper_list.size(); i_++) {
+		for (auto &&e_ : plane_sweeper_list[i_].events_list_) {
+			if (e_.num_ >= 2) {
+				visual_list[i_].Draw(*(e_.point_), std::to_string(e_.num_));
+			}
+		}
+		if (visual_opt) {
+			visual_list[i_].Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
+			cv::destroyAllWindows();
+		}
+	}
+}
+
 // ================ Doubly-Connected Edge List ================
 
 void dbconnected_edgelist_test() {
@@ -364,11 +453,13 @@ int main(int argc, char **argv) {
 
 	// line segment intersection test part
 	sweepline_test(4.0, 2.5, 50, true);
-	for (float exp_ = 2.4; exp_ < 3.5; exp_ += 0.1) {
-		for (int expr_ = 0; expr_ < 1; expr_ += 1) {
-			sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
-		}
-	}
+	// for (float exp_ = 1.0; exp_ < 3.5; exp_ += 0.1) {
+	// 	for (int expr_ = 0; expr_ < 1; expr_ += 1) {
+	// 		sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
+	// 	}
+	// }
+
+	// multi_sweepline_test(5.0, 2.5, 1, true);
 
 	// dbconnected_edgelist_test();
 }

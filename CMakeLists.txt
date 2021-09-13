@@ -27,8 +27,8 @@ ELSE()
 ENDIF()
 
 # find OpenCV package
-SET(OpenCV_DIR "/usr/local/opencv3.4.5/share/OpenCV")
-SET(OpenCV_INCLUDE_DIRS "/usr/local/opencv3.4.5/include")
+SET(OpenCV_DIR "/usr/local/share/OpenCV")
+SET(OpenCV_INCLUDE_DIRS "/usr/local/include")
 FIND_PACKAGE(OpenCV REQUIRED)
 
 # define path alias

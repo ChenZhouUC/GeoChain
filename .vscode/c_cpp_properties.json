@@ -4,7 +4,6 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/opencv3.4.5/include/**",
                 "/usr/local/include/**"
             ],
             "defines": [],

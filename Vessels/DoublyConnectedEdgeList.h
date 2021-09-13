@@ -152,10 +152,18 @@ class DoublyConnectedEdgeList {
 	std::map<Point *, std::vector<Segment *>> VertexList_;
 	std::map<Segment *, HalfEdge> EdgeList_;
 
-	static void findFaces(std::map<int, std::map<int, Segment *>> *relation_trace,
-												std::map<Segment *, HalfEdge> *edge_list) {
+	static void findOneFace(std::map<int, std::map<int, Segment *>> *relation_trace,
+													std::map<Segment *, HalfEdge> *edge_list) {
 		std::map<int, std::map<int, Segment *>>::iterator iter_1;
 		std::map<int, Segment *>::iterator iter_2;
+		if (relation_trace->size() > 0) {
+			std::map<int, std::map<int, Segment *>>::iterator iter_1 = relation_trace->begin();
+			int this_start_vertex_idx = iter_1->first;
+			if (relation_trace->size() > 0) {
+				std::map<int, Segment *>::iterator iter_2 = iter_1->second.begin();
+				int this_next_vertex_idx = iter_2->first;
+			}
+		}
 		for (iter_1 = relation_trace->begin(); iter_1 != relation_trace->end(); iter_1++) {
 			int r_1 = iter_1->first;
 			for (iter_2 = iter_1->second.begin(); iter_2 != iter_1->second.end(); iter_2++) {

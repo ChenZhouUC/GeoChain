@@ -3,7 +3,7 @@
 
 #include <glog/logging.h>
 
-#define GOOGLE_GLOG_DLL_DECL
+// #define GOOGLE_GLOG_DLL_DECL
 #define GLOG_NO_ABBREVIATED_SEVERITIES
 
 // #ifdef DEBUG
@@ -45,7 +45,7 @@ class LogGuardian {
 		// (prefix.str() + "_FATAL").c_str());
 
 		// extension between prefix and timestamp
-		google::SetLogFilenameExtension("@");
+		// google::SetLogFilenameExtension("@");
 		// stdoutput level
 		google::SetStderrLogging(google::GLOG_INFO);
 	}
