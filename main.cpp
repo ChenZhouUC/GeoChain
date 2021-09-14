@@ -308,56 +308,45 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 	}
 }
 
-std::vector<GeoChain::Algorithms::PlaneSweeper> multi_sweepline(
+std::vector<GeoChain::Algorithms::PlaneSweeper> double_sweepline(
 		std::vector<std::vector<GeoChain::Euclidean::Segment>> *ptr_seg_vecs) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
 
-	std::vector<PlaneSweeper> plane_sweeper_list;
-	std::vector<int> step_counter_list;
-	std::vector<bool> continue_flag_list;
+	PointSegmentAffiliation root_event_1(EUC2D, (*ptr_seg_vecs)[0].size());
+	Segment root_status_1(EUC2D);
+	Node<PointSegmentAffiliation> ROOT_EVENT_1(&root_event_1);
+	Node<Segment> ROOT_STATUS_1(&root_status_1);
+	PlaneSweeper plane_sweeper_1(EUC2D, &(*ptr_seg_vecs)[0], &ROOT_EVENT_1, PointComparer2D, &ROOT_STATUS_1);
 
-	std::vector<PointSegmentAffiliation> root_event_list;
-	std::vector<Segment> root_status_list;
-	std::vector<Node<PointSegmentAffiliation>> node_root_event_list;
-	std::vector<Node<Segment>> node_root_status_list;
+	PointSegmentAffiliation root_event_2(EUC2D, (*ptr_seg_vecs)[1].size());
+	Segment root_status_2(EUC2D);
+	Node<PointSegmentAffiliation> ROOT_EVENT_2(&root_event_2);
+	Node<Segment> ROOT_STATUS_2(&root_status_2);
+	PlaneSweeper plane_sweeper_2(EUC2D, &(*ptr_seg_vecs)[1], &ROOT_EVENT_2, PointComparer2D, &ROOT_STATUS_2);
 
-	for (auto &&ptr_ : *ptr_seg_vecs) {
-		PointSegmentAffiliation root_event(EUC2D, ptr_.size());
-		Segment root_status(EUC2D);
-		root_event_list.push_back(root_event);
-		root_status_list.push_back(root_status);
+	std::vector<int> step_counter_list = {0, 0};
+	std::vector<bool> continue_flag_list = {true, true};
+	std::vector<PlaneSweeper> sweeper_list = {plane_sweeper_1, plane_sweeper_2};
 
-		Node<PointSegmentAffiliation> ROOT_EVENT(&(root_event_list.back()));
-		Node<Segment> ROOT_STATUS(&(root_status_list.back()));
-		node_root_event_list.push_back(ROOT_EVENT);
-		node_root_status_list.push_back(ROOT_STATUS);
-
-		PlaneSweeper plane_sweeper(EUC2D, &ptr_, &(node_root_event_list.back()), PointComparer2D,
-															 &(node_root_status_list.back()));
-		plane_sweeper_list.push_back(plane_sweeper);
-		step_counter_list.push_back(0);
-		continue_flag_list.push_back(true);
-	}
-
-	std::cout << "this&&  " << plane_sweeper_list.size() << std::endl;
-
-	for (int i = 0; i < plane_sweeper_list.size(); i++) {
-		std::cout << "this  " << continue_flag_list[i] << std::endl;
-		if (continue_flag_list[i] && plane_sweeper_list[i].Update()) {
-			std::cout << "##@@  " << step_counter_list[i] << std::endl;
-			step_counter_list[i]++;
-		} else {
-			continue_flag_list[i] = false;
+	int num_flag_false = 0;
+	while (num_flag_false < 2) {
+		for (int i = 0; i < 2; i++) {
+			if (continue_flag_list[i] and sweeper_list[i].Update()) {
+				LOG(INFO) << "(" << sweeper_list[0].SweeperState.x_ << "," << sweeper_list[0].SweeperState.y_ << ") v.s. ("
+									<< sweeper_list[1].SweeperState.x_ << "," << sweeper_list[1].SweeperState.y_ << ")";
+				step_counter_list[i]++;
+			} else if (continue_flag_list[i]) {
+				num_flag_false += 1;
+				continue_flag_list[i] = false;
+			}
 		}
 	}
-
-	std::cout << "this!!!!!!" << std::endl;
-	return plane_sweeper_list;
+	return sweeper_list;
 }
 
-void multi_sweepline_test(float range, float expand, int repeat_experiments, bool visual_opt = false) {
+void double_sweepline_test(float range, float expand, int repeat_experiments, bool visual_opt = false) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
@@ -370,7 +359,7 @@ void multi_sweepline_test(float range, float expand, int repeat_experiments, boo
 
 	std::vector<Visualizer2D> visual_list;
 	std::vector<std::vector<Segment>> seg_vecs;
-	for (int r_ = 0; r_ < repeat_experiments; r_++) {
+	for (int r_ = 0; r_ < 2; r_++) {
 		std::vector<Point> attendents;
 		for (int c_ = -range; c_ <= range; c_ += unit) {
 			for (int r_ = -range; r_ <= range; r_ += unit) {
@@ -402,7 +391,7 @@ void multi_sweepline_test(float range, float expand, int repeat_experiments, boo
 		seg_vecs.push_back(segments);
 	}
 
-	std::vector<PlaneSweeper> plane_sweeper_list = multi_sweepline(&seg_vecs);
+	std::vector<PlaneSweeper> plane_sweeper_list = double_sweepline(&seg_vecs);
 	for (int i_ = 0; i_ < plane_sweeper_list.size(); i_++) {
 		for (auto &&e_ : plane_sweeper_list[i_].events_list_) {
 			if (e_.num_ >= 2) {
@@ -478,7 +467,7 @@ int main(int argc, char **argv) {
 	// 	}
 	// }
 
-	multi_sweepline_test(5.0, 2.5, 1, true);
+	double_sweepline_test(5.0, 2.5, 1, true);
 
 	// dbconnected_edgelist_test();
 }
