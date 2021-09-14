@@ -464,11 +464,13 @@ class BalancedBinarySearchTree {
 	// deepness: depth of the ROOT
 	int balancing_ = 0, deepness_ = 0;
 
-	kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
+	// kWellOrder (*comparer_)(Node<Element>* node_1, Node<Element>* node_2);
+	std::function<kWellOrder(Node<Element>*, Node<Element>*)> comparer_;
 
 	BalancedBinarySearchTree(int id, std::string key, Node<Element>* root,
 													 kWellOrder (*comparer)(Node<Element>*, Node<Element>*), bool balanced = true)
-			: id_(id), key_(key), root_(root), comparer_(comparer), balanced_(balanced) {
+			: id_(id), key_(key), root_(root), balanced_(balanced) {
+		this->comparer_ = std::bind(comparer, std::placeholders::_1, std::placeholders::_2);
 		if (g_GlobalVars.convention_element_id >= this->id_) {
 			g_GlobalVars.convention_element_id++;
 			this->id_ = g_GlobalVars.convention_element_id;
@@ -481,6 +483,18 @@ class BalancedBinarySearchTree {
 
 	BalancedBinarySearchTree(Node<Element>* root, kWellOrder (*comparer)(Node<Element>*, Node<Element>*),
 													 bool balanced = true)
+			: root_(root), balanced_(balanced) {
+		this->comparer_ = std::bind(comparer, std::placeholders::_1, std::placeholders::_2);
+		g_GlobalVars.convention_element_id++;
+		this->id_ = g_GlobalVars.convention_element_id;
+		this->key_ =
+				"AVLTree" + Utils::ExtractClassName(std::string(typeid(*this).name())) + " {" + std::to_string(this->id_) + "}";
+		this->root_->tree_id_ = this->id_;
+		this->root_->tree_key_ = this->key_;
+	}
+
+	BalancedBinarySearchTree(Node<Element>* root, std::function<kWellOrder(Node<Element>*, Node<Element>*)> comparer,
+													 bool balanced = true)
 			: root_(root), comparer_(comparer), balanced_(balanced) {
 		g_GlobalVars.convention_element_id++;
 		this->id_ = g_GlobalVars.convention_element_id;
@@ -489,6 +503,9 @@ class BalancedBinarySearchTree {
 		this->root_->tree_id_ = this->id_;
 		this->root_->tree_key_ = this->key_;
 	}
+
+	BalancedBinarySearchTree(){};
+
 	~BalancedBinarySearchTree(){};
 
 	// Inspect: visualize and inspect the tree structure

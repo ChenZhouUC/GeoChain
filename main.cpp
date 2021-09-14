@@ -157,9 +157,6 @@ void avltree_test() {
 
 // ================ line Segment Intersection Test ================
 
-GeoChain::Euclidean::Point GeoChain::Algorithms::PlaneSweeper::SweeperState =
-		GeoChain::Euclidean::Point(EUC2D, -g_GlobalVars.convention_infinity, -g_GlobalVars.convention_infinity);
-
 GeoChain::Algorithms::PlaneSweeper line_intersection_sweepline(std::vector<GeoChain::Euclidean::Segment> *ptr_segs,
 																															 int repeat_num) {
 	using namespace GeoChain;
@@ -304,12 +301,11 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 	if (visual_opt) {
 		visual.Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
 		visual_traverse.Visualize("Traversal", "Topics/Line Segment Intersection/Traversal.png");
-		cv::destroyAllWindows();
 	}
 }
 
-std::vector<GeoChain::Algorithms::PlaneSweeper> double_sweepline(
-		std::vector<std::vector<GeoChain::Euclidean::Segment>> *ptr_seg_vecs) {
+void double_sweepline(std::vector<std::vector<GeoChain::Euclidean::Segment>> *ptr_seg_vecs,
+											std::vector<GeoChain::Euclidean::Visualizer2D> *visual_list) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
@@ -328,30 +324,46 @@ std::vector<GeoChain::Algorithms::PlaneSweeper> double_sweepline(
 
 	std::vector<int> step_counter_list = {0, 0};
 	std::vector<bool> continue_flag_list = {true, true};
-	std::vector<PlaneSweeper> sweeper_list = {plane_sweeper_1, plane_sweeper_2};
 
 	int num_flag_false = 0;
 	while (num_flag_false < 2) {
-		for (int i = 0; i < 2; i++) {
-			if (continue_flag_list[i] and sweeper_list[i].Update()) {
-				LOG(INFO) << "(" << sweeper_list[0].SweeperState.x_ << "," << sweeper_list[0].SweeperState.y_ << ") v.s. ("
-									<< sweeper_list[1].SweeperState.x_ << "," << sweeper_list[1].SweeperState.y_ << ")";
-				step_counter_list[i]++;
-			} else if (continue_flag_list[i]) {
-				num_flag_false += 1;
-				continue_flag_list[i] = false;
-			}
+		// LOG(WARNING) << "(" << sweeper_list[0].SweeperState.x_ << "," << sweeper_list[0].SweeperState.y_ << ") v.s. ("
+		// 						 << sweeper_list[1].SweeperState.x_ << "," << sweeper_list[1].SweeperState.y_ << ")";
+
+		// (*visual_list)[0].Draw(plane_sweeper_1.SweeperState, std::to_string(step_counter_list[0]));
+		// (*visual_list)[0].Visualize(std::to_string(0), "");
+		if (continue_flag_list[0] and plane_sweeper_1.Update()) {
+			step_counter_list[0]++;
+		} else if (continue_flag_list[0]) {
+			num_flag_false += 1;
+			continue_flag_list[0] = false;
+		}
+		// (*visual_list)[1].Draw(plane_sweeper_2.SweeperState, std::to_string(step_counter_list[1]));
+		// (*visual_list)[1].Visualize(std::to_string(1), "");
+		if (continue_flag_list[1] and plane_sweeper_2.Update()) {
+			step_counter_list[1]++;
+		} else if (continue_flag_list[1]) {
+			num_flag_false += 1;
+			continue_flag_list[1] = false;
 		}
 	}
-	return sweeper_list;
+	for (auto &&e_ : plane_sweeper_1.events_list_) {
+		if (e_.num_ >= 2) {
+			(*visual_list)[0].Draw(*(e_.point_), std::to_string(e_.num_));
+		}
+	}
+	for (auto &&e_ : plane_sweeper_2.events_list_) {
+		if (e_.num_ >= 2) {
+			(*visual_list)[1].Draw(*(e_.point_), std::to_string(e_.num_));
+		}
+	}
 }
 
-void double_sweepline_test(float range, float expand, int repeat_experiments, bool visual_opt = false) {
+void double_sweepline_test(float range, float expand, bool visual_opt = false) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
 
-	std::vector<Segment> segments;
 	srand((unsigned)time(NULL));
 	float unit = 1.0;
 	float thresh = 0.3;
@@ -361,6 +373,7 @@ void double_sweepline_test(float range, float expand, int repeat_experiments, bo
 	std::vector<std::vector<Segment>> seg_vecs;
 	for (int r_ = 0; r_ < 2; r_++) {
 		std::vector<Point> attendents;
+		std::vector<Segment> segments;
 		for (int c_ = -range; c_ <= range; c_ += unit) {
 			for (int r_ = -range; r_ <= range; r_ += unit) {
 				rand_unit_ = rand() / double(RAND_MAX);
@@ -391,17 +404,11 @@ void double_sweepline_test(float range, float expand, int repeat_experiments, bo
 		seg_vecs.push_back(segments);
 	}
 
-	std::vector<PlaneSweeper> plane_sweeper_list = double_sweepline(&seg_vecs);
-	for (int i_ = 0; i_ < plane_sweeper_list.size(); i_++) {
-		for (auto &&e_ : plane_sweeper_list[i_].events_list_) {
-			if (e_.num_ >= 2) {
-				visual_list[i_].Draw(*(e_.point_), std::to_string(e_.num_));
-			}
-		}
-		if (visual_opt) {
-			visual_list[i_].Visualize("Sweepline", "Topics/Line Segment Intersection/Sweepline.png");
-			cv::destroyAllWindows();
-		}
+	double_sweepline(&seg_vecs, &visual_list);
+
+	if (visual_opt) {
+		visual_list[0].Visualize("Sweepline_1", "");
+		visual_list[1].Visualize("Sweepline_2", "");
 	}
 }
 
@@ -453,21 +460,20 @@ int main(int argc, char **argv) {
 		LOG(INFO) << g_ConfigRoot;
 	}
 
-	// visualizer test part
+	// ======== visualizer test part ========
 	// visualizer_test();
 
-	// avl-tree test part
+	// ======== avl-tree test part ========
 	// avltree_test();
 
-	// line segment intersection test part
+	// ======== line segment intersection test part ========
 	// sweepline_test(4.0, 2.5, 50, true);
 	// for (float exp_ = 1.0; exp_ < 3.5; exp_ += 0.1) {
 	// 	for (int expr_ = 0; expr_ < 1; expr_ += 1) {
 	// 		sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
 	// 	}
 	// }
-
-	double_sweepline_test(5.0, 2.5, 1, true);
+	double_sweepline_test(4.0, 2.5, true);
 
 	// dbconnected_edgelist_test();
 }

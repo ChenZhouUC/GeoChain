@@ -218,6 +218,8 @@ class Visualizer2D {
 									COLOR_NOTATION, g_GlobalVars.visualize_font_thickness);
 			cv::imwrite(save_name, flipped);
 			cv::destroyWindow(window_name);
+		} else {
+			cv::destroyWindow(window_name);
 		}
 	};
 

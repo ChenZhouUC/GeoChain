@@ -143,11 +143,12 @@ class PlaneSweeper {
 	std::vector<Point> new_events_;
 	std::vector<PointSegmentAffiliation> events_list_ = std::vector<PointSegmentAffiliation>();
 
-	static Point SweeperState;
+	Point SweeperState;
 
-	static bool UpdateSweeper(Point* event) {
+	bool UpdateSweeper(Point* event) {
 		if (SweeperState.dim_ != event->dim_ || event->status_ == INIT) {
-			LOG(ERROR) << "please make sure that the updating events dimension match";
+			LOG(ERROR) << "please make sure that the updating events dimension match: " << SweeperState.dim_ << " "
+								 << event->dim_;
 			return false;
 		} else {
 			// LOG(WARNING) << "previous status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
@@ -159,7 +160,7 @@ class PlaneSweeper {
 		}
 	}
 
-	static kWellOrder SegmentComparer(Node<Segment>* node_1, Node<Segment>* node_2) {
+	kWellOrder SegmentComparer(Node<Segment>* node_1, Node<Segment>* node_2) {
 		float intersect_1, intersect_2;
 		float theta_1, theta_2;	// (-PI/2, PI/2]
 		// LOG(WARNING) << "sweeper status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
@@ -223,16 +224,19 @@ class PlaneSweeper {
 							 Node<Segment>* root_status)
 			: dim_(dim),
 				events_table_(BalancedBinarySearchTree<PointSegmentAffiliation>(root_events, comparer_events)),
-				status_table_(BalancedBinarySearchTree<Segment>(root_status, PlaneSweeper::SegmentComparer)) {
+				SweeperState(Point(EUC2D, -g_GlobalVars.convention_infinity, -g_GlobalVars.convention_infinity)) {
+		this->status_table_ = BalancedBinarySearchTree<Segment>(
+				root_status, std::bind(&PlaneSweeper::SegmentComparer, this, std::placeholders::_1, std::placeholders::_2));
+
 		// reserve the vector space could avoid data relocating in order to use ptr further
 		int max_event_num_ = (seg_list->size() * seg_list->size() - seg_list->size()) / 2;
 		events_list_.reserve(max_event_num_ + 2 * seg_list->size());
 		events_nodes_.reserve(max_event_num_ + 2 * seg_list->size());
 		status_nodes_.reserve(seg_list->size());
 		new_events_.reserve(max_event_num_);
-		// here though we considered the maximum number of potential events, we cannot assure that each event in the vector
-		// could be useful. Some duplicated events may occur in the vector but only the first one is useful in the tree and
-		// stored correct data value.
+		// here though we considered the maximum number of potential events, we cannot assure that each event in the
+		// vector could be useful. Some duplicated events may occur in the vector but only the first one is useful in
+		// the tree and stored correct data value.
 
 		for (auto&& s : (*seg_list)) {
 			this->segments_.push_back(&s);
@@ -298,7 +302,7 @@ class PlaneSweeper {
 
 		// this->events_table_.Inspect();
 
-		if (segments_.size() > 0) {
+		if (this->segments_.size() > 0) {
 			this->event_state_ = this->events_table_.Min(this->events_table_.root_);
 			Point* min_pt = this->event_state_->geometric_element_->point_;
 			this->UpdateSweeper(min_pt);
