@@ -164,6 +164,15 @@ class PlaneSweeper {
 		float intersect_1, intersect_2;
 		float theta_1, theta_2;	// (-PI/2, PI/2]
 		// LOG(WARNING) << "sweeper status: (" << SweeperState.x_ << "," << SweeperState.y_ << ")";
+		// LOG(WARNING) << "node1 status: (" << node_1->geometric_element_->terminal_vertex_1_.x_ << ","
+		// 						 << node_1->geometric_element_->terminal_vertex_1_.y_ << ") ("
+		// 						 << node_1->geometric_element_->terminal_vertex_2_.x_ << ","
+		// 						 << node_1->geometric_element_->terminal_vertex_2_.y_ << ")";
+		// LOG(WARNING) << "node2 status: (" << node_2->geometric_element_->terminal_vertex_1_.x_ << ","
+		// 						 << node_2->geometric_element_->terminal_vertex_1_.y_ << ") ("
+		// 						 << node_2->geometric_element_->terminal_vertex_2_.x_ << ","
+		// 						 << node_2->geometric_element_->terminal_vertex_2_.y_ << ")";
+
 		if (node_1->geometric_element_->terminal_vertex_1_.x_ == node_1->geometric_element_->terminal_vertex_2_.x_) {
 			// node_1 parellel to sweeper
 			intersect_1 = SweeperState.y_;
@@ -393,12 +402,13 @@ class PlaneSweeper {
 					r_neighbor = this->status_table_.Successor(this->event_state_->geometric_element_->l_segs_[i_]);
 					l_neighbor = this->status_table_.Predecessor(this->event_state_->geometric_element_->l_segs_[i_]);
 				}
+				// LOG(WARNING) << "1 " << this->SweeperState.x_ << "," << this->SweeperState.y_;
 				this->status_table_.Delete(this->event_state_->geometric_element_->l_segs_[i_]);
 			}
 			if (l_neighbor != nullptr && r_neighbor != nullptr) {
 				Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, r_neighbor->geometric_element_);
-				// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 				if (intersection_.status_ == MATR) {
+					// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 					this->new_events_.push_back(intersection_);
 					PointSegmentAffiliation new_event_(this->dim_);
 					new_event_.point_ = &(this->new_events_.back());
@@ -415,6 +425,7 @@ class PlaneSweeper {
 				}
 			}
 		} else {
+			// LOG(WARNING) << "2 " << this->SweeperState.x_ << "," << this->SweeperState.y_;
 			for (auto&& l_ : this->event_state_->geometric_element_->l_segs_) {
 				this->status_table_.Delete(l_);
 			}
@@ -438,8 +449,9 @@ class PlaneSweeper {
 				Node<Segment>* newone_ = this->status_table_.Successor(l_neighbor);
 				if (newone_ != nullptr) {
 					Point intersection_ = SegmentIntersection(l_neighbor->geometric_element_, newone_->geometric_element_);
-					// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 					if (intersection_.status_ == MATR) {
+						// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " <<
+						// intersection_.status_;
 						this->new_events_.push_back(intersection_);
 						PointSegmentAffiliation new_event_(this->dim_);
 						new_event_.point_ = &(this->new_events_.back());
@@ -461,8 +473,9 @@ class PlaneSweeper {
 				Node<Segment>* newone_ = this->status_table_.Predecessor(r_neighbor);
 				if (newone_ != nullptr) {
 					Point intersection_ = SegmentIntersection(r_neighbor->geometric_element_, newone_->geometric_element_);
-					// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " << intersection_.status_;
 					if (intersection_.status_ == MATR) {
+						// LOG(ERROR) << "(" << intersection_.x_ << "," << intersection_.y_ << ") status: " <<
+						// intersection_.status_;
 						this->new_events_.push_back(intersection_);
 						PointSegmentAffiliation new_event_(this->dim_);
 						new_event_.point_ = &(this->new_events_.back());

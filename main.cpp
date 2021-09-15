@@ -305,7 +305,7 @@ void sweepline_test(float range, float expand, int repeat_experiments, bool visu
 }
 
 void double_sweepline(std::vector<std::vector<GeoChain::Euclidean::Segment>> *ptr_seg_vecs,
-											std::vector<GeoChain::Euclidean::Visualizer2D> *visual_list) {
+											std::vector<std::vector<GeoChain::Euclidean::Point>> *ptr_pt_vecs, bool visual_opt) {
 	using namespace GeoChain;
 	using namespace Algorithms;
 	using namespace Euclidean;
@@ -325,21 +325,30 @@ void double_sweepline(std::vector<std::vector<GeoChain::Euclidean::Segment>> *pt
 	std::vector<int> step_counter_list = {0, 0};
 	std::vector<bool> continue_flag_list = {true, true};
 
+	Visualizer2D visual_1((*ptr_pt_vecs)[0], g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
+	visual_1.Init();
+	for (auto &&s : (*ptr_seg_vecs)[0]) {
+		visual_1.Draw(s);
+	}
+
+	Visualizer2D visual_2((*ptr_pt_vecs)[1], g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
+	visual_2.Init();
+	for (auto &&s : (*ptr_seg_vecs)[1]) {
+		visual_2.Draw(s);
+	}
+
 	int num_flag_false = 0;
 	while (num_flag_false < 2) {
-		// LOG(WARNING) << "(" << sweeper_list[0].SweeperState.x_ << "," << sweeper_list[0].SweeperState.y_ << ") v.s. ("
-		// 						 << sweeper_list[1].SweeperState.x_ << "," << sweeper_list[1].SweeperState.y_ << ")";
-
-		// (*visual_list)[0].Draw(plane_sweeper_1.SweeperState, std::to_string(step_counter_list[0]));
-		// (*visual_list)[0].Visualize(std::to_string(0), "");
+		// visual_1.Draw(*(plane_sweeper_1.event_state_->geometric_element_->point_), std::to_string(step_counter_list[0]));
+		// visual_1.Visualize(std::to_string(0), "");
 		if (continue_flag_list[0] and plane_sweeper_1.Update()) {
 			step_counter_list[0]++;
 		} else if (continue_flag_list[0]) {
 			num_flag_false += 1;
 			continue_flag_list[0] = false;
 		}
-		// (*visual_list)[1].Draw(plane_sweeper_2.SweeperState, std::to_string(step_counter_list[1]));
-		// (*visual_list)[1].Visualize(std::to_string(1), "");
+		// visual_2.Draw(*(plane_sweeper_2.event_state_->geometric_element_->point_), std::to_string(step_counter_list[1]));
+		// visual_2.Visualize(std::to_string(1), "");
 		if (continue_flag_list[1] and plane_sweeper_2.Update()) {
 			step_counter_list[1]++;
 		} else if (continue_flag_list[1]) {
@@ -349,13 +358,17 @@ void double_sweepline(std::vector<std::vector<GeoChain::Euclidean::Segment>> *pt
 	}
 	for (auto &&e_ : plane_sweeper_1.events_list_) {
 		if (e_.num_ >= 2) {
-			(*visual_list)[0].Draw(*(e_.point_), std::to_string(e_.num_));
+			visual_1.Draw(*(e_.point_), std::to_string(e_.num_));
 		}
 	}
 	for (auto &&e_ : plane_sweeper_2.events_list_) {
 		if (e_.num_ >= 2) {
-			(*visual_list)[1].Draw(*(e_.point_), std::to_string(e_.num_));
+			visual_2.Draw(*(e_.point_), std::to_string(e_.num_));
 		}
+	}
+	if (visual_opt) {
+		visual_1.Visualize("Sweepline_1", "");
+		visual_2.Visualize("Sweepline_2", "");
 	}
 }
 
@@ -364,13 +377,13 @@ void double_sweepline_test(float range, float expand, bool visual_opt = false) {
 	using namespace Algorithms;
 	using namespace Euclidean;
 
-	srand((unsigned)time(NULL));
+	srand(1);	//(unsigned)time(NULL)
 	float unit = 1.0;
 	float thresh = 0.3;
 	double rand_unit_;
 
-	std::vector<Visualizer2D> visual_list;
 	std::vector<std::vector<Segment>> seg_vecs;
+	std::vector<std::vector<Point>> pt_vecs;
 	for (int r_ = 0; r_ < 2; r_++) {
 		std::vector<Point> attendents;
 		std::vector<Segment> segments;
@@ -395,21 +408,11 @@ void double_sweepline_test(float range, float expand, bool visual_opt = false) {
 			}
 		}
 
-		Visualizer2D visual(attendents, g_GlobalVars.visualize_standardize, g_GlobalVars.visualize_spacer);
-		visual.Init();
-		for (auto &&s : segments) {
-			visual.Draw(s);
-		}
-		visual_list.push_back(visual);
 		seg_vecs.push_back(segments);
+		pt_vecs.push_back(attendents);
 	}
 
-	double_sweepline(&seg_vecs, &visual_list);
-
-	if (visual_opt) {
-		visual_list[0].Visualize("Sweepline_1", "");
-		visual_list[1].Visualize("Sweepline_2", "");
-	}
+	double_sweepline(&seg_vecs, &pt_vecs, visual_opt);
 }
 
 // ================ Doubly-Connected Edge List ================
@@ -473,7 +476,7 @@ int main(int argc, char **argv) {
 	// 		sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
 	// 	}
 	// }
-	double_sweepline_test(4.0, 2.5, true);
+	double_sweepline_test(2.0, 2.5, true);
 
 	// dbconnected_edgelist_test();
 }
