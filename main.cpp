@@ -476,7 +476,8 @@ int main(int argc, char **argv) {
 	// 		sweepline_test(10.0, exp_, 10, true);	// atof(argv[1]), atoi(argv[2])
 	// 	}
 	// }
-	double_sweepline_test(2.0, 2.5, true);
+	// double_sweepline_test(2.0, 2.5, true);
 
-	// dbconnected_edgelist_test();
+	// ======== dbconnected edgelist test part ========
+	dbconnected_edgelist_test();
 }
