@@ -2,6 +2,7 @@
 #define _VISUALIZER2D_
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui_c.h>
 #include "ElementaryElements.h"
 
 namespace GeoChain {
